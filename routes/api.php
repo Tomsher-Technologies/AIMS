@@ -24,6 +24,9 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::get('/state/{country_id?}', [ApiAuthController::class, 'getCountryStates'])->name('state');
     Route::get('/courses', [ApiAuthController::class, 'getAllCourses'])->name('courses');
     Route::get('/course-details', [ApiAuthController::class, 'getCourseDetails'])->name('course-details');
+    Route::post('/update-userdata', [ApiAuthController::class, 'updateUserData'])->name('update-userdata');
+    Route::post('/update-profile-image', [ApiAuthController::class, 'updateProfileImage'])->name('update-profile-image');
+    Route::post('/change-password', [ApiAuthController::class, 'changePassword'])->name('change-password');
 });
 
 
