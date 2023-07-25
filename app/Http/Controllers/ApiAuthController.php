@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\UserDetails;
 use App\Models\Countries;
 use App\Models\States;
+use App\Models\Courses;
 use Validator;
 use Hash;
 use Str;
@@ -158,10 +159,27 @@ class ApiAuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function userProfile() {
-        return response()->json(auth()->user());
+    public function userProfile(Request $request) {
+        $user = User::select('users.*','ud.first_name', 'ud.last_name', 'ud.gender', 'ud.date_of_birth', 'ud.phone_code', 'ud.phone_number', 'ud.address', 'ud.country', 'ud.state', 'ud.city', 'ud.passport', 'ud.profile_image', 'ud.enrollment_form')
+                    ->leftJoin('user_details as ud','ud.user_id','=','users.id')
+                    ->where('users.id', $request->id)
+                    ->where('users.is_deleted',0)
+                    ->where('users.is_approved',1)
+                    ->get();
+                    
+        if(isset($user[0])){
+            $user[0]['passport'] = ($user[0]['passport'] != '') ? asset($user[0]['passport']) : '';
+            $user[0]['profile_image'] = ($user[0]['profile_image'] != '') ? asset($user[0]['profile_image']) : '';
+            $user[0]['enrollment_form'] = ($user[0]['enrollment_form'] != '') ? asset($user[0]['enrollment_form']) : '';
+            $user[0]['country_name'] = $user[0]->user_details->country_name->name;
+            $user[0]['state_name'] = $user[0]->user_details->state_name->name;
+            unset($user[0]['user_details']);
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $user]);
+        }else{
+            return response()->json([ 'status' => false, 'message' => 'User details not found.', 'data' => []]);
+        }
     }
-
+    
     /**
      * Get the token array structure.
      *
@@ -193,6 +211,34 @@ class ApiAuthController extends Controller
         }
         $states = $query->orderBy('name','ASC')->get();
         return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $states]);
+    }
+
+    public function getAllCourses() {
+        $courses = Courses::select('*')
+                    ->where('is_active',1)
+                    ->orderBy('id','DESC')
+                    ->get();
+                    
+        if(isset($courses[0])){
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $courses]);
+        }else{
+            return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
+        }
+    }
+    public function getCourseDetails(Request $request) {
+        $courses = Courses::select('*')
+                    ->where('is_active',1)
+                    ->where('id',$request->id)
+                    ->get();
+                    
+        if(isset($courses[0])){
+            foreach($courses as $cr){
+                $courses['divisions'] = $cr->course_divisions;
+            }
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $courses]);
+        }else{
+            return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
+        }
     }
 }
 

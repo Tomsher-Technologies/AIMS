@@ -19,9 +19,11 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::post('/register', [ApiAuthController::class, 'register'])->name('register');
     Route::post('/logout', [ApiAuthController::class, 'logout'])->name('logout');
     Route::post('/refresh', [ApiAuthController::class, 'refresh'])->name('refresh');
-    Route::get('/user-profile', [ApiAuthController::class, 'userProfile'])->name('profile'); 
+    Route::get('/user-profile', [ApiAuthController::class, 'userProfile'])->name('user-profile'); 
     Route::get('/countries', [ApiAuthController::class, 'getCountries'])->name('countries');
     Route::get('/state/{country_id?}', [ApiAuthController::class, 'getCountryStates'])->name('state');
+    Route::get('/courses', [ApiAuthController::class, 'getAllCourses'])->name('courses');
+    Route::get('/course-details', [ApiAuthController::class, 'getCourseDetails'])->name('course-details');
 });
 
 

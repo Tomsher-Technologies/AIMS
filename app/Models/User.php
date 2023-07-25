@@ -63,5 +63,9 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims() {
         return [];
-    }    
+    }  
+    public function user_details()
+    {
+        return $this->hasOne(UserDetails::class);
+    }  
 }

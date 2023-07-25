@@ -26,5 +26,16 @@ class UserDetails extends Model
         'enrollment_form'
     ];
 
+    public function user(){
+    	return $this->belongsTo(User::class,'user_id','id');
+    }
+    
+    public function country_name(){
+    	return $this->belongsTo(Countries::class,'country','id');
+    }
+
+    public function state_name(){
+    	return $this->belongsTo(States::class,'state','id');
+    }
     
 }
