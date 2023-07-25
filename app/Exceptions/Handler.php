@@ -48,6 +48,6 @@ class Handler extends ExceptionHandler
             return response()->json(['status'=>false, 'message' => 'Unauthorized access!.'], 401);
         }
 
-        return redirect()->guest('login');
+        // return redirect()->guest('login');
     }
 }

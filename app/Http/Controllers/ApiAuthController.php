@@ -12,6 +12,7 @@ use App\Models\Courses;
 use Validator;
 use Hash;
 use Str;
+use File;
 use Storage;
 
 class ApiAuthController extends Controller
@@ -144,7 +145,7 @@ class ApiAuthController extends Controller
      */
     public function logout() {
         auth()->logout();
-        return response()->json(['message' => 'User successfully signed out']);
+        return response()->json(['status' => true,'message' => 'User successfully signed out','data' => []]);
     }
     /**
      * Refresh a token.
@@ -194,25 +195,14 @@ class ApiAuthController extends Controller
             'data' => auth()->user(),
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
+            // 'expires_in' => auth()->factory()->getTTL() * 60,
             
         ]);
     }
 
-    public function getCountries(){
-        $countries = Countries::select('id','name')->orderBy('name','ASC')->get();
-        return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $countries]);
-    }
+    
 
-    public function getCountryStates(Request $request){
-        $query = States::select('*');
-        if(isset($request->country_id)){
-            $query->where('country_id', $request->country_id);
-        }
-        $states = $query->orderBy('name','ASC')->get();
-        return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $states]);
-    }
-
+    // Get all courses list with course divisions
     public function getAllCourses() {
         $courses = Courses::select('*')
                     ->where('is_active',1)
@@ -225,6 +215,8 @@ class ApiAuthController extends Controller
             return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
         }
     }
+
+    // Get course details
     public function getCourseDetails(Request $request) {
         $courses = Courses::select('*')
                     ->where('is_active',1)
@@ -232,13 +224,86 @@ class ApiAuthController extends Controller
                     ->get();
                     
         if(isset($courses[0])){
-            foreach($courses as $cr){
-                $courses['divisions'] = $cr->course_divisions;
-            }
+            $courses[0]->course_divisions;
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $courses]);
         }else{
             return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
         }
+    }
+    
+    // Update user profile details
+    public function updateUserData(Request $request){
+        $userId         = $request->user_id;
+        $first_name     = $request->first_name;
+        $last_name      = $request->last_name;
+       
+        $user = User::find($userId);
+        $user->name = $first_name.' '.$last_name;
+        $user->save();
+
+        $data = [
+            'first_name' => $first_name, 
+            'last_name' => $last_name, 
+            'gender' => $request->gender, 
+            'date_of_birth' => $request->date_of_birth, 
+            'phone_code' => $request->phone_code, 
+            'phone_number' => $request->phone_number, 
+            'address' => $request->address, 
+            'country' => $request->country, 
+            'state' => $request->state, 
+            'city' => $request->city
+        ];
+
+        UserDetails::where('user_id',$userId)->update($data);
+        return response()->json(['status' => true,'message' => 'User details updated successfully', 'data' => []]);
+    }
+    
+    // Update user profile image
+    public function updateProfileImage(Request $request){
+        $userId = $request->user_id;
+
+        $userdata = UserDetails::where('user_id', $userId)->get();
+
+        $presentImage = $userdata[0]['profile_image'];
+
+        $profileImage = '';
+        if ($request->hasFile('profile_image')) {
+            $uploadedFile = $request->file('profile_image');
+            $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
+            $name = Storage::disk('public')->putFileAs(
+                'users/'.$userId,
+                $uploadedFile,
+                $filename
+            );
+            $profileImage = Storage::url($name);
+            if($presentImage != '' && File::exists(public_path($presentImage))){
+                unlink(public_path($presentImage));
+            }
+        } 
+        UserDetails::where('user_id', $userId)->update(['profile_image' => $profileImage]);
+        return response()->json(['status' => true,'message' => 'User image updated successfully', 'data' => ['profile_image' => asset($profileImage)]]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $userId = $request->user_id;
+        $user = User::find($userId);
+// print_r($user); die;
+        // echo $user->password;
+        // die;
+        // The passwords matches
+        if (!Hash::check($request->get('current_password'), $user->password)){
+            return response()->json(['status' => false,'message' => 'Current Password is Invalid', 'data' => []]);
+        }
+ 
+        // Current password and new password same
+        if (strcmp($request->get('current_password'), $request->new_password) == 0){
+            return response()->json(['status' => false,'message' => 'New Password cannot be same as your current password.', 'data' => []]);
+        }
+
+        $user->password =  Hash::make($request->new_password);
+        $user->save();
+        return response()->json(['status' => true,'message' => 'Password Changed Successfully', 'data' => []]);
     }
 }
 
