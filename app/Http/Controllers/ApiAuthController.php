@@ -39,14 +39,14 @@ class ApiAuthController extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
-        if (! $token = auth()->attempt($validator->validated())) {
+        if (! $token = auth('api')->attempt($validator->validated())) {
             return response()->json(['status' => false, 'message' => 'Invalid login details', 'data' => []], 401);
         }else{
-            if(auth()->user()->is_approved == 0){
+            if(auth('api')->user()->is_approved == 0){
                 return response()->json(['status' => false, 'message' => 'Your account is waiting for admin approval.', 'data' => []], 401);
-            }elseif(auth()->user()->is_deleted == 1){
+            }elseif(auth('api')->user()->is_deleted == 1){
                 return response()->json(['status' => false, 'message' => 'Your account is Deleted.', 'data' => []], 401);
-            }elseif(auth()->user()->is_active == 0){
+            }elseif(auth('api')->user()->is_active == 0){
                 return response()->json(['status' => false, 'message' => 'Your account is Disabled.', 'data' => []], 401);
             }else{
                 return $this->createNewToken($token);
@@ -144,7 +144,7 @@ class ApiAuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function logout() {
-        auth()->logout();
+        auth('api')->logout();
         return response()->json(['status' => true,'message' => 'User successfully signed out','data' => []]);
     }
     /**
@@ -153,7 +153,7 @@ class ApiAuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function refresh() {
-        return $this->createNewToken(auth()->refresh());
+        return $this->createNewToken(auth('api')->refresh());
     }
     /**
      * Get the authenticated User.
@@ -192,10 +192,10 @@ class ApiAuthController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Successfully loggedIn',
-            'data' => auth()->user(),
+            'data' => auth('api')->user(),
             'access_token' => $token,
             'token_type' => 'bearer',
-            // 'expires_in' => auth()->factory()->getTTL() * 60,
+            // 'expires_in' => auth('api')->factory()->getTTL() * 60,
             
         ]);
     }

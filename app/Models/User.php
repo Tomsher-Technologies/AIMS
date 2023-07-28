@@ -68,4 +68,14 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(UserDetails::class);
     }  
+
+    public function approved()
+    {
+        return $this->hasMany(User::class)->where('is_approved', 1);
+    }
+
+    public function rejected()
+    {
+        return $this->hasMany(User::class)->where('is_approved', 2);
+    }
 }
