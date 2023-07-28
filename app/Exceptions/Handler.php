@@ -8,6 +8,7 @@ use Exception;
 use Request;
 use Illuminate\Auth\AuthenticationException;
 use Response;
+use Auth;
 
 class Handler extends ExceptionHandler
 {
@@ -48,6 +49,6 @@ class Handler extends ExceptionHandler
             return response()->json(['status'=>false, 'message' => 'Unauthorized access!.'], 401);
         }
 
-        // return redirect()->guest('login');
+        return redirect()->route('login');
     }
 }

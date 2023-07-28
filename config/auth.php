@@ -13,14 +13,14 @@ return [
     |
     */
 
-    // 'defaults' => [
-    //     'guard' => 'web',
-    //     'passwords' => 'users',
-    // ],
     'defaults' => [
-        'guard' => 'api',
+        'guard' => 'web',
         'passwords' => 'users',
     ],
+    // 'defaults' => [
+    //     'guard' => 'api',
+    //     'passwords' => 'users',
+    // ],
 
     /*
     |--------------------------------------------------------------------------
@@ -49,6 +49,10 @@ return [
             'provider' => 'users',
             'hash' => false,
         ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
     ],
 
     /*
@@ -70,6 +74,10 @@ return [
 
     'providers' => [
         'users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+        'admin' => [
             'driver' => 'eloquent',
             'model' => App\Models\User::class,
         ],

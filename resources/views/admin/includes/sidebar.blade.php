@@ -3,22 +3,23 @@
             <div class="scroll">
                 <ul class="list-unstyled">
                     <li class="active">
-                        <a href="dashboard.html">
+                        <a href="{{ route('admin.dashboard') }}">
                             <i class="iconsminds-shop-4"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li>
-                        <a href="certificates.html">
-                            <i class="iconsminds-digital-drawing"></i> Certificates
+                        <a href="{{ route('all-courses') }}">
+                            <i class="iconsminds-digital-drawing"></i> Courses
                         </a>
                     </li>
                     <li>
-                        <a href="admin_roles.html">
-                            <i class="iconsminds-air-balloon-1"></i> Admin
+                        <a href="#">
+                            <i class="iconsminds-conference"></i> Users
                         </a>
                     </li>
                 </ul>
             </div>
         </div>
+        
     </div>

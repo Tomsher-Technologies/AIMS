@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
+use Closure;
 
 class Authenticate extends Middleware
 {
@@ -18,6 +19,17 @@ class Authenticate extends Middleware
             return route('login');
         }
         
+    }
+    public function handle($request, Closure $next, ...$guards)
+    {
+        try {
+            $this->authenticate($request, $guards);
+        } catch(AuthenticationException $e){
+            return response()->json([
+                //custom your response here                
+            ]);
+        }
+        return $next($request);
     }
 
 }
