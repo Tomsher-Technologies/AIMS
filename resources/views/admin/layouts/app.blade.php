@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-float-label.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
     @yield('header')
     <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
     <link rel="shortcut icon" href="img/favicon.ico" />
@@ -20,7 +21,9 @@
     @include('admin.includes.sidebar')
     @include('admin.includes.header')
     <main>
+        
         @yield('content')
+        
     </main>
     <footer class="page-footer">
         @include('admin.includes.footer')
@@ -29,6 +32,11 @@
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/js/dore.script.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
+    <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
     @yield('footer')
+    <script type="text/javascript">
+        
+        $('#flash-overlay-modal').modal();
+    </script>
 </body>
 </html>

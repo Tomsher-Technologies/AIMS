@@ -4,10 +4,10 @@
     <div class="row">
         <div class="col-12">
             <div class="mb-3 d-flex align-items-center justify-content-between">
-                <h1 class="m-0 p-0">All Courses</h1>
+                <h1 class="m-0 p-0">All Course Packages</h1>
                 <div class="btn_group">
                     
-                    <a href="{{ route('course.create') }}" class="btn btn_primary">Add Course</a>
+                    <a href="{{ route('packages.create') }}" class="btn btn_primary">Add Course Package</a>
                 </div>
             </div>
             
@@ -25,41 +25,40 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">Sl. No</th>
-                                        <th scope="col" class="w-15">Course Name</th>
-                                        <th scope="col" class="w-30">Course Description</th>
-                                        <th scope="col" class="w-10">Banner Image</th>
+                                        <th scope="col">Package Name</th>
+                                        <th scope="col" class="text-center">Course Name</th>
+                                        <th scope="col" class="text-center">Duration</th>
+                                        <th scope="col" class="text-center">Course Fee</th>
                                         <th scope="col" class="w-20">Divisions</th>
                                         <th scope="col" class="text-center">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if(isset($courses[0]))
-                                        @foreach($courses as $key => $crs)
+                                    @if(isset($packages[0]))
+                                        @foreach($packages as $key => $pack)
                                             <tr>
-                                                <td>{{ $key + 1 + ($courses->currentPage() - 1) * $courses->perPage() }}</td>
-                                                <td>{{ $crs->name }}</td>
-                                                <td>{{ $crs->description }}</td>
+                                                <td>{{ $key + 1 + ($packages->currentPage() - 1) * $packages->perPage() }}</td>
+                                                <td>{{ $pack->package_title }}</td>
+                                                <td class="text-center">{{ $pack->course_name->name }}</td>
+                                                <td class="text-center">{{ $pack->duration }}</td>
+                                                <td class="text-center">{{config('constants.default_currency')}} {{ $pack->fees }}</td>
                                                 <td>
-                                                    @if($crs->banner_image != '') <img src="{{ asset($crs->banner_image) }}" style="width: 100px;"/>@endif
-                                                </td>
-                                                <td>
-                                                    @if($crs->course_divisions)
+                                                    
+                                                    @if($pack->active_package_modules)
                                                         <ul>
-                                                        @foreach($crs->course_divisions as $div)
-                                                            <li> 
-                                                                @if($div->is_active == 1) 
-                                                                    <span class="green">{{ $div->title }}</span>
-                                                                @else
-                                                                    <span class="error">{{ $div->title }}</span>
+                                                            @foreach($pack->active_package_modules as $div)
+                                                                @if($div->course_division != null)
+                                                                <li> 
+                                                                    {{ $div->course_division->title }}
+                                                                </li>
                                                                 @endif
-                                                            </li>
-                                                        @endforeach
+                                                            @endforeach
                                                         </ul>
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @if($crs->is_active == 1)
+                                                    @if($pack->is_active == 1)
                                                         <span class="green">Active</span>
                                                     @else
                                                         <span class="error">In-Active</span>
@@ -68,9 +67,9 @@
                                                 <td>
                                                     <ul class="action_list">
                                                         <li>
-                                                            <a class="" data-id="{{$crs->id}}" title="Edit Course" href="{{ route('course.edit',['id'=>$crs->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                            <a class="" data-id="{{$pack->id}}" title="Edit Course Package" href="{{ route('course.edit',['id'=>$pack->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
                                                         </li>
-                                                        <li> <span> <a class="deleteCourse" data-id="{{$crs->id}}" title="Delete Course" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        <li> <span> <a class="deletePackage" data-id="{{$pack->id}}" title="Delete Course Package" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
                                                     </ul>
                                                 </td>
                                                
@@ -85,7 +84,7 @@
                                 </tbody>
                             </table>
                             <div class="aiz-pagination float-right">
-                                {{ $courses->appends(request()->input())->links() }}
+                                {{ $packages->appends(request()->input())->links() }}
                             </div>
                         </div>
                     </div>
@@ -100,7 +99,7 @@
 @section('footer')
 <script type="text/javascript">
     $('div.alert').not('.alert-important').delay(3000).fadeOut(350);
-    $(document).on('click','.deleteCourse',function(){
+    $(document).on('click','.deletePackage',function(){
         var id = $(this).attr('data-id');
         Swal.fire({
             title: "Are you sure?",
@@ -111,7 +110,7 @@
         }).then((result) => {
             if (result.isConfirmed){
                 $.ajax({
-                    url: "{{ route('course.delete') }}",
+                    url: "{{ route('packages.delete') }}",
                     type: "POST",
                     data: {
                         id: id,
