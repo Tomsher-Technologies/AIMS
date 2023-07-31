@@ -52,7 +52,7 @@ html{
 .action_list{
     display: flex;
     align-items: center;
-    gap: 25px;
+    gap: 15px;
     list-style: none;
     padding: 0;
     margin-bottom: 0;
@@ -267,5 +267,11 @@ font-size: 35px;
     width: 70px;
 }
 
+.error{
+    color: rgb(225, 10, 10);
+}
+.green{
+    color: rgb(19, 163, 9);
+}
 
 /* Jisha Style End*/

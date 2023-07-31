@@ -9,11 +9,13 @@ use App\Models\UserDetails;
 use App\Models\Countries;
 use App\Models\States;
 use App\Models\Courses;
+use App\Models\CoursePackages;
 use Validator;
 use Hash;
 use Str;
 use File;
 use Storage;
+use DB;
 
 class ApiAuthController extends Controller
 {
@@ -206,6 +208,7 @@ class ApiAuthController extends Controller
     public function getAllCourses() {
         $courses = Courses::select('*')
                     ->where('is_active',1)
+                    ->where('is_deleted',0)
                     ->orderBy('id','DESC')
                     ->get();
                     
@@ -220,6 +223,7 @@ class ApiAuthController extends Controller
     public function getCourseDetails(Request $request) {
         $courses = Courses::select('*')
                     ->where('is_active',1)
+                    ->where('is_deleted',0)
                     ->where('id',$request->id)
                     ->get();
                     
@@ -288,7 +292,7 @@ class ApiAuthController extends Controller
     {
         $userId = $request->user_id;
         $user = User::find($userId);
-// print_r($user); die;
+        // print_r($user); die;
         // echo $user->password;
         // die;
         // The passwords matches
@@ -304,6 +308,83 @@ class ApiAuthController extends Controller
         $user->password =  Hash::make($request->new_password);
         $user->save();
         return response()->json(['status' => true,'message' => 'Password Changed Successfully', 'data' => []]);
+    }
+
+    // Get all packages list
+    public function getAllPackages() {
+        $packages = CoursePackages::with(['course_name'])->select('*')
+                    ->where('is_active',1)
+                    ->where('is_deleted',0)
+                    ->orderBy('id','DESC')
+                    ->get();
+                    
+        if(isset($packages[0])){
+            foreach($packages as $key => $pack){
+                $course = $pack->course_name->name;
+                unset($packages[$key]['course_name']);
+                $packages[$key]['course_name'] = $course;
+                $packages[$key]['currency'] = config('constants.default_currency');
+            }
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $packages]);
+        }else{
+            return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
+        }
+        
+    }
+
+    // Get course packages list 
+    public function getCoursePackages(Request $request) {
+        $packages = CoursePackages::with(['course_name'])->select('*')
+                    ->where('courses_id', $request->course_id)
+                    ->where('is_active',1)
+                    ->where('is_deleted',0)
+                    ->orderBy('id','DESC')
+                    ->get();
+                    
+        if(isset($packages[0])){
+            foreach($packages as $key => $pack){
+                $course = $pack->course_name->name;
+                unset($packages[$key]['course_name']);
+                $packages[$key]['course_name'] = $course;
+                $packages[$key]['currency'] = config('constants.default_currency');
+            }
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $packages]);
+        }else{
+            return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
+        }
+    }
+
+    public function getPackageDetails(Request $request) {
+        $packages = CoursePackages::with(['course_name','active_package_modules'])->select('*')
+                    ->where('id', $request->id)
+                    ->where('is_active',1)
+                    ->where('is_deleted',0)
+                    ->get();
+            // dd(DB::getQueryLog());        
+        if(isset($packages[0])){
+            foreach($packages as $key => $pack){
+                $course = $pack->course_name->name;
+                unset($pack->course_name);
+                $packages[$key]['course_name'] = $course;
+                $packages[$key]['currency'] = config('constants.default_currency');
+                $modules = $pack->active_package_modules;
+                unset($pack->active_package_modules);
+                $divisions = [];
+                
+                foreach($modules as $mkey => $mod){
+                    if($mod->course_division != null){
+                        $divisions[$mkey]['module_name'] = $mod->course_division->title;
+                        $divisions[$mkey]['module_description'] = $mod->course_division->description;
+                    }
+                    unset($mod->course_division);
+                }
+                $packages[$key]['package_modules'] = $divisions;
+            }
+            // dd(DB::getQueryLog());
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $packages]);
+        }else{
+            return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
+        }
     }
 }
 

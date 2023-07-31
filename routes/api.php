@@ -32,6 +32,9 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::post('/update-userdata', [ApiAuthController::class, 'updateUserData'])->name('update-userdata');
     Route::post('/update-profile-image', [ApiAuthController::class, 'updateProfileImage'])->name('update-profile-image');
     Route::post('/change-password', [ApiAuthController::class, 'changePassword'])->name('change-password');
+    Route::get('/all-packages', [ApiAuthController::class, 'getAllPackages'])->name('all-packages');
+    Route::get('/course-packages', [ApiAuthController::class, 'getCoursePackages'])->name('course-packages');
+    Route::get('/package-details', [ApiAuthController::class, 'getPackageDetails'])->name('package-details');
 });
 
 
