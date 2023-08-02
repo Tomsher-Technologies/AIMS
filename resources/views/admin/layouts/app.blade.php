@@ -14,8 +14,10 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/admin-css.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/sweetalert2.min.css') }}">
-    @yield('header')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" />
     <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
+    @yield('header')
+    
     <link rel="shortcut icon" href="img/favicon.ico" />
 </head>
 <body id="app-container" class="menu-default show-spinner">
@@ -29,7 +31,7 @@
     <footer class="page-footer">
         @include('admin.includes.footer')
     </footer>
-    
+    <script src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/js/dore.script.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.js') }}"></script>

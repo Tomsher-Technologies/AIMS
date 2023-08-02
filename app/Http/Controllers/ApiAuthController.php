@@ -321,8 +321,10 @@ class ApiAuthController extends Controller
         if(isset($packages[0])){
             foreach($packages as $key => $pack){
                 $course = $pack->course_name->name;
+                $banner_image = $pack->course_name->banner_image;
                 unset($packages[$key]['course_name']);
                 $packages[$key]['course_name'] = $course;
+                $packages[$key]['banner_image'] = $banner_image;
                 $packages[$key]['currency'] = config('constants.default_currency');
             }
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $packages]);
@@ -344,8 +346,10 @@ class ApiAuthController extends Controller
         if(isset($packages[0])){
             foreach($packages as $key => $pack){
                 $course = $pack->course_name->name;
+                $banner_image = $pack->course_name->banner_image;
                 unset($packages[$key]['course_name']);
                 $packages[$key]['course_name'] = $course;
+                $packages[$key]['banner_image'] = $banner_image;
                 $packages[$key]['currency'] = config('constants.default_currency');
             }
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $packages]);
@@ -364,8 +368,10 @@ class ApiAuthController extends Controller
         if(isset($packages[0])){
             foreach($packages as $key => $pack){
                 $course = $pack->course_name->name;
+                $banner_image = $pack->course_name->banner_image;
                 unset($pack->course_name);
                 $packages[$key]['course_name'] = $course;
+                $packages[$key]['banner_image'] = $banner_image;
                 $packages[$key]['currency'] = config('constants.default_currency');
                 $modules = $pack->active_package_modules;
                 unset($pack->active_package_modules);

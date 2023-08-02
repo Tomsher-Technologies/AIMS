@@ -213,4 +213,15 @@ class TeachersController extends Controller
 
         return  view('admin.assign-teachers.index',compact('assigned'));
     }
+
+    public function createAssign()
+    {
+        $teachers = User::with(['user_details','teacher_divisions'])
+                        ->where('user_type', 'staff')
+                        ->where('is_active',1)
+                        ->where('is_deleted',0)
+                        ->get();
+        
+        return   view("admin.assign-teachers.create", compact('teachers'));
+    }
 }
