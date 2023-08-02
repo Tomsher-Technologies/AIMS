@@ -26,6 +26,7 @@
                                     <tr>
                                         <th scope="col">Sl. No</th>
                                         <th scope="col">Package Name</th>
+                                        <th scope="col" class="w-20">Description</th>
                                         <th scope="col" class="text-center">Course Name</th>
                                         <th scope="col" class="text-center">Duration</th>
                                         <th scope="col" class="text-center">Course Fee</th>
@@ -40,6 +41,7 @@
                                             <tr>
                                                 <td>{{ $key + 1 + ($packages->currentPage() - 1) * $packages->perPage() }}</td>
                                                 <td>{{ $pack->package_title }}</td>
+                                                <td>{{ $pack->description }}</td>
                                                 <td class="text-center">{{ $pack->course_name->name }}</td>
                                                 <td class="text-center">{{ $pack->duration }}</td>
                                                 <td class="text-center">{{config('constants.default_currency')}} {{ $pack->fees }}</td>

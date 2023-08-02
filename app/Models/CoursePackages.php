@@ -9,7 +9,7 @@ class CoursePackages extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['courses_id', 'package_title', 'duration', 'fees', 'is_active', 'is_deleted', 'created_at'];
+    protected $fillable = ['courses_id', 'package_title','description', 'duration', 'fees', 'is_active', 'is_deleted', 'created_at'];
 
     public function course_name(){
     	return $this->belongsTo(Courses::class,'courses_id','id');

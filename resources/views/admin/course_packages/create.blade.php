@@ -29,6 +29,14 @@
                             </div>
 
                             <div class="form-group col-md-7">
+                                <label for="#">Description</label>
+                                <textarea class="form-control" id="description"  rows="6" name="description" >{{ old('description') }}</textarea>
+                                @error('description')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-group col-md-7">
                                 <label for="#">Course<span class="error">*</span></label>
                                 
                                     <select class="form-control"  id="course" name="course" onchange="getDivisions(this.value)">

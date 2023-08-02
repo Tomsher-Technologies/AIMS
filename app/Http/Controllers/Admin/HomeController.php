@@ -225,6 +225,7 @@ class HomeController extends Controller
         $package = CoursePackages::create([
             'courses_id' => $request->course,
             'package_title' => $request->title,
+            'description' => $request->description,
             'duration' => $request->duration,
             'fees' => $request->fee,
         ]);
@@ -280,6 +281,7 @@ class HomeController extends Controller
         $package = CoursePackages::findOrFail($id);
         $package->courses_id = $request->course;
         $package->package_title = $request->title;
+        $package->description = $request->description;
         $package->duration = $request->duration;
         $package->fees = $request->fee;
         $package->is_active = $request->is_active;
