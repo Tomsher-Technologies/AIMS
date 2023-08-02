@@ -213,6 +213,9 @@ class ApiAuthController extends Controller
                     ->get();
                     
         if(isset($courses[0])){
+            foreach($courses as $key => $co){
+                $courses[$key]['banner_image'] = ( $co['banner_image'] != NULL) ? asset($co['banner_image']) :'';
+            }
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $courses]);
         }else{
             return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
@@ -228,6 +231,7 @@ class ApiAuthController extends Controller
                     ->get();
                     
         if(isset($courses[0])){
+            $courses[0]['banner_image'] = ( $courses[0]['banner_image'] != NULL) ? asset($courses[0]['banner_image']) :'';
             $courses[0]->course_divisions;
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $courses]);
         }else{
