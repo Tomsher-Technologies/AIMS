@@ -18,5 +18,19 @@ class CourseDivisions extends Model
     {
         return $this->hasMany(PackageModules::class,'module_id','id');
     }
+    public function course_classes()
+    {
+        return $this->hasMany(CourseClasses::class);
+    } 
+
+    public function teacher_divisions()
+    {
+        return $this->hasMany(TeacherDivisions::class,'module_id','id');
+    }
+
+    public function teacher_assigned()
+    {
+        return $this->hasMany(AssignedTeachers::class,'module_id','id');
+    }
 }
 

@@ -1,20 +1,20 @@
 @extends('admin.layouts.app')
 @section('content')
-<div class="container-fluid disable-text-selection">
+<div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="mb-3 d-flex align-items-center justify-content-between">
-                <h1 class="m-0 p-0">All Course Packages</h1>
+                <h1 class="m-0 p-0">Assign Teachers</h1>
                 <div class="btn_group">
                     
-                    <a href="{{ route('packages.create') }}" class="btn btn_primary">Add Course Package</a>
+                    <a href="{{ route('assign-teacher.create') }}" class="btn btn_primary">Assign Teacher</a>
                 </div>
             </div>
             
             <div class="separator mb-5"></div>
         </div>
     </div>
-    <div class="row list disable-text-selection" data-check-all="checkAll">
+    <div class="row list " data-check-all="checkAll">
         <div class="col-lg-12 col-md-12 mb-4">
             <div class="card recent_certificate">
                 <div class="card-body">
@@ -25,40 +25,35 @@
                                 <thead>
                                     <tr>
                                         <th scope="col">Sl. No</th>
-                                        <th scope="col">Package Name</th>
-                                        <th scope="col" class="text-center">Course Name</th>
+                                        <th scope="col">Assigned Date</th>
+                                        <th scope="col" class="text-center">Teacher Name</th>
+                                        <th scope="col" class="text-center">Division</th>
+                                        <th scope="col" class="text-center">Start Time</th>
+                                        <th scope="col" class="text-center">End Time</th>
                                         <th scope="col" class="text-center">Duration</th>
-                                        <th scope="col" class="text-center">Course Fee</th>
-                                        <th scope="col" class="w-20">Divisions</th>
-                                        <th scope="col" class="text-center">Status</th>
+                                        <th scope="col" class="text-center">Active Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if(isset($packages[0]))
-                                        @foreach($packages as $key => $pack)
+                                    @if(isset($assigned[0]))
+                                        @foreach($assigned as $key => $assign)
                                             <tr>
-                                                <td>{{ $key + 1 + ($packages->currentPage() - 1) * $packages->perPage() }}</td>
-                                                <td>{{ $pack->package_title }}</td>
-                                                <td class="text-center">{{ $pack->course_name->name }}</td>
-                                                <td class="text-center">{{ $pack->duration }}</td>
-                                                <td class="text-center">{{config('constants.default_currency')}} {{ $pack->fees }}</td>
+                                                <td>{{ $key + 1 + ($assigned->currentPage() - 1) * $assigned->perPage() }}</td>
+                                                <td>{{ $assign->assigned_date }}</td>
+                                                <td class="text-center">{{ $assign->teacher->name }}</td>
+                                                <td class="text-center">{{ $assign->course_division->title }}</td>
+                                                <td class="text-center">
+                                                {{ $assign->start_time }}
+                                                </td>
                                                 <td>
-                                                    
-                                                    @if($pack->active_package_modules)
-                                                        <ul>
-                                                            @foreach($pack->active_package_modules as $div)
-                                                                @if($div->course_division != null)
-                                                                <li> 
-                                                                    {{ $div->course_division->title }}
-                                                                </li>
-                                                                @endif
-                                                            @endforeach
-                                                        </ul>
-                                                    @endif
+                                                {{ $assign->end_time }}
                                                 </td>
                                                 <td class="text-center">
-                                                    @if($pack->is_active == 1)
+                                                {{ $assign->time_interval }}
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($assign->is_active == 1)
                                                         <span class="green">Active</span>
                                                     @else
                                                         <span class="error">In-Active</span>
@@ -67,9 +62,9 @@
                                                 <td>
                                                     <ul class="action_list">
                                                         <li>
-                                                            <a class="" data-id="{{$pack->id}}" title="Edit Course Package" href="{{ route('packages.edit',['id'=>$pack->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                            <a class="" data-id="{{$assign->id}}" title="Edit Teacher" href="{{ route('teacher.edit',['id'=>$assign->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
                                                         </li>
-                                                        <li> <span> <a class="deletePackage" data-id="{{$pack->id}}" title="Delete Course Package" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        <li> <span> <a class="deleteTeacher" data-id="{{$assign->id}}" title="Delete Teacher" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
                                                     </ul>
                                                 </td>
                                                
@@ -84,7 +79,7 @@
                                 </tbody>
                             </table>
                             <div class="aiz-pagination float-right">
-                                {{ $packages->appends(request()->input())->links() }}
+                                {{ $assigned->appends(request()->input())->links() }}
                             </div>
                         </div>
                     </div>
@@ -99,7 +94,7 @@
 @section('footer')
 <script type="text/javascript">
     $('div.alert').not('.alert-important').delay(3000).fadeOut(350);
-    $(document).on('click','.deletePackage',function(){
+    $(document).on('click','.deleteTeacher',function(){
         var id = $(this).attr('data-id');
         Swal.fire({
             title: "Are you sure?",
@@ -110,7 +105,7 @@
         }).then((result) => {
             if (result.isConfirmed){
                 $.ajax({
-                    url: "{{ route('packages.delete') }}",
+                    url: "{{ route('teacher.delete') }}",
                     type: "POST",
                     data: {
                         id: id,

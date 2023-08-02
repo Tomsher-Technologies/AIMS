@@ -1,0 +1,13 @@
+.filterDiv{
+    text-align: left;
+    margin: auto;
+    padding: 27px;
+}
+.profileImage{
+    width: 100px !important;
+    border-radius: 20px !important;
+    height: 80px !important;
+}
+.menu .main-menu ul li a {
+    height: 70px;
+}

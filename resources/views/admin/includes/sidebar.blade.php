@@ -13,9 +13,24 @@
                             <i class="iconsminds-digital-drawing"></i> Courses
                         </a>
                     </li>
-                    <li class="{{ areActiveRoutes(['course-packages']) }}">
+                    <li class="{{ areActiveRoutes(['course-packages', 'packages.create','packages.edit']) }}">
                         <a href="{{ route('course-packages') }}">
                             <i class="iconsminds-digital-drawing"></i> Course Packages
+                        </a>
+                    </li>
+                    <li class="{{ areActiveRoutes(['classes', 'class.create','class.edit']) }}">
+                        <a href="{{ route('classes') }}">
+                            <i class="iconsminds-digital-drawing"></i> Classes
+                        </a>
+                    </li>
+                    <li class="{{ areActiveRoutes(['teachers', 'teacher.create','teacher.edit']) }}">
+                        <a href="{{ route('teachers') }}">
+                            <i class="iconsminds-conference"></i> Teachers
+                        </a>
+                    </li>
+                    <li class="{{ areActiveRoutes(['assign-teachers', 'assign-teacher.create','assign-teacher.edit']) }}">
+                        <a href="{{ route('assign-teachers') }}">
+                            <i class="iconsminds-conference"></i>Assign Teachers
                         </a>
                     </li>
                     <li>

@@ -23,6 +23,6 @@ class CoursePackages extends Model
     public function active_package_modules(){
         return $this->hasMany(PackageModules::class,'package_id','id')->with(['course_division' => function ($query1) {
             $query1->where('is_active', 1);
-            }]);
+            }])->where('is_deleted',0);
     }
 }

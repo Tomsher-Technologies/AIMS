@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PackageModules extends Model
+class AssignTeachers extends Model
 {
     use HasFactory;
-    protected $fillable = ['package_id', 'module_id', 'is_deleted', 'created_at'];
 
-    public function package(){
-    	return $this->belongsTo(CoursePackages::class,'package_id','id');
+    protected $fillable = ['teacher_id', 'module_id', 'assigned_date', 'start_time', 'end_time', 'time_interval', 'is_active', 'is_deleted'];
+
+    public function teacher(){
+    	return $this->belongsTo(User::class,'teacher_id','id');
     }
 
     public function course_division(){

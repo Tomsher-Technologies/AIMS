@@ -13,12 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('package_modules', function (Blueprint $table) {
+        Schema::create('course_classes', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('package_id')->unsigned();
-            $table->foreign('package_id')->references('id')->on('course_packages')->onDelete('cascade');
             $table->bigInteger('module_id')->unsigned();
             $table->foreign('module_id')->references('id')->on('course_divisions')->onDelete('cascade');
+            $table->bigInteger('course_id')->unsigned();
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
+            $table->string('class_name');
+            $table->integer('order')->default(0);
+            $table->boolean('is_mandatory')->default(0);
+            $table->boolean('is_active')->default(1);
             $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
@@ -31,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('package_modules');
+        Schema::dropIfExists('course_classes');
     }
 };

@@ -18,4 +18,8 @@ class Courses extends Model
     {
         return $this->hasMany(CoursePackages::class);
     } 
+    public function course_classes()
+    {
+        return $this->hasMany(CourseClasses::class);
+    } 
 }

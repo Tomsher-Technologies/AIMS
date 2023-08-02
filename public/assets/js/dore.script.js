@@ -148,7 +148,7 @@ $.shiftSelectable = function (element, config) {
   var plugin = this;
   config = $.extend(
     {
-      items: ".card"
+      items: ".cardold"
     },
     config
   );

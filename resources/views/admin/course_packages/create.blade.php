@@ -65,7 +65,7 @@
 
                             <div class="form-group col-md-7">
                                 <label for="#">Course Fee ({{config('constants.default_currency')}})<span class="error">*</span></label>
-                                <input type="text" class="form-control" value="{{ old('name') }}" id="fee" name="fee" placeholder="Enter course fee">
+                                <input type="text" class="form-control" value="{{ old('fee') }}" id="fee" name="fee" placeholder="Enter course fee">
                                 @error('fee')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror

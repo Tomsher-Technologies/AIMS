@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PackageModules extends Model
+class CourseClasses extends Model
 {
     use HasFactory;
-    protected $fillable = ['package_id', 'module_id', 'is_deleted', 'created_at'];
+    protected $fillable = ['module_id', 'course_id', 'class_name', 'order', 'is_mandatory', 'is_active', 'is_deleted'];
 
-    public function package(){
-    	return $this->belongsTo(CoursePackages::class,'package_id','id');
+    public function course(){
+    	return $this->belongsTo(Courses::class,'course_id','id');
     }
 
     public function course_division(){
