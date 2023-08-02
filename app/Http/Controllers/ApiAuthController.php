@@ -324,7 +324,7 @@ class ApiAuthController extends Controller
                 $banner_image = $pack->course_name->banner_image;
                 unset($packages[$key]['course_name']);
                 $packages[$key]['course_name'] = $course;
-                $packages[$key]['banner_image'] = $banner_image;
+                $packages[$key]['banner_image'] = ($banner_image != NULL) ? asset($banner_image) : '';
                 $packages[$key]['currency'] = config('constants.default_currency');
             }
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $packages]);
@@ -349,7 +349,7 @@ class ApiAuthController extends Controller
                 $banner_image = $pack->course_name->banner_image;
                 unset($packages[$key]['course_name']);
                 $packages[$key]['course_name'] = $course;
-                $packages[$key]['banner_image'] = $banner_image;
+                $packages[$key]['banner_image'] = ($banner_image != NULL) ? asset($banner_image) : '';
                 $packages[$key]['currency'] = config('constants.default_currency');
             }
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $packages]);
@@ -371,7 +371,7 @@ class ApiAuthController extends Controller
                 $banner_image = $pack->course_name->banner_image;
                 unset($pack->course_name);
                 $packages[$key]['course_name'] = $course;
-                $packages[$key]['banner_image'] = $banner_image;
+                $packages[$key]['banner_image'] = ($banner_image != NULL) ? asset($banner_image) : '';
                 $packages[$key]['currency'] = config('constants.default_currency');
                 $modules = $pack->active_package_modules;
                 unset($pack->active_package_modules);
