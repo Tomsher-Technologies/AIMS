@@ -78,4 +78,22 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(User::class)->where('is_approved', 2);
     }
+    // public function teacher_divisions()
+    // {
+    //     return $this->hasMany(TeacherDivisions::class,'teacher_id','id');
+    // }
+
+    public function teacher_divisions(){
+        return $this->hasMany(TeacherDivisions::class,'teacher_id','id')->with(['course_division' => function ($query1) {
+            $query1->with(['course_name']);
+            $query1->where('is_active', 1);
+            }])->where('is_deleted',0);
+    }
+
+    public function assigned_teachers(){
+        return $this->hasMany(AssignedTeachers::class,'teacher_id','id')->with(['course_division' => function ($query1) {
+            $query1->with(['course_name']);
+            $query1->where('is_active', 1);
+            }])->where('is_deleted',0);
+    }
 }

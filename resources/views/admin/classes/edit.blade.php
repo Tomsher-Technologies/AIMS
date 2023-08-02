@@ -4,9 +4,9 @@
     <div class="row">
         <div class="col-12">
             <div class="mb-0">
-                <h1>Update Course Package</h1>
+                <h1>Update Class</h1>
                 <div class="text-zero top-right-button-container">
-                    <a href="{{ route('course-packages') }}" class="btn btn-primary btn-lg top-right-button btn_primary">Back</a>
+                    <a href="{{ route('classes') }}" class="btn btn-primary btn-lg top-right-button btn_primary">Back</a>
                 </div>
             </div>
             <div class="separator mb-5"></div>
@@ -16,13 +16,13 @@
         <div class="col-lg-12 col-md-12 mb-4">
             <div class="card mb-4">
                 <div class="card-body">
-                    <form class="form-horizontal repeater" action="{{ route('packages.update',$package->id) }}" method="POST"
+                    <form class="form-horizontal repeater" action="{{ route('class.update', $classes->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="form-row justify-content-center">
                             <div class="form-group col-md-7">
-                                <label for="#">Package Title<span class="error">*</span></label>
-                                <input type="text" class="form-control" value="{{ old('title', $package->package_title) }}" id="title" name="title" placeholder="Enter package title">
+                                <label for="#">Class Title<span class="error">*</span></label>
+                                <input type="text" class="form-control" value="{{ old('title', $classes->class_name) }}" id="title" name="title" placeholder="Enter class title">
                                 @error('title')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -34,7 +34,7 @@
                                     <select class="form-control"  id="course" name="course" onchange="getDivisions(this.value)">
                                         <option value="">Select Course</option>
                                         @foreach($courses as $course)
-                                            <option value="{{ $course->id }}" @if($package->courses_id == $course->id) selected @endif > {{ $course->name }} </option>
+                                            <option value="{{ $course->id }}"  @if($classes->course_id == $course->id) selected @endif > {{ $course->name }} </option>
                                         @endforeach
                                     </select>
                                 
@@ -46,15 +46,9 @@
                             <div class="form-group col-md-7">
                                 <label for="#">Course Divisions<span class="error">*</span></label>
                                 
-                                    <select class="form-control"  id="course_division" name="course_division[]" multiple="multiple">
+                                    <select class="form-control"  id="course_division" name="course_division">
                                         @foreach($divisions as $div)
-                                            @php
-                                                $selected = '';
-                                                if(in_array($div->id, $modules)){
-                                                    $selected = 'selected';
-                                                }           
-                                            @endphp
-                                            <option value="{{ $div->id }}" {{$selected}}> {{ $div->title }}</option>
+                                            <option value="{{ $div->id }}" @if($classes->module_id == $div->id) selected @endif > {{ $div->title }}</option>
                                         @endforeach
                                     </select>
                                 
@@ -64,17 +58,20 @@
                             </div>
 
                             <div class="form-group col-md-7">
-                                <label for="#">Duration (days)<span class="error">*</span></label>
-                                <input type="number" class="form-control" value="{{ old('duration', $package->duration) }}" id="duration" name="duration" >
-                                @error('duration')
+                                <label for="#">Sort Order Number<span class="error">*</span></label>
+                                <input type="number" class="form-control" value="{{ old('order', $classes->order) }}" id="order" name="order" >
+                                @error('order')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="form-group col-md-7">
-                                <label for="#">Course Fee ({{config('constants.default_currency')}})<span class="error">*</span></label>
-                                <input type="text" class="form-control" value="{{ old('name', $package->fees) }}" id="fee" name="fee" placeholder="Enter course fee">
-                                @error('fee')
+                                <label for="#">Mandatory<span class="error">*</span></label>
+                                <div class="d-flex">
+                                    <input type="radio" class="form-control radioBtn"  id="mandatoryYes" name="mandatory" value='1' @if($classes->is_mandatory == '1') checked @endif> Yes
+                                    <input type="radio" class="form-control radioBtn" id="mandatoryNo" name="mandatory" value='0' @if($classes->is_mandatory == '0') checked @endif> No
+                                </div>
+                                @error('mandatory')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -82,15 +79,14 @@
                             <div class="form-group col-md-7">
                                 <label for="inputPassword4">Active Status</label>
                                 <select class="form-control" name="is_active" id="is_active">
-                                    <option {{ ($package->is_active == 1) ? 'selected' : '' }} value="1">Active</option>
-                                    <option {{ ($package->is_active == 0) ? 'selected' : '' }} value="0">In-Active</option>
+                                    <option {{ ($classes->is_active == 1) ? 'selected' : '' }} value="1">Active</option>
+                                    <option {{ ($classes->is_active == 0) ? 'selected' : '' }} value="0">In-Active</option>
                                 </select>
                             </div>
                            
-                           
                             <div class="form-group col-md-7 d-flex">
-                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Save Course Package</button>
-                                <a href="{{ route('course-packages') }}" class="btn btn-info d-block mt-2 ml-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Save Class</button>
+                                <a href="{{ route('classes') }}" class="btn btn-info d-block mt-2 ml-2">Cancel</a>
                             </div>
                         </div>
                     </form>
@@ -105,6 +101,10 @@
 <style>
     .select2 {
         width:inherit !important
+    }
+    .radioBtn{
+        width:5% !important;
+        height: 20px !important;
     }
 </style>    
 @endsection

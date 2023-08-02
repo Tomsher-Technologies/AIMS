@@ -5,15 +5,20 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\UserDetails;
 use App\Models\Courses;
 use App\Models\CourseDivisions;
 use App\Models\CoursePackages;
 use App\Models\PackageModules;
+use App\Models\CourseClasses;
+use App\Models\TeacherDivisions;
 use Auth;
 use Validator;
 use Storage;
 use Str;
 use File;
+use Hash;
+use DB;
 
 class HomeController extends Controller
 {
@@ -233,8 +238,6 @@ class HomeController extends Controller
                     'created_at' => date('Y-m-d H:i:s')
                 );
             }
-            echo '<pre>';
-            print_r($modules);
             PackageModules::insert($modules);
         }
         flash('Course package has been created successfully')->success();
@@ -244,5 +247,165 @@ class HomeController extends Controller
     public function deletePackage(Request $request){
         CoursePackages::where('id', $request->id)->update(['is_deleted' => 1]);
     }
+
+    public function editPackage(Request $request, $id)
+    {
+        $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
+        $package = CoursePackages::with(['active_package_modules'])->find($id);
+
+        $divisions = CourseDivisions::where('courses_id', $package->courses_id)->where('is_active',1)->orderBy('id','ASC')->get();
+       
+        $modules = [];
+        if(!empty($package->active_package_modules)){
+            foreach($package->active_package_modules as $module){
+                $modules[] = $module->module_id;
+            }
+        }
+        
+        return view('admin.course_packages.edit', compact('courses','package','modules','divisions'));
+    }
+
+    public function updatePackage(Request $request, $id){
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'course' => 'required',
+            'duration' => 'required',
+            'fee' => 'required',
+            'course_division' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+        $package = CoursePackages::findOrFail($id);
+        $package->courses_id = $request->course;
+        $package->package_title = $request->title;
+        $package->duration = $request->duration;
+        $package->fees = $request->fee;
+        $package->is_active = $request->is_active;
+        $package->save();
+
+        if ($request->course_division) {
+            $modules = [];
+            PackageModules::where('package_id', $id)->update(['is_deleted' => 1]);
+            foreach ($request->course_division as $div) {
+                $modules[]= array(
+                    'package_id' => $package->id,
+                    'module_id' => $div,
+                    'created_at' => date('Y-m-d H:i:s')
+                );
+            }
+            PackageModules::insert($modules);
+        }
+        flash('Course Package has been updated successfully')->success();
+        return redirect()->route('course-packages');
+    }
+   
+    public function getAllClasses(Request $request){
+        $title_search = $course_search =  $division_search = null;
+        if ($request->has('title')) {
+            $title_search = $request->title;
+        }
+        if ($request->has('course')) {
+            $course_search = $request->course;
+        }
+        if ($request->has('course_division')) {
+            $division_search = $request->course_division;
+        }
+
+        $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
+        $query = CourseClasses::with(['course','course_division'])->select('*')
+                ->where('is_deleted',0)
+                ->orderBy('order','ASC');
+
+        if($title_search){
+            $query->where('class_name', 'LIKE', "%$title_search%");
+        }
+        if($course_search){
+            $query->where('course_id', $course_search);
+        }
+        if($division_search){
+            $query->where('module_id', $division_search);
+        }
+        $classes = $query->paginate(10);
+
+        if($course_search){
+            $divisions = CourseDivisions::where('courses_id', $course_search)->where('is_active',1)->orderBy('id','ASC')->get();
+        }else{
+            $divisions = CourseDivisions::where('is_active',1)->orderBy('id','ASC')->get();
+        }
+        return  view('admin.classes.index',compact('classes','courses','divisions','title_search','course_search','division_search'));
+    }
+
+    public function createClass()
+    {
+        $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
+        return   view("admin.classes.create", compact('courses'));
+    }
+
+    public function storeClass(Request $request)
+    {
+        // echo '<pre>'; print_r($request->all());die;
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'course' => 'required',
+            'course_division' => 'required',
+            'order' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $package = CourseClasses::create([
+            'module_id' => $request->course_division,
+            'course_id' => $request->course,
+            'class_name' => $request->title,
+            'order' => $request->order,
+            'is_mandatory' => $request->mandatory,
+        ]);
+
+        flash('Class has been created successfully')->success();
+        return redirect()->route('classes');
+    }
+
+    public function deleteClass(Request $request){
+        CourseClasses::where('id', $request->id)->update(['is_deleted' => 1]);
+    }
+
+    public function editClass(Request $request, $id)
+    {
+        $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
+        $classes = CourseClasses::find($id);
+
+        $divisions = CourseDivisions::where('courses_id', $classes->course_id)->where('is_active',1)->orderBy('id','ASC')->get();
+       
+        return view('admin.classes.edit', compact('courses','classes','divisions'));
+    }
+
+    public function updateClass(Request $request, $id){
+        $validator = Validator::make($request->all(), [
+            'title' => 'required',
+            'course' => 'required',
+            'course_division' => 'required',
+            'order' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+        $class = CourseClasses::findOrFail($id);
+        $class->module_id = $request->course_division;
+        $class->course_id = $request->course;
+        $class->class_name = $request->title;
+        $class->order = $request->order;
+        $class->is_mandatory = $request->mandatory;
+        $class->is_active = $request->is_active;
+        $class->save();
+
+        flash('Class has been updated successfully')->success();
+        return redirect()->route('classes');
+    }
+
    
 }
