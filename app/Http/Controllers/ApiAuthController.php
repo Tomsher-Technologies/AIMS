@@ -10,6 +10,7 @@ use App\Models\Countries;
 use App\Models\States;
 use App\Models\Courses;
 use App\Models\CoursePackages;
+use App\Models\StudentPackages;
 use Validator;
 use Hash;
 use Str;
@@ -368,8 +369,17 @@ class ApiAuthController extends Controller
                     ->where('is_active',1)
                     ->where('is_deleted',0)
                     ->get();
-            // dd(DB::getQueryLog());        
+            // dd(DB::getQueryLog());   
+        $checkUserPackage = 0;
+        if(isset($request->user_id)){
+            $checkUserPackage = StudentPackages::where('user_id',$request->user_id)
+                                                ->where('package_id',$request->id)
+                                                ->where('is_active',1)
+                                                ->where('is_deleted',0)->count();
+        }
+        
         if(isset($packages[0])){
+            $packages[0]['is_user_package'] = ($checkUserPackage == 0) ? 0 : 1;
             foreach($packages as $key => $pack){
                 $course = $pack->course_name->name;
                 $banner_image = $pack->course_name->banner_image;

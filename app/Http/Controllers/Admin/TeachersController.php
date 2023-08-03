@@ -13,6 +13,7 @@ use App\Models\PackageModules;
 use App\Models\CourseClasses;
 use App\Models\TeacherDivisions;
 use App\Models\AssignTeachers;
+use App\Models\TeacherSlots;
 use Auth;
 use Validator;
 use Storage;
@@ -206,12 +207,48 @@ class TeachersController extends Controller
     }
 
     public function getAllAssignedTeachers (Request $request){
-        $query = AssignTeachers::with(['teachers','course_division'])
+        $date_search = $teacher_search =  $division_search = null;
+        
+        if ($request->has('assigned_date')) {
+            $date_search = $request->assigned_date;
+        }
+        if ($request->has('teacher')) {
+            $teacher_search = $request->teacher;
+        }
+        if ($request->has('course_division')) {
+            $division_search = $request->course_division;
+        }
+       
+        // DB::enableQueryLog();
+        $query = AssignTeachers::with(['teacher','course_division','slots'])
                 ->where('is_deleted',0)
                 ->orderBy('id','DESC');
-        $assigned = $query->paginate(10);
 
-        return  view('admin.assign-teachers.index',compact('assigned'));
+        if($date_search){
+            $query->where('assigned_date', $date_search);
+        }
+        if($teacher_search){
+            $query->where('teacher_id', $teacher_search);
+        }
+        if($division_search){
+            $query->where('module_id', $division_search);
+        }
+
+        $assigned = $query->paginate(10);
+        // dd(DB::getQueryLog());
+        $teachers = User::with(['user_details','teacher_divisions'])
+                        ->where('user_type', 'staff')
+                        ->where('is_active',1)
+                        ->where('is_deleted',0)
+                        ->get();
+        $teacherdivisions = $divisions = [];
+        if($teacher_search){
+            $teacherdivisions = TeacherDivisions::with(['course_division'])->where('teacher_id', $teacher_search)->where('is_deleted',0)->orderBy('id', 'ASC')->get();
+        }else{
+            $divisions = CourseDivisions::where('is_active',1)->orderBy('id','ASC')->get();
+        }
+
+        return  view('admin.assign-teachers.index',compact('assigned','teachers','divisions','teacherdivisions','date_search','teacher_search','division_search'));
     }
 
     public function createAssign()
@@ -224,4 +261,124 @@ class TeachersController extends Controller
         
         return   view("admin.assign-teachers.create", compact('teachers'));
     }
+    
+    public function getTeacherDivisions(Request $request){
+        $teacherId = $request->id;
+        $divisions = TeacherDivisions::with(['course_division'])->where('teacher_id', $teacherId)->where('is_deleted',0)->orderBy('id', 'ASC')->get();
+
+        $options = '';
+        foreach($divisions as $div){
+            $options .= '<option value="'.$div->course_division->id.'">'.$div->course_division->title.'</option>';
+        }
+        return $options;
+    }
+
+    public function storeAssign(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'class_date' => 'required',
+            'teacher' => 'required',
+            'course_division' => 'required',
+            'interval' => 'required',
+            'from_time' => 'required',
+            'to_time' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $assign = new AssignTeachers;
+        $assign->teacher_id = $request->teacher;
+        $assign->module_id = $request->course_division;
+        $assign->assigned_date = $request->class_date;
+        $assign->start_time = $request->from_time;
+        $assign->end_time = $request->to_time;
+        $assign->time_interval = $request->interval;
+        $assign->save();
+        $assignedId = $assign->id;
+
+        $slots = getTimeSlotHrMIn($request->interval, $request->from_time, $request->to_time);
+        if(!empty($slots)){
+            $datas = [];
+            foreach($slots as $sl){
+                $datas[] = array(
+                    'assigned_id' => $assignedId, 
+                    'slot' => $sl,
+                    'created_at' => date('Y-m-d H:i:s')
+                );
+            }
+            if(!empty($datas)){
+                TeacherSlots::insert($datas);
+            }  
+        }
+
+        flash('Teacher has been assigned successfully')->success();
+        return redirect()->route('assign-teachers');
+    }
+
+    public function deleteAssign(Request $request){
+        AssignTeachers::where('id', $request->id)->delete();
+    }
+
+    public function editAssign(Request $request, $id)
+    {
+        $assign = AssignTeachers::find($id);
+        
+        $teachers = User::with(['user_details','teacher_divisions'])
+                        ->where('user_type', 'staff')
+                        ->where('is_active',1)
+                        ->where('is_deleted',0)
+                        ->get();
+
+        $divisions = TeacherDivisions::with(['course_division'])->where('teacher_id', $assign->teacher_id)->where('is_deleted',0)->orderBy('id', 'ASC')->get();
+        
+        return view('admin.assign-teachers.edit', compact('assign','teachers','divisions'));
+    }
+
+    public function updateAssign(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'class_date' => 'required',
+            'teacher' => 'required',
+            'course_division' => 'required',
+            'interval' => 'required',
+            'from_time' => 'required',
+            'to_time' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $assign = AssignTeachers::find($id);
+        $assign->teacher_id = $request->teacher;
+        $assign->module_id = $request->course_division;
+        $assign->assigned_date = $request->class_date;
+        $assign->start_time = $request->from_time;
+        $assign->end_time = $request->to_time;
+        $assign->time_interval = $request->interval;
+        $assign->save();
+        $assignedId = $assign->id;
+
+        $slots = getTimeSlotHrMIn($request->interval, $request->from_time, $request->to_time);
+        if(!empty($slots)){
+            TeacherSlots::where('assigned_id', $id)->where('is_booked',0)->delete();
+            $datas = [];
+            foreach($slots as $sl){
+                $datas[] = array(
+                    'assigned_id' => $assignedId, 
+                    'slot' => $sl,
+                    'created_at' => date('Y-m-d H:i:s')
+                );
+            }
+            if(!empty($datas)){
+                TeacherSlots::insert($datas);
+            }  
+        }
+
+        flash('Teacher has been assigned successfully')->success();
+        return redirect()->route('assign-teachers');
+    }
+   
 }

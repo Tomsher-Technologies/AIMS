@@ -20,6 +20,11 @@ class CoursePackages extends Model
         return $this->hasMany(PackageModules::class,'package_id','id');
     } 
 
+    public function student_packages()
+    {
+        return $this->hasMany(StudentPackages::class,'package_id','id');
+    } 
+
     public function active_package_modules(){
         return $this->hasMany(PackageModules::class,'package_id','id')->with(['course_division' => function ($query1) {
             $query1->where('is_active', 1);
