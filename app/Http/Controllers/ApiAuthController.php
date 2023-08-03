@@ -11,6 +11,8 @@ use App\Models\States;
 use App\Models\Courses;
 use App\Models\CoursePackages;
 use App\Models\StudentPackages;
+use App\Models\AssignTeachers;
+use App\Models\TeacherSlots;
 use Validator;
 use Hash;
 use Str;
@@ -406,6 +408,36 @@ class ApiAuthController extends Controller
         }else{
             return response()->json([ 'status' => false, 'message' => 'Details not found.', 'data' => []]);
         }
+    }
+
+    public function getTimeSlots(Request $request){
+        $date = $request->date;
+        $module_id = $request->module_id;
+
+        $teachers = AssignTeachers::leftJoin('users as us','us.id','=','assign_teachers.teacher_id')
+                                    ->where('assign_teachers.is_active',1)
+                                    ->where('assign_teachers.is_deleted',0)
+                                    ->where('assign_teachers.assigned_date', $date)
+                                    ->where('assign_teachers.module_id', $module_id)
+                                    ->where('us.is_active',1)
+                                    ->where('us.is_deleted',0)->select('us.id','us.name','assign_teachers.id as assign_id')
+                                    ->orderBy('us.name','ASC')->get()->toArray();
+        $data['teachers'] = $teachers;
+        
+        if($teachers){
+            foreach($teachers as $slot){
+                $data['slots'][$slot['id']] = $this->getTeacherSlots($slot['assign_id']);
+            }
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $data]);
+        }else{
+            return response()->json(['status'=>false,'message'=>'Time slots are not available for this date','data'=>$data ]);
+        } 
+    }
+    public function getTeacherSlots($id){
+        $slots = TeacherSlots::where('assigned_id', $id)->where('is_booked',0)
+                                ->where('is_deleted',0)->select('id','slot')
+                                ->orderBy('id','ASC')->get()->toArray();
+        return $slots;
     }
 }
 
