@@ -393,6 +393,7 @@ class ApiAuthController extends Controller
                 
                 foreach($modules as $mkey => $mod){
                     if($mod->course_division != null){
+                        $divisions[$mkey]['module_id'] = $mod->course_division->id;
                         $divisions[$mkey]['module_name'] = $mod->course_division->title;
                         $divisions[$mkey]['module_description'] = $mod->course_division->description;
                     }
