@@ -35,6 +35,8 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::get('/all-packages', [ApiAuthController::class, 'getAllPackages'])->name('all-packages');
     Route::get('/course-packages', [ApiAuthController::class, 'getCoursePackages'])->name('course-packages');
     Route::get('/package-details', [ApiAuthController::class, 'getPackageDetails'])->name('package-details');
+
+    Route::get('/get-slots', [ApiAuthController::class, 'getTimeSlots'])->name('get-slots');
 });
 
 
