@@ -12,6 +12,7 @@ use App\Models\CoursePackages;
 use App\Models\PackageModules;
 use App\Models\CourseClasses;
 use App\Models\TeacherDivisions;
+use App\Models\States;
 use Auth;
 use Validator;
 use Storage;
@@ -409,5 +410,34 @@ class HomeController extends Controller
         return redirect()->route('classes');
     }
 
+
+    public function getCountryStates(Request $request){
+        $query = States::select('*');
+        if(isset($request->id)){
+            $query->where('country_id', $request->id);
+        }
+        $states = $query->orderBy('name','ASC')->get();
+        $options = '';
+        foreach($states as $div){
+            $options .= '<option value="'.$div->id.'">'.$div->name.'</option>';
+        }
+        return $options;
+    }
+
+    public function getCoursePackages(Request $request){
+        $packages = CoursePackages::with(['course_name'])->select('*')
+                    ->where('courses_id', $request->id)
+                    ->where('is_active',1)
+                    ->where('is_deleted',0)
+                    ->orderBy('package_title','ASC')
+                    ->get();
+        $options = '';
+        foreach($packages as $div){
+            $options .= '<option value="'.$div->id.'" data-id="'.$div->duration.'">'.$div->package_title.'</option>';
+        }
+        return $options;
+    }
+
+   
    
 }

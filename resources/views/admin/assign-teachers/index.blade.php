@@ -19,6 +19,43 @@
             <div class="card recent_certificate">
                 <div class="card-body">
                 @include('flash::message')
+                    <div class="">
+                        <!-- <h3> Filters </h3> -->
+                        <form class="" id="classes" action="" method="GET">
+                            
+                            <div class="form-row">
+                                <div class="form-group col-md-3">
+                                    <label for="#">Assigned Date</label>
+                                    <input type="text" class="form-control" value="{{ $date_search }}" id="assigned_date" name="assigned_date" placeholder="YYYY-MM-DD">
+                                </div>
+
+                                <div class="form-group col-md-3">
+                                    <label for="#">Teachers</label>
+                                    <select class="form-control"  id="teacher" name="teacher" onchange="getTeacherDivisions(this.value)">
+                                        <option value="">Select Teacher</option>
+                                        @foreach($teachers as $teach)
+                                            <option value="{{ $teach->id }}" @if($teacher_search == $teach->id) selected @endif > {{ $teach->name }} </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-3">
+                                    <label for="#">Course Divisions</label>
+                                    <select class="form-control"  id="course_division" name="course_division">
+                                        <option value="">Select Course Division</option>
+                                        @foreach($divisions as $div)
+                                            <option value="{{ $div->id }}" @if($division_search == $div->id) selected @endif > {{ $div->title }} </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-3 filterDiv">
+                                    <button type="submit" class="btn btn_primary">Filter</button>
+                                    <a href="{{ route('assign-teachers') }}"  class="btn btn-info">Reset</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
                     <div class="data_card">
                         <div class="table-responsive">
                             <table class="table table-bordered mb-0">
@@ -30,7 +67,8 @@
                                         <th scope="col" class="text-center">Division</th>
                                         <th scope="col" class="text-center">Start Time</th>
                                         <th scope="col" class="text-center">End Time</th>
-                                        <th scope="col" class="text-center">Duration</th>
+                                        <th scope="col" class="text-center">Time Interval<br> (In Minutes)</th>
+                                        <th scope="col" class="text-center">Slots </th>
                                         <th scope="col" class="text-center">Active Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -38,6 +76,7 @@
                                 <tbody>
                                     @if(isset($assigned[0]))
                                         @foreach($assigned as $key => $assign)
+                                            @php $deletable = 1; @endphp
                                             <tr>
                                                 <td>{{ $key + 1 + ($assigned->currentPage() - 1) * $assigned->perPage() }}</td>
                                                 <td>{{ $assign->assigned_date }}</td>
@@ -46,12 +85,26 @@
                                                 <td class="text-center">
                                                 {{ $assign->start_time }}
                                                 </td>
-                                                <td>
+                                                <td class="text-center">
                                                 {{ $assign->end_time }}
                                                 </td>
                                                 <td class="text-center">
-                                                {{ $assign->time_interval }}
+                                                {{ $assign->time_interval }} Min
                                                 </td>
+
+                                                <td>
+                                                    <ul>
+                                                        @foreach($assign->slots as $slot)
+                                                            @if($slot->is_booked == 1)
+                                                                @php $deletable = 0; @endphp
+                                                                <li class="error"> {{ $slot->slot}} (Booked) </li>
+                                                            @else
+                                                                <li class="green"> {{ $slot->slot}} (Available) </li>
+                                                            @endif
+                                                        @endforeach
+                                                    </ul>
+                                                </td>
+
                                                 <td class="text-center">
                                                     @if($assign->is_active == 1)
                                                         <span class="green">Active</span>
@@ -62,9 +115,11 @@
                                                 <td>
                                                     <ul class="action_list">
                                                         <li>
-                                                            <a class="" data-id="{{$assign->id}}" title="Edit Teacher" href="{{ route('teacher.edit',['id'=>$assign->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                            <a class="" data-id="{{$assign->id}}" title="Edit Teacher Assign" href="{{ route('assign-teacher.edit',['id'=>$assign->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
                                                         </li>
-                                                        <li> <span> <a class="deleteTeacher" data-id="{{$assign->id}}" title="Delete Teacher" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        @if($deletable == 1)
+                                                        <li> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        @endif
                                                     </ul>
                                                 </td>
                                                
@@ -94,7 +149,7 @@
 @section('footer')
 <script type="text/javascript">
     $('div.alert').not('.alert-important').delay(3000).fadeOut(350);
-    $(document).on('click','.deleteTeacher',function(){
+    $(document).on('click','.deleteTeacherAssign',function(){
         var id = $(this).attr('data-id');
         Swal.fire({
             title: "Are you sure?",
@@ -105,7 +160,7 @@
         }).then((result) => {
             if (result.isConfirmed){
                 $.ajax({
-                    url: "{{ route('teacher.delete') }}",
+                    url: "{{ route('assign-teacher.delete') }}",
                     type: "POST",
                     data: {
                         id: id,
@@ -125,5 +180,21 @@
             }  
         });
     }) ;
+
+    function getTeacherDivisions(course){
+        $.ajax({
+            url: "{{ route('teacher.divisions') }}",
+            type: "GET",
+            data: {
+                id: course,
+                _token:'{{ @csrf_token() }}',
+            },
+            success: function (response) {
+                $('#course_division').empty();
+                $('#course_division').append('<option value="">Select Course Division</option>');
+                $('#course_division').append(response).trigger('change');
+            }
+        });
+    }
 </script>
 @endsection

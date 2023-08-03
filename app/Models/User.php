@@ -20,6 +20,7 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'user_type', 
+        'unique_id',
         'name', 
         'email', 
         'email_verified_at', 
@@ -82,6 +83,11 @@ class User extends Authenticatable implements JWTSubject
     // {
     //     return $this->hasMany(TeacherDivisions::class,'teacher_id','id');
     // }
+
+    public function student_packages()
+    {
+        return $this->hasMany(StudentPackages::class,'user_id','id')->with(['package'])->where('is_active',1)->where('is_deleted',0);
+    } 
 
     public function teacher_divisions(){
         return $this->hasMany(TeacherDivisions::class,'teacher_id','id')->with(['course_division' => function ($query1) {

@@ -22,4 +22,8 @@ class Courses extends Model
     {
         return $this->hasMany(CourseClasses::class);
     } 
+    public function student_packages()
+    {
+        return $this->hasMany(StudentPackages::class,'course_id','id');
+    } 
 }

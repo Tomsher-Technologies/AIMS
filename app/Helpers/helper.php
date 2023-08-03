@@ -38,4 +38,27 @@ if (!function_exists('areActiveRoutes')) {
     }
 }
 
+if (!function_exists('getTimeSlotHrMIn')) {
+    function getTimeSlotHrMIn($interval, $start_time, $end_time)
+    {
+        $start = new DateTime($start_time);
+        $end = new DateTime($end_time);
+        $startTime = $start->format('H:i');
+        $endTime = $end->format('H:i');
+        $i=0;
+        $time = [];
+        while(strtotime($startTime) <= strtotime($endTime)){
+            $start = $startTime;
+            $end = date('H:i',strtotime('+'.$interval.' minutes',strtotime($startTime)));
+            $startTime = date('H:i',strtotime('+'.$interval.' minutes',strtotime($startTime)));
+            $i++;
+            if(strtotime($startTime) <= strtotime($endTime)){
+                $time[$i] = date('g:i A', strtotime($start)).' - '.date('g:i A', strtotime($end));
+            }
+        }
+        return $time;
+    }
+}
+
+
 

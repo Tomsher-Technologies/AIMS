@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CustomAuthController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\TeachersController;
+use App\Http\Controllers\Admin\StudentController;
 
 Route::namespace('Admin')->prefix('admin')->group(function () {
     Route::get('/', [CustomAuthController::class, 'index'])->name('login');
@@ -13,6 +14,8 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
     
     Route::group(['middleware' => ['auth','admin']], function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.dashboard');
+        Route::get('/state/{id?}', [HomeController::class, 'getCountryStates'])->name('country.states');
+        Route::get('/packages/{id?}', [HomeController::class, 'getCoursePackages'])->name('course.packages');
 
         /* Courses section*/
         Route::get('/all-courses', [HomeController::class, 'getAllCourses'])->name('all-courses');
@@ -43,6 +46,7 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::get('/teacher/edit/{id}', [TeachersController::class, 'editTeacher'])->name('teacher.edit');
         Route::post('/teacher/update/{id}', [TeachersController::class, 'updateTeacher'])->name('teacher.update');
         Route::post('/teacher/delete/', [TeachersController::class, 'deleteTeacher'])->name('teacher.delete');
+        Route::get('/teacher/divisions', [TeachersController::class, 'getTeacherDivisions'])->name('teacher.divisions');
 
         Route::get('/assign-teachers', [TeachersController::class, 'getAllAssignedTeachers'])->name('assign-teachers');
         Route::get('/assign-teacher/create', [TeachersController::class, 'createAssign'])->name('assign-teacher.create');
@@ -50,6 +54,15 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::get('/assign-teacher/edit/{id}', [TeachersController::class, 'editAssign'])->name('assign-teacher.edit');
         Route::post('/assign-teacher/update/{id}', [TeachersController::class, 'updateAssign'])->name('assign-teacher.update');
         Route::post('/assign-teacher/delete/', [TeachersController::class, 'deleteAssign'])->name('assign-teacher.delete');
+
+        Route::get('/students', [StudentController::class, 'getAllStudents'])->name('students');
+        Route::get('/student/create', [StudentController::class, 'createStudent'])->name('student.create');
+        Route::post('/student/store', [StudentController::class, 'storeStudent'])->name('student.store');
+        Route::get('/student/edit/{id}', [StudentController::class, 'editStudent'])->name('student.edit');
+        Route::post('/student/update/{id}', [StudentController::class, 'updateStudent'])->name('student.update');
+        Route::post('/student/delete/', [StudentController::class, 'deleteStudent'])->name('student.delete');
+        Route::post('/student/approve/', [StudentController::class, 'approveStudent'])->name('student.approve');
+       
     });
 
 });

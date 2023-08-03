@@ -72,7 +72,7 @@
                                 </div>
 
                                 <div class="form-group col-md-4">
-                                    <label for="#">Time Interval<span class="error">*</span></label>
+                                    <label for="#">Time Interval (In Minutes)<span class="error">*</span></label>
                                     <input type="text" class="form-control" value="{{ old('interval') }}" id="interval" name="interval" >
                                     @error('interval')
                                         <div class="alert alert-danger">{{ $message }}</div>

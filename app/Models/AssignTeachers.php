@@ -18,4 +18,8 @@ class AssignTeachers extends Model
     public function course_division(){
     	return $this->belongsTo(CourseDivisions::class,'module_id','id');
     }
+    public function slots()
+    {
+        return $this->hasMany(TeacherSlots::class,'assigned_id','id');
+    } 
 }
