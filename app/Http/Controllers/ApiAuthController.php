@@ -13,6 +13,7 @@ use App\Models\CoursePackages;
 use App\Models\StudentPackages;
 use App\Models\AssignTeachers;
 use App\Models\TeacherSlots;
+use App\Models\Bookings;
 use Validator;
 use Hash;
 use Str;
@@ -438,6 +439,23 @@ class ApiAuthController extends Controller
                                 ->where('is_deleted',0)->select('id','slot')
                                 ->orderBy('id','ASC')->get()->toArray();
         return $slots;
+    }
+
+    public function booking(Request $request){
+        $book = new Bookings();
+        $book->student_id = $request->student_id;
+        $book->teacher_id = $request->teacher_id;
+        $book->module_id = $request->module_id;
+        $book->slot_id = $request->slot_id;
+        $book->booking_date = $request->booking_date;
+        $book->save();
+        $data = [];
+        if($book->id){
+            TeacherSlots::where('id',$request->slot_id)->update(['is_booked' => 1]);
+            return response()->json([ 'status' => true, 'message' => 'Successfully Booked', 'data' => $data]);
+        }else{
+            return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
+        }
     }
 }
 

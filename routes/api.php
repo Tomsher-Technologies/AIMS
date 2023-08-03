@@ -37,6 +37,7 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::get('/package-details', [ApiAuthController::class, 'getPackageDetails'])->name('package-details');
 
     Route::get('/get-slots', [ApiAuthController::class, 'getTimeSlots'])->name('get-slots');
+    Route::post('/booking', [ApiAuthController::class, 'booking'])->name('booking');
 });
 
 
