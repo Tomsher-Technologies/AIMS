@@ -19,6 +19,8 @@ use App\Models\StudentClasses;
 use App\Models\StudentPackages;
 use App\Models\States;
 use App\Models\Bookings;
+use App\Models\Notifications;
+use App\Models\Remarks;
 use Auth;
 use Validator;
 use Storage;
@@ -449,6 +451,31 @@ class StudentController extends Controller
                         ->orderBy('package_title','ASC')
                         ->get();
         return  view('admin.bookings.index',compact('bookings','package','teacher','title_search','course_search','package_search'));
+    }
+
+    public function cancelBooking(Request $request){
+        $id = $request->id;
+        $cancel = Bookings::findorfail($id);
+
+        $slot_id = $cancel->slot_id;
+        $student_id = $cancel->student_id;
+        $date = $cancel->booking_date;
+
+        $cancel->update(['is_cancelled'=>1, 'cancelled_by' => Auth::user()->id]);
+        TeacherSlots::where('id', '=', $slot_id)->update(['is_booked'=>0]);
+        if($cancel->is_cancelled == 1){
+            $not = new Notifications ();
+            $not->user_id = $student_id;
+            $not->content ='Your booking for '.date("d M, Y",strtotime($date)).' has been cancelled by Admin';
+            $not->save();
+        }
+    }
+
+    public function remarks(){
+        $remarks = Remarks::leftJoin('users as ud','ud.id','=','remarks.student_id')
+                    ->select('remarks.id','remarks.remarks','remarks.created_at','ud.name','ud.unique_id')
+                    ->orderBy('remarks.id', 'DESC')->paginate(10);
+        return  view('admin.students.remarks',compact('remarks'));
     }
   
 }

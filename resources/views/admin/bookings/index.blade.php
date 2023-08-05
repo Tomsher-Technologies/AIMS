@@ -90,7 +90,7 @@
                                                     @if($stud->is_cancelled == 1)
                                                         <span class="error">Cancelled By </span>
                                                     @else
-                                                        <button class="btn btn-danger pending mt-1" onclick="rejectStudent({{$stud->id}})"><span class="label label-danger">Cancel Booking</span> </button>
+                                                        <button class="btn btn-danger pending mt-1 " onclick="cancelBooking({{$stud->id}})"><span class="label label-danger">Cancel Booking</span> </button>
                                                     @endif
                                                 </td>
                                                
@@ -120,18 +120,19 @@
 @section('footer')
 <script type="text/javascript">
     $('div.alert').not('.alert-important').delay(3000).fadeOut(350);
-    $(document).on('click','.deleteStudent',function(){
-        var id = $(this).attr('data-id');
+
+    function cancelBooking(id){
+        
         Swal.fire({
             title: "Are you sure?",
-            text: 'Do you want to continue?',
+            text: 'Do you want to cancel this booking?',
             icon: 'warning',
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: "Yes, cancel it!",
             showCancelButton: true,
         }).then((result) => {
             if (result.isConfirmed){
                 $.ajax({
-                    url: "{{ route('student.delete') }}",
+                    url: "{{ route('booking.cancel') }}",
                     type: "POST",
                     data: {
                         id: id,
@@ -139,73 +140,19 @@
                     },
                     dataType: "html",
                     success: function () {
-                        swal.fire("Done!", "It was succesfully deleted!", "success");
+                        swal.fire("Done!", "Succesfully cancelled!", "success");
                         setTimeout(function () { 
                             window.location.reload();
                         }, 3000);  
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
-                        swal.fire("Error deleting!", "Please try again", "error");
+                        swal.fire("Error cancelling!", "Please try again", "error");
                     }
                 });
             }  
         });
-    }) ;
-
-    function approveStudent(id){
-        Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you want to approve this student?",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes!'
-        }).then(function(result) {
-            var status = 1;
-            if (result.isConfirmed) {
-                changeStatus(id, status);
-            } 
-            
-        })
     }
-
-    function rejectStudent(id){
-        Swal.fire({
-                title: 'Are you sure?',
-                text: "Do you want to reject this student?",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes!'
-        }).then(function(result) {
-            var status = 2;
-            if (result.isConfirmed) {
-                changeStatus(id, status);
-            } 
-            
-        })
-    }
-
-    function changeStatus(id, status){
-        
-        $.ajax({
-            url: "{{ route('student.approve')}}",
-            type: "POST",
-            data: { "_token": "{{ csrf_token() }}", "id":id, 'status':status},
-            success: function( response ) {
-                Swal.fire(
-                    response+' successfully',
-                    '',
-                    'success'
-                );
-                setTimeout(function () { 
-                    window.location.reload();
-                }, 3000);  
-            }
-        });
-    }
+   
 
 </script>
 @endsection

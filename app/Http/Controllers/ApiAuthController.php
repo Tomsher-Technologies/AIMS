@@ -15,6 +15,7 @@ use App\Models\AssignTeachers;
 use App\Models\TeacherSlots;
 use App\Models\Bookings;
 use App\Models\Remarks;
+use App\Models\Notifications;
 use Validator;
 use Hash;
 use Str;
@@ -286,13 +287,7 @@ class ApiAuthController extends Controller
             $profileImage = '';
             if ($request->hasFile('profile_image')) {
                 $uploadedFile = $request->file('profile_image');
-                
-               
-
-                echo $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
-                echo '====================';
-                print_r($uploadedFile);
-                die;
+                $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
                 $name = Storage::disk('public')->putFileAs(
                     'users/'.$userId,
                     $uploadedFile,
@@ -344,8 +339,8 @@ class ApiAuthController extends Controller
                     
         if(isset($packages[0])){
             foreach($packages as $key => $pack){
-                $course = $pack->course_name->name;
-                $banner_image = $pack->course_name->banner_image;
+                $course = (!empty($pack->course_name)) ? $pack->course_name->name : '';
+                $banner_image = (!empty($pack->course_name)) ? $pack->course_name->banner_image : '';
                 unset($packages[$key]['course_name']);
                 $packages[$key]['course_name'] = $course;
                 $packages[$key]['banner_image'] = ($banner_image != NULL) ? asset($banner_image) : '';
@@ -369,8 +364,8 @@ class ApiAuthController extends Controller
                     
         if(isset($packages[0])){
             foreach($packages as $key => $pack){
-                $course = $pack->course_name->name;
-                $banner_image = $pack->course_name->banner_image;
+                $course = (!empty($pack->course_name)) ? $pack->course_name->name : '';
+                $banner_image = (!empty($pack->course_name)) ? $pack->course_name->banner_image : '';
                 unset($packages[$key]['course_name']);
                 $packages[$key]['course_name'] = $course;
                 $packages[$key]['banner_image'] = ($banner_image != NULL) ? asset($banner_image) : '';
@@ -400,8 +395,8 @@ class ApiAuthController extends Controller
         if(isset($packages[0])){
             $packages[0]['is_user_package'] = ($checkUserPackage == 0) ? 0 : 1;
             foreach($packages as $key => $pack){
-                $course = $pack->course_name->name;
-                $banner_image = $pack->course_name->banner_image;
+                $course = (!empty($pack->course_name)) ? $pack->course_name->name : '';
+                $banner_image = (!empty($pack->course_name)) ? $pack->course_name->banner_image : '';
                 unset($pack->course_name);
                 $packages[$key]['course_name'] = $course;
                 $packages[$key]['banner_image'] = ($banner_image != NULL) ? asset($banner_image) : '';
@@ -529,6 +524,25 @@ class ApiAuthController extends Controller
             }
         }else{
             return response()->json(["status"=>false,"message"=>"Soemthing went wrong!",'data' => [] ]);
+        }
+    }
+
+    public function getClasses(Request $request){
+        $user_id = $request->user_id;
+
+        $course = StudentPackages::where('user_id',$user_id)->get();
+    }
+
+    public function notifications(Request $request){
+        $user_id = $request->user_id;
+        $notifications = Notifications::where('user_id', $user_id)
+                                    ->where('is_deleted',0)
+                                    ->orderBy('id', 'DESC')
+                                    ->select('id','content','is_read','created_at')->get();
+        if(!empty($notifications)){
+            return response()->json(["status" => true, "message"=>"Success",'data' => $notifications]);
+        }else{
+            return response()->json(["status" => false,'message'=>'No data found!', 'data' => []]);
         }
     }
 }

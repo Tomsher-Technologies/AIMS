@@ -102,4 +102,9 @@ class User extends Authenticatable implements JWTSubject
             $query1->where('is_active', 1);
             }])->where('is_deleted',0);
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notifications::class,'user_id','id');
+    }
 }

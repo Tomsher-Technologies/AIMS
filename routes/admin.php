@@ -64,7 +64,8 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::post('/student/approve/', [StudentController::class, 'approveStudent'])->name('student.approve');
 
         Route::get('/student-bookings', [StudentController::class, 'getAllStudentBookings'])->name('student.bookings');
-       
+        Route::post('/booking/cancel/', [StudentController::class, 'cancelBooking'])->name('booking.cancel');
+        Route::get('/remarks', [StudentController::class, 'remarks'])->name('remarks');
     });
 
 });
