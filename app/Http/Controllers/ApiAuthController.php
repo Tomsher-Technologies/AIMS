@@ -275,25 +275,31 @@ class ApiAuthController extends Controller
         $userId = $request->user_id;
 
         $userdata = UserDetails::where('user_id', $userId)->get();
+      
+        if(isset($userdata[0])){
+            $presentImage = $userdata[0]['profile_image'];
 
-        $presentImage = $userdata[0]['profile_image'];
-
-        $profileImage = '';
-        if ($request->hasFile('profile_image')) {
-            $uploadedFile = $request->file('profile_image');
-            $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
-            $name = Storage::disk('public')->putFileAs(
-                'users/'.$userId,
-                $uploadedFile,
-                $filename
-            );
-            $profileImage = Storage::url($name);
-            if($presentImage != '' && File::exists(public_path($presentImage))){
-                unlink(public_path($presentImage));
+            $profileImage = '';
+            if ($request->hasFile('profile_image')) {
+                $uploadedFile = $request->file('profile_image');
+                $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
+                $name = Storage::disk('public')->putFileAs(
+                    'users/'.$userId,
+                    $uploadedFile,
+                    $filename
+                );
+                $profileImage = Storage::url($name);
+                if($presentImage != '' && File::exists(public_path($presentImage))){
+                    unlink(public_path($presentImage));
+                }
+                $update =  UserDetails::where('user_id', $userId)->update(['profile_image' => $profileImage]);
+                return response()->json(['status' => true,'message' => 'User image updated successfully', 'data' => ['profile_image' => asset($profileImage)]]);
+            }else{
+                return response()->json(['status' => false,'message' => 'Failed to update user image', 'data' => []]);
             }
+        }else{
+            return response()->json(['status' => false,'message' => 'User not found', 'data' => []]);
         } 
-        UserDetails::where('user_id', $userId)->update(['profile_image' => $profileImage]);
-        return response()->json(['status' => true,'message' => 'User image updated successfully', 'data' => ['profile_image' => asset($profileImage)]]);
     }
 
     public function changePassword(Request $request)
@@ -456,6 +462,22 @@ class ApiAuthController extends Controller
         }else{
             return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
         }
+    }
+
+    public function studentsBookings(Request $request){
+        $bookings = Bookings::leftJoin('course_divisions as cd','cd.id','=','bookings.module_id')
+        ->leftJoin('courses as c','c.id','=','cd.courses_id')
+        ->leftJoin('teacher_slots as slot','slot.id','=','bookings.slot_id')
+        ->leftJoin('users as teach','teach.id','=','bookings.teacher_id')
+        ->where('bookings.student_id', $request->user_id)
+        ->select('bookings.id','bookings.booking_date','c.name as course_name','cd.title as module_name','teach.name as teacher_name','bookings.is_cancelled','slot.slot','bookings.created_at',)
+        ->orderBy('bookings.id','DESC')
+        ->get();
+        if(isset($bookings[0])){
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $bookings]);
+        }else{
+            return response()->json(['status'=>false,'message'=>'N o bookings found','data' => [] ]);
+        } 
     }
 }
 

@@ -18,6 +18,7 @@ use App\Models\Countries;
 use App\Models\StudentClasses;
 use App\Models\StudentPackages;
 use App\Models\States;
+use App\Models\Bookings;
 use Auth;
 use Validator;
 use Storage;
@@ -224,10 +225,15 @@ class StudentController extends Controller
     {
         $student = User::with(['user_details','student_packages'])->find($id);
         $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
-        $packages = CoursePackages::where('courses_id',$student->student_packages[0]->course_id)
-                                    ->where('is_active',1)
-                                    ->where('is_deleted',0)
-                                    ->orderBy('package_title','ASC')->get();
+        if(isset($student->student_packages[0])){
+            $packages = CoursePackages::where('courses_id',$student->student_packages[0]->course_id)
+                                        ->where('is_active',1)
+                                        ->where('is_deleted',0)
+                                        ->orderBy('package_title','ASC')->get();
+        }else{
+            $packages = [];
+        }
+        
         $countries = Countries::select('id','name')->orderBy('name','ASC')->get();
         $states = States::select('*')->where('country_id', $student->user_details->country)->orderBy('name','ASC')->get();
         return view('admin.students.edit', compact('student','courses','packages','countries','states'));
@@ -253,9 +259,9 @@ class StudentController extends Controller
         }
         $user = User::with(['user_details','student_packages'])->findOrFail($id);
 
-        $currentStudentPack = $user->student_packages[0]->id;
-        $currentPackageId =  $user->student_packages[0]->package_id;
-        $currentCourse =  $user->student_packages[0]->course_id;
+        $currentStudentPack = (isset($user->student_packages[0])) ? $user->student_packages[0]->id : '';
+        $currentPackageId =  (isset($user->student_packages[0])) ? $user->student_packages[0]->package_id : '';
+        $currentCourse =  (isset($user->student_packages[0])) ? $user->student_packages[0]->course_id : '';
         
         $user->name = $request->first_name.' '.$request->last_name;
         $user->email = $request->email;
@@ -330,7 +336,9 @@ class StudentController extends Controller
         UserDetails::where('user_id', $userId)->update($data);
 
         if($currentPackageId != $request->course_package){
-            StudentPackages::where('id',$currentStudentPack)->update(['is_active' => 0]);
+            if($currentStudentPack != ''){
+                StudentPackages::where('id',$currentStudentPack)->update(['is_active' => 0]);
+            }
             $pack = new StudentPackages();
             $pack->user_id = $user->id;
             $pack->course_id = $request->course;
@@ -345,7 +353,9 @@ class StudentController extends Controller
             $packageModules= PackageModules::where('package_id', $request->course_package)
                                             ->where('is_deleted',0)->pluck('module_id')->toArray();
             if(!empty($packageModules)){
-                StudentClasses::where('student_package_id',$currentStudentPack)->update(['is_active' => 0]);
+                if($currentStudentPack != ''){
+                    StudentClasses::where('student_package_id',$currentStudentPack)->update(['is_active' => 0]);
+                }
                 $classes = CourseClasses::whereIn('module_id', $packageModules)
                                         ->where('is_active',1)->where('is_deleted',0)->pluck('id')->toArray();
                 $stud_classes = [];
@@ -393,6 +403,52 @@ class StudentController extends Controller
         return $response;
     }
    
-   
+    public function getAllStudentBookings(Request $request){
+        $title_search = $course_search =  $package_search = null;
+        
+        if ($request->has('title')) {
+            $title_search = $request->title;
+        }
+        if ($request->has('course')) {
+            $course_search = $request->course;
+        }
+        if ($request->has('package')) {
+            $package_search = $request->package;
+        }
+
+        $query = Bookings::with(['student','teacher','course_division','slot'])
+                ->where('is_deleted',0)
+                ->orderBy('id','DESC');
+
+        if($title_search){
+            $query->Where(function ($query) use ($title_search) {
+                $query->orWhere('users.name', 'LIKE', "%$title_search%")
+                ->orWhere('users.email', 'LIKE', "%$title_search%")
+                ->orWhere('users.unique_id', 'LIKE', "%$title_search%");   
+            }); 
+        }
+        if($package_search){
+            $query->whereHas('student_packages', function ($query)  use($package_search) {
+                $query->where('package_id', $package_search);
+            });
+        }
+        if($course_search){
+            $query->whereHas('student_packages', function ($query)  use($course_search) {
+                $query->where('course_id', $course_search);
+            });
+        }
+        
+
+        $bookings = $query->paginate(10);
+        $teacher = User::where('user_type', 'staff')->where('is_deleted',0)->orderBy('name','ASC')->get();
+
+        $package = CoursePackages::leftJoin('courses as co','course_packages.courses_id','=','co.id')
+                        ->select('course_packages.id', 'course_packages.package_title')
+                        ->where('co.is_deleted', 0)
+                        ->where('course_packages.is_deleted',0)
+                        ->orderBy('package_title','ASC')
+                        ->get();
+        return  view('admin.bookings.index',compact('bookings','package','teacher','title_search','course_search','package_search'));
+    }
   
 }

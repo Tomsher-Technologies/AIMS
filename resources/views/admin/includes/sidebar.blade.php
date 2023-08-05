@@ -33,6 +33,13 @@
                             <i class="iconsminds-conference"></i>Assign Teachers
                         </a>
                     </li>
+
+                    <li class="{{ areActiveRoutes(['student.bookings']) }}">
+                        <a href="{{ route('student.bookings') }}">
+                            <i class="iconsminds-conference"></i> Student Bookings
+                        </a>
+                    </li>
+
                     <li class="{{ areActiveRoutes(['students', 'student.create','student.edit']) }}">
                         <a href="{{ route('students') }}">
                             <i class="iconsminds-conference"></i> Students

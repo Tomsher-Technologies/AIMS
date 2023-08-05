@@ -62,6 +62,8 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::post('/student/update/{id}', [StudentController::class, 'updateStudent'])->name('student.update');
         Route::post('/student/delete/', [StudentController::class, 'deleteStudent'])->name('student.delete');
         Route::post('/student/approve/', [StudentController::class, 'approveStudent'])->name('student.approve');
+
+        Route::get('/student-bookings', [StudentController::class, 'getAllStudentBookings'])->name('student.bookings');
        
     });
 

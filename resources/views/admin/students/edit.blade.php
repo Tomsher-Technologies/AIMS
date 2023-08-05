@@ -144,7 +144,7 @@
                                                 $file = asset('assets/images/file.png');
                                                 echo '<img class="mt-3" src="'.$file.'" style="width:100px" />';
                                             } else {
-                                                echo '<img class="mt-3" src="{{ asset($student->user_details->enrollment_form) }}" style="width:350px" />';
+                                                echo '<img class="mt-3" src="'.$filePath.'" style="width:350px" />';
                                             }
                                         @endphp
                                         
@@ -157,7 +157,7 @@
                                 <select class="form-control"  id="course" name="course"  onchange="getPackages(this.value)">
                                     <option value=""> Select</option>
                                     @foreach($courses as $cou)
-                                        <option value="{{ $cou->id }}" {{ ($student->student_packages[0]->course_id == $cou->id) ? 'selected' : '' }} >{{ $cou->name }} </option>
+                                        <option value="{{ $cou->id }}" {{ (isset($student->student_packages[0]) && $student->student_packages[0]->course_id == $cou->id) ? 'selected' : '' }} >{{ $cou->name }} </option>
                                     @endforeach
                                 </select>
                                 
@@ -171,7 +171,7 @@
                                 <select class="form-control"  id="course_package" name="course_package">
                                     <option value="">Select Package</option>
                                     @foreach($packages as $pack)
-                                        <option value="{{ $pack->id }}" {{ ($student->student_packages[0]->package_id == $pack->id) ? 'selected' : '' }} >{{ $pack->package_title }} </option>
+                                        <option value="{{ $pack->id }}" {{ (isset($student->student_packages[0]) && $student->student_packages[0]->package_id == $pack->id) ? 'selected' : '' }} >{{ $pack->package_title }} </option>
                                     @endforeach
                                 </select>
                                 @error('course_package')
@@ -182,7 +182,10 @@
                             <div class="form-group col-md-7">
                                 <input type="hidden" name="valid_days" id="valid_days">
                                 <label for="#">Start Date<span class="error">*</span></label>
-                                <input type="text" class="form-control datepicker" onchange="getEndDate()" value="{{ old('start_date',$student->student_packages[0]->start_date) }}" id="start_date" name="start_date" placeholder="YYYY-MM-DD">
+                                @php   
+                                    $startdate = isset($student->student_packages[0]) ? $student->student_packages[0]->start_date : '';
+                                @endphp
+                                <input type="text" class="form-control datepicker" onchange="getEndDate()" value="{{ old('start_date',$startdate) }}" id="start_date" name="start_date" placeholder="YYYY-MM-DD">
                                 @error('start_date')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -190,7 +193,10 @@
 
                             <div class="form-group col-md-7">
                                 <label for="#">End Date<span class="error">*</span></label>
-                                <input type="text" class="form-control datepicker" value="{{ old('end_date', $student->student_packages[0]->end_date) }}" id="end_date" name="end_date" placeholder="YYYY-MM-DD">
+                                @php   
+                                    $end_date = isset($student->student_packages[0]) ? $student->student_packages[0]->end_date : '';
+                                @endphp
+                                <input type="text" class="form-control datepicker" value="{{ old('end_date', $end_date) }}" id="end_date" name="end_date" placeholder="YYYY-MM-DD">
                                 @error('end_date')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -199,16 +205,22 @@
                             <div class="form-group col-md-7">
                                 <label for="#">Fees Pending<span class="error">*</span></label>
                                 <div class="d-flex">
-                                    <input type="radio" class="form-control radioBtn"  id="fee_pendingYes" name="fee_pending" value='1' {{ ($student->student_packages[0]->fee_pending == 1) ? 'checked' : ''}}> Yes
-                                    <input type="radio" class="form-control radioBtn" id="fee_pendingNo" name="fee_pending" value='0'  {{ ($student->student_packages[0]->fee_pending == 0) ? 'checked' : ''}}> No
+                                    @php   
+                                        $fee_pending = isset($student->student_packages[0]) ? $student->student_packages[0]->fee_pending : '';
+                                    @endphp
+                                    <input type="radio" class="form-control radioBtn"  id="fee_pendingYes" name="fee_pending" value='1' {{ ($fee_pending == 1) ? 'checked' : ''}}> Yes
+                                    <input type="radio" class="form-control radioBtn" id="fee_pendingNo" name="fee_pending" value='0'  {{ ($fee_pending != 1) ? 'checked' : ''}}> No
                                 </div>
                                 @error('fee_pending')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="form-group col-md-7" id="due_dateDiv" @if($student->student_packages[0]->fee_pending == 0) style="display:none"  @endif>
+                            <div class="form-group col-md-7" id="due_dateDiv" @if($fee_pending != 1) style="display:none"  @endif>
                                 <label for="#">Due Date</label>
-                                <input type="text" class="form-control datepicker" value="{{ old('due_date',$student->student_packages[0]->due_date) }}" id="due_date" name="due_date" placeholder="YYYY-MM-DD">
+                                    @php   
+                                        $due_date = isset($student->student_packages[0]) ? $student->student_packages[0]->due_date : '';
+                                    @endphp
+                                <input type="text" class="form-control datepicker" value="{{ old('due_date',$due_date) }}" id="due_date" name="due_date" placeholder="YYYY-MM-DD">
                                 @error('due_date')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
