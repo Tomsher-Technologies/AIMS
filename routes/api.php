@@ -39,6 +39,9 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::get('/get-slots', [ApiAuthController::class, 'getTimeSlots'])->name('get-slots');
     Route::post('/booking', [ApiAuthController::class, 'booking'])->name('booking');
     Route::get('/get-bookings', [ApiAuthController::class, 'studentsBookings'])->name('get-bookings');
+    Route::post('/cancel-booking', [ApiAuthController::class, 'cancelBooking'])->name('cancel-booking');
+
+    Route::post('/send-remarks', [ApiAuthController::class, 'saveRemarks'])->name('send-remarks');
 });
 
 

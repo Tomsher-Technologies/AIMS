@@ -14,6 +14,7 @@ use App\Models\StudentPackages;
 use App\Models\AssignTeachers;
 use App\Models\TeacherSlots;
 use App\Models\Bookings;
+use App\Models\Remarks;
 use Validator;
 use Hash;
 use Str;
@@ -178,8 +179,11 @@ class ApiAuthController extends Controller
             $user[0]['passport'] = ($user[0]['passport'] != '') ? asset($user[0]['passport']) : '';
             $user[0]['profile_image'] = ($user[0]['profile_image'] != '') ? asset($user[0]['profile_image']) : '';
             $user[0]['enrollment_form'] = ($user[0]['enrollment_form'] != '') ? asset($user[0]['enrollment_form']) : '';
-            $user[0]['country_name'] = $user[0]->user_details->country_name->name;
-            $user[0]['state_name'] = $user[0]->user_details->state_name->name;
+
+            $country = $user[0]->user_details->country_name;
+            $state = $user[0]->user_details->state_name;
+            $user[0]['country_name'] = (!empty($country)) ? $country->name : '';
+            $user[0]['state_name'] = (!empty($state)) ? $state->name : '';
             unset($user[0]['user_details']);
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $user]);
         }else{
@@ -282,7 +286,13 @@ class ApiAuthController extends Controller
             $profileImage = '';
             if ($request->hasFile('profile_image')) {
                 $uploadedFile = $request->file('profile_image');
-                $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
+                
+               
+
+                echo $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
+                echo '====================';
+                print_r($uploadedFile);
+                die;
                 $name = Storage::disk('public')->putFileAs(
                     'users/'.$userId,
                     $uploadedFile,
@@ -448,17 +458,27 @@ class ApiAuthController extends Controller
     }
 
     public function booking(Request $request){
-        $book = new Bookings();
-        $book->student_id = $request->student_id;
-        $book->teacher_id = $request->teacher_id;
-        $book->module_id = $request->module_id;
-        $book->slot_id = $request->slot_id;
-        $book->booking_date = $request->booking_date;
-        $book->save();
-        $data = [];
-        if($book->id){
-            TeacherSlots::where('id',$request->slot_id)->update(['is_booked' => 1]);
-            return response()->json([ 'status' => true, 'message' => 'Successfully Booked', 'data' => $data]);
+        $student_id = $request->student_id;
+        $teacher_id = $request->teacher_id;
+        $module_id = $request->module_id;
+        $slot_id = $request->slot_id;
+        $booking_date = $request->booking_date;
+
+        if($student_id != '' && $teacher_id != '' && $module_id != '' && $slot_id != '' && $booking_date != '' ){
+            $book = new Bookings();
+            $book->student_id = $student_id;
+            $book->teacher_id = $teacher_id;
+            $book->module_id = $module_id;
+            $book->slot_id = $slot_id;
+            $book->booking_date = $booking_date;
+            $book->save();
+            $data = [];
+            if($book->id){
+                TeacherSlots::where('id',$slot_id)->update(['is_booked' => 1]);
+                return response()->json([ 'status' => true, 'message' => 'Successfully Booked', 'data' => $data]);
+            }else{
+                return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
+            }
         }else{
             return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
         }
@@ -466,18 +486,50 @@ class ApiAuthController extends Controller
 
     public function studentsBookings(Request $request){
         $bookings = Bookings::leftJoin('course_divisions as cd','cd.id','=','bookings.module_id')
-        ->leftJoin('courses as c','c.id','=','cd.courses_id')
-        ->leftJoin('teacher_slots as slot','slot.id','=','bookings.slot_id')
-        ->leftJoin('users as teach','teach.id','=','bookings.teacher_id')
-        ->where('bookings.student_id', $request->user_id)
-        ->select('bookings.id','bookings.booking_date','c.name as course_name','cd.title as module_name','teach.name as teacher_name','bookings.is_cancelled','slot.slot','bookings.created_at',)
-        ->orderBy('bookings.id','DESC')
-        ->get();
+                            ->leftJoin('courses as c','c.id','=','cd.courses_id')
+                            ->leftJoin('teacher_slots as slot','slot.id','=','bookings.slot_id')
+                            ->leftJoin('users as teach','teach.id','=','bookings.teacher_id')
+                            ->where('bookings.student_id', $request->user_id)
+                            ->select('bookings.id as booking_id','bookings.booking_date','c.name as course_name','cd.title as module_name','teach.name as teacher_name','bookings.is_cancelled','slot.slot','bookings.created_at',)
+                            ->orderBy('bookings.id','DESC')
+                            ->get();
         if(isset($bookings[0])){
             return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $bookings]);
         }else{
             return response()->json(['status'=>false,'message'=>'N o bookings found','data' => [] ]);
         } 
+    }
+
+    public function cancelBooking(Request $request){
+        $cancel = Bookings::findorfail($request->booking_id);
+        $slot_id = $cancel->slot_id;
+        $cancel->update(['is_cancelled'=>1, 'cancelled_by' => $request->user_id]);
+        TeacherSlots::where('id', '=', $slot_id)->update(['is_booked'=>0]);
+        if($cancel->is_cancelled == 1){
+            return response()->json(["status" => true, "message"=>"Booking cancelled successfully",'data' => []]);
+        }else{
+            return response()->json(["status"=>false,"message"=>"Cancellation failed!",'data' => [] ]);
+        }
+    }
+
+    public function saveRemarks(Request $request){
+        $remark = $request->remark;
+        $user_id = $request->user_id;
+
+        if($remark != '' && $user_id != ''){
+            $rem = new Remarks();
+            $rem->remarks = $remark;
+            $rem->student_id = $user_id;
+            $rem->save();
+    
+            if($rem->id){
+                return response()->json(["status" => true, "message"=>"Message sent successfully! Thank you.",'data' => []]);
+            }else{
+                return response()->json(["status"=>false,"message"=>"Soemthing went wrong!",'data' => [] ]);
+            }
+        }else{
+            return response()->json(["status"=>false,"message"=>"Soemthing went wrong!",'data' => [] ]);
+        }
     }
 }
 

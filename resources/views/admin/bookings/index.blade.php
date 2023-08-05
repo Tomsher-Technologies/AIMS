@@ -88,7 +88,7 @@
                                         
                                                 <td class="text-center ">
                                                     @if($stud->is_cancelled == 1)
-                                                        <span class="green">Cancelled</span>
+                                                        <span class="error">Cancelled By </span>
                                                     @else
                                                         <button class="btn btn-danger pending mt-1" onclick="rejectStudent({{$stud->id}})"><span class="label label-danger">Cancel Booking</span> </button>
                                                     @endif
