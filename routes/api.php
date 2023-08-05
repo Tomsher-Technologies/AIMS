@@ -42,6 +42,7 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::post('/cancel-booking', [ApiAuthController::class, 'cancelBooking'])->name('cancel-booking');
 
     Route::post('/send-remarks', [ApiAuthController::class, 'saveRemarks'])->name('send-remarks');
+    Route::get('/notifications', [ApiAuthController::class, 'notifications'])->name('notifications');
 });
 
 
