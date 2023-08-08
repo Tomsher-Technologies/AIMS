@@ -574,7 +574,12 @@ class ApiAuthController extends Controller
             $attended = array_filter($allClass, function($elem){
                 return $elem['is_attended'] === 1;
             });
-            $progress = (count($attended)/count($allClass))*100;
+            if(!empty($attended)){
+                $progress = (count($attended)/count($allClass))*100;
+            }else{
+                $progress = 0;
+            }
+            
             $data['progress'] = round($progress);
                                     
             return response()->json(["status" => true, "message"=>"Success",'data' => $data]);
