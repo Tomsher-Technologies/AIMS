@@ -550,9 +550,10 @@ class ApiAuthController extends Controller
     public function getStudentClasses(Request $request){
         $user_id = $request->user_id;
         $course = StudentPackages::leftJoin('courses as co', 'co.id', '=', 'student_packages.course_id')
+                                ->leftJoin('course_packages as cp', 'cp.id', '=', 'student_packages.package_id')
                                 ->where('student_packages.user_id',$user_id)
                                 ->where('student_packages.is_active',1)->where('student_packages.is_deleted',0)
-                                ->select('co.id','co.name','co.description','co.banner_image')
+                                ->select('cp.package_title as package_name','co.id as course_id','co.name as course_name','co.description as course_description','co.banner_image')
                                 ->get();
     
         if(!empty($course)){
