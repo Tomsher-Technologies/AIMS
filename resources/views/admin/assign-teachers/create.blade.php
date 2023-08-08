@@ -83,7 +83,7 @@
                             
 
                             <div class="form-group col-md-7 d-flex">
-                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Save Course Package</button>
+                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Save</button>
                                 <a href="{{ route('assign-teachers') }}" class="btn btn-info d-block mt-2 ml-2">Cancel</a>
                             </div>
                         </div>

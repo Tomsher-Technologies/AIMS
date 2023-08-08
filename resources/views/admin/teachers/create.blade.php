@@ -80,7 +80,7 @@
                             </div>
 
                             <div class="form-group col-md-7 d-flex">
-                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Save Class</button>
+                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Save</button>
                                 <a href="{{ route('classes') }}" class="btn btn-info d-block mt-2 ml-2">Cancel</a>
                             </div>
                         </div>
