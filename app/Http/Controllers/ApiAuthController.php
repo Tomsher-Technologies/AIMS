@@ -570,6 +570,12 @@ class ApiAuthController extends Controller
                                         ->orderBy('student_classes.is_active','DESC')
                                         ->orderBy('cc.order','ASC')
                                         ->get();
+            $allClass = $data['classes']->toArray();
+            $attended = array_filter($allClass, function($elem){
+                return $elem['is_attended'] === 1;
+            });
+            $progress = (count($attended)/count($allClass))*100;
+            $data['progress'] = round($progress);
                                     
             return response()->json(["status" => true, "message"=>"Success",'data' => $data]);
         }else{
