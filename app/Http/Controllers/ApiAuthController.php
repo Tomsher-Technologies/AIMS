@@ -16,6 +16,7 @@ use App\Models\TeacherSlots;
 use App\Models\Bookings;
 use App\Models\Remarks;
 use App\Models\Notifications;
+use App\Models\StudentClasses;
 use Validator;
 use Hash;
 use Str;
@@ -541,6 +542,35 @@ class ApiAuthController extends Controller
                                     ->select('id','content','is_read','created_at')->get();
         if(!empty($notifications)){
             return response()->json(["status" => true, "message"=>"Success",'data' => $notifications]);
+        }else{
+            return response()->json(["status" => false,'message'=>'No data found!', 'data' => []]);
+        }
+    }
+
+    public function getStudentClasses(Request $request){
+        $user_id = $request->user_id;
+        $course = StudentPackages::leftJoin('courses as co', 'co.id', '=', 'student_packages.course_id')
+                                ->where('student_packages.user_id',$user_id)
+                                ->where('student_packages.is_active',1)->where('student_packages.is_deleted',0)
+                                ->select('co.id','co.name','co.description','co.banner_image')
+                                ->get();
+    
+        if(!empty($course)){
+            if(isset($course[0])){
+                $course[0]['banner_image'] = ( $course[0]['banner_image'] != NULL) ? asset($course[0]['banner_image']) :'';
+            }
+            $data['course'] = $course;
+
+            $data['classes'] = StudentClasses::leftJoin('course_classes as cc','cc.id','=','student_classes.class_id')
+                                        ->leftJoin('course_divisions as cd','cc.module_id','=','cd.id')
+                                        ->where('cc.is_active',1)->where('cc.is_deleted',0)
+                                        ->where('student_classes.user_id', $user_id)
+                                        ->select('student_classes.id','cc.class_name','cd.title','student_classes.is_attended')
+                                        ->orderBy('student_classes.is_active','DESC')
+                                        ->orderBy('cc.order','ASC')
+                                        ->get();
+                                    
+            return response()->json(["status" => true, "message"=>"Success",'data' => $data]);
         }else{
             return response()->json(["status" => false,'message'=>'No data found!', 'data' => []]);
         }
