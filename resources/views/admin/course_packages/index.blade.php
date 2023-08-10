@@ -7,7 +7,7 @@
                 <h1 class="m-0 p-0">All Course Packages</h1>
                 <div class="btn_group">
                     
-                    <a href="{{ route('packages.create') }}" class="btn btn_primary">Add Course Package</a>
+                    <a href="{{ route('package.create') }}" class="btn btn_primary">Add Course Package</a>
                 </div>
             </div>
             
