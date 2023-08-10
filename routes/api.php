@@ -44,6 +44,7 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::post('/send-remarks', [ApiAuthController::class, 'saveRemarks'])->name('send-remarks');
     Route::get('/notifications', [ApiAuthController::class, 'notifications'])->name('notifications');
     Route::get('/student-course', [ApiAuthController::class, 'getStudentClasses'])->name('student-course');
+    Route::get('/notification-count', [ApiAuthController::class, 'unreadNotifications'])->name('notification-count');
 });
 
 
