@@ -191,7 +191,7 @@ class HomeController extends Controller
         $packages = $query->paginate(10);
         return  view('admin.course_packages.index',compact('packages'));
     }
-
+    
     public function createPackage(){
         $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
         return   view("admin.course_packages.create", compact('courses'));

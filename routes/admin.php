@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\TeachersController;
 use App\Http\Controllers\Admin\StudentController;
 
+Route::get('/', [CustomAuthController::class, 'index'])->name('login');
 Route::namespace('Admin')->prefix('admin')->group(function () {
     Route::get('/', [CustomAuthController::class, 'index'])->name('login');
     Route::get('login', [CustomAuthController::class, 'index'])->name('login');
@@ -27,7 +28,8 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::get('/course/divisions', [HomeController::class, 'getCourseDivisions'])->name('course.divisions');
         
         Route::get('/course-packages', [HomeController::class, 'getAllCoursePackages'])->name('course-packages');
-        Route::get('/packages/create', [HomeController::class, 'createPackage'])->name('packages.create');
+        // Route::get('/packages/create', [HomeController::class, 'createPackages'])->name('packages.create');
+        Route::get('/package/create', [HomeController::class, 'createPackage'])->name('package.create');
         Route::post('/packages/store', [HomeController::class, 'storePackage'])->name('packages.store');
         Route::get('/packages/edit/{id}', [HomeController::class, 'editPackage'])->name('packages.edit');
         Route::post('/packages/update/{id}', [HomeController::class, 'updatePackage'])->name('packages.update');
