@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\TeachersController;
 use App\Http\Controllers\Admin\StudentController;
 
+Route::get('/', [CustomAuthController::class, 'index'])->name('login');
 Route::namespace('Admin')->prefix('admin')->group(function () {
     Route::get('/', [CustomAuthController::class, 'index'])->name('login');
     Route::get('login', [CustomAuthController::class, 'index'])->name('login');
