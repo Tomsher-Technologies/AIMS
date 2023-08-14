@@ -26,4 +26,12 @@ class Bookings extends Model
     {
         return $this->belongsTo(TeacherSlots::class,'slot_id','id');
     } 
+
+    public function cancelledBy(){
+    	return $this->belongsTo(User::class,'cancelled_by','id');
+    }
+
+    public function createdBy(){
+    	return $this->belongsTo(User::class,'created_by','id');
+    }
 }

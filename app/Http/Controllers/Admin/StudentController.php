@@ -406,38 +406,37 @@ class StudentController extends Controller
     }
    
     public function getAllStudentBookings(Request $request){
-        $title_search = $course_search =  $package_search = null;
+        $title_search = $teacher_search =  $date_search = null;
         
         if ($request->has('title')) {
             $title_search = $request->title;
         }
-        if ($request->has('course')) {
-            $course_search = $request->course;
+        if ($request->has('teacher')) {
+            $teacher_search = $request->teacher;
         }
-        if ($request->has('package')) {
-            $package_search = $request->package;
+        if ($request->has('date_search')) {
+            $date_search = $request->date_search;
         }
 
-        $query = Bookings::with(['student','teacher','course_division','slot'])
+        $query = Bookings::with(['student','teacher','course_division','slot','cancelledBy','createdBy'])
                 ->where('is_deleted',0)
                 ->orderBy('id','DESC');
 
         if($title_search){
             $query->Where(function ($query) use ($title_search) {
-                $query->orWhere('users.name', 'LIKE', "%$title_search%")
-                ->orWhere('users.email', 'LIKE', "%$title_search%")
-                ->orWhere('users.unique_id', 'LIKE', "%$title_search%");   
+                $query->whereHas('student', function ($query)  use($title_search) {
+                    $query->where('users.name', 'LIKE', "%$title_search%")
+                        ->orWhere('users.email', 'LIKE', "%$title_search%")
+                        ->orWhere('users.unique_id', 'LIKE', "%$title_search%"); 
+                });
+                  
             }); 
         }
-        if($package_search){
-            $query->whereHas('student_packages', function ($query)  use($package_search) {
-                $query->where('package_id', $package_search);
-            });
+        if($date_search){
+            $query->where('booking_date', $date_search);
         }
-        if($course_search){
-            $query->whereHas('student_packages', function ($query)  use($course_search) {
-                $query->where('course_id', $course_search);
-            });
+        if($teacher_search){
+            $query->where('teacher_id', $teacher_search);
         }
         
 
@@ -450,7 +449,7 @@ class StudentController extends Controller
                         ->where('course_packages.is_deleted',0)
                         ->orderBy('package_title','ASC')
                         ->get();
-        return  view('admin.bookings.index',compact('bookings','package','teacher','title_search','course_search','package_search'));
+        return  view('admin.bookings.index',compact('bookings','package','teacher','title_search','teacher_search','date_search'));
     }
 
     public function cancelBooking(Request $request){
@@ -476,6 +475,113 @@ class StudentController extends Controller
                     ->select('remarks.id','remarks.remarks','remarks.created_at','ud.name','ud.unique_id')
                     ->orderBy('remarks.id', 'DESC')->paginate(10);
         return  view('admin.students.remarks',compact('remarks'));
+    }
+
+    public function createBooking(Request $request){
+        // DB::enableQueryLog();
+        $students = StudentPackages::leftJoin('users as us','us.id','=','student_packages.user_id')
+                            ->where('us.is_deleted',0)
+                            ->where('us.is_approved',1)
+                            ->where('us.is_active', 1)
+                            ->where('student_packages.is_deleted',0)
+                            ->where('student_packages.is_active', 1)
+                            ->where('student_packages.end_date', '>', date('Y-m-d'))
+                            ->orderBy('us.name', 'ASC')
+                            ->select('us.name','us.id','us.unique_id')
+                            ->get()->toArray();
+                            // dd(DB::getQueryLog());
+       
+        return   view("admin.bookings.create", compact('students'));
+    }
+
+    public function getStudentDivisions(Request $request){
+        $studentId = $request->id;
+        $options = getStudentActiveCourseDivisions($studentId);
+        return $options;
+    }
+
+    public function getAvailableTeachers(Request $request){
+        $date = $request->date;
+        $module_id = $request->module_id;
+        // DB::enableQueryLog();
+        $teachers = AssignTeachers::leftJoin('users as us','us.id','=','assign_teachers.teacher_id')
+                                    ->where('assign_teachers.is_active',1)
+                                    ->where('assign_teachers.is_deleted',0)
+                                    ->where('assign_teachers.assigned_date', $date)
+                                    ->where('assign_teachers.module_id', $module_id)
+                                    ->where('us.is_active',1)
+                                    ->where('us.is_deleted',0)->select('us.id','us.name','assign_teachers.id as assign_id')
+                                    ->orderBy('us.name','ASC')->get()->toArray();
+        // dd(DB::getQueryLog());
+        $data['teachers'] = $teachers;
+        $options = '<option value=""> Select </option>';  
+        if($teachers){
+            foreach($teachers as $slot){
+                $options .= '<option value="'.$slot['id'].'">'.$slot['name'].'</option>';
+            }
+        }
+        return $options; 
+    }
+
+    public function getTimeSlots(Request $request){
+        $date = $request->date;
+        $module_id = $request->module_id;
+        $teacher_id = $request->teacher_id;
+
+        $slots = TeacherSlots::leftjoin('assign_teachers as at','at.id','=','teacher_slots.assigned_id')
+                                ->where('at.is_active',1)
+                                ->where('at.is_deleted',0)
+                                ->where('at.assigned_date', $date)
+                                ->where('at.teacher_id', $teacher_id)
+                                ->where('at.module_id', $module_id)
+                                ->where('teacher_slots.is_booked',0)
+                                ->where('teacher_slots.is_deleted',0)
+                                ->select('teacher_slots.id','teacher_slots.slot')
+                                ->orderBy('teacher_slots.id','ASC')->get()->toArray();
+
+        $options = '<option value=""> Select </option>';  
+        if($slots){
+            foreach($slots as $st){
+                $options .= '<option value="'.$st['id'].'">'.$st['slot'].'</option>';
+            }
+        }
+        return $options; 
+    }
+
+    public function storeBooking(Request $request){
+        $validator = Validator::make($request->all(), [
+            'student' => 'required',
+            'course_division' => 'required',
+            'book_date' => 'required',
+            'teacher' => 'required',
+            'slot' => 'required'
+        ],[
+            "student.*"    =>"Student field is required",
+            "course_division.*"=>"Course division field is required ",
+            "book_date.*"=> "Booking date field is required.",
+            "teacher.*"     =>'Available teacher field is required.',
+            "slot.*"        =>'Time slot field is required.'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $book = new Bookings();
+        $book->student_id = $request->student;
+        $book->teacher_id = $request->teacher;
+        $book->module_id = $request->course_division;
+        $book->slot_id = $request->slot;
+        $book->booking_date = $request->book_date;
+        $book->created_by = Auth::user()->id;
+        $book->save();
+
+        if($book->id){
+            TeacherSlots::where('id',$request->slot)->update(['is_booked' => 1]);
+        }
+
+        flash('Booking has been created successfully')->success();
+        return redirect()->route('student.bookings');
     }
   
 }

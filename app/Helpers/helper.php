@@ -3,6 +3,8 @@
 use Carbon\Carbon;
 use App\Models\UserDetails;
 use App\Models\User;
+use App\Models\StudentPackages;
+use App\Models\PackageModules;
 
 /**
  * Write code on Method
@@ -60,5 +62,32 @@ if (!function_exists('getTimeSlotHrMIn')) {
     }
 }
 
+
+if(!function_exists('getStudentActiveCourseDivisions')){
+    function getStudentActiveCourseDivisions($studentId){
+        $studentPackage = StudentPackages::where('user_id', $studentId)
+                                        ->where('is_deleted',0)
+                                        ->where('is_active', 1)
+                                        ->where('end_date', '>', date('Y-m-d'))
+                                        ->pluck('package_id')->toArray();
+        $options = '<option value=""> Select </option>';  
+        if(isset($studentPackage[0])){
+            $package_id = $studentPackage[0];
+            $divisions = PackageModules::leftJoin('course_divisions as cd','cd.id','=','package_modules.module_id')
+                                        ->where('package_modules.package_id', $package_id)
+                                        ->where('package_modules.is_deleted',0)
+                                        ->where('cd.is_active',1)
+                                        ->select('cd.id', 'cd.title')
+                                        ->orderBy('id', 'ASC')->get();
+
+            
+            foreach($divisions as $div){
+                $options .= '<option value="'.$div->id.'">'.$div->title.'</option>';
+            }
+        }
+        
+        return $options;
+    }
+}
 
 

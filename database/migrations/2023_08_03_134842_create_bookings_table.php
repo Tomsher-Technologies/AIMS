@@ -26,10 +26,12 @@ return new class extends Migration
 
             $table->bigInteger('slot_id')->unsigned();
             $table->foreign('slot_id')->references('id')->on('teacher_slots')->onDelete('cascade');
-
+            $table->bigInteger('created_by')->unsigned();
+            $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->string('booking_date');
             $table->boolean('is_cancelled')->default(0);
             $table->integer('cancelled_by')->nullable();
+          
             $table->boolean('is_active')->default(1);
             $table->boolean('is_deleted')->default(0);
             $table->timestamps();

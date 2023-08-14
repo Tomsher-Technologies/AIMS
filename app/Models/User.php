@@ -107,4 +107,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(Notifications::class,'user_id','id');
     }
+    // public function booking_cancel_by()
+    // {
+    //     return $this->hasMany(Bookings::class,'cancelled_by','id');
+    // }
 }

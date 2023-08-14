@@ -467,6 +467,7 @@ class ApiAuthController extends Controller
             $book->module_id = $module_id;
             $book->slot_id = $slot_id;
             $book->booking_date = $booking_date;
+            $book->created_by = $student_id;
             $book->save();
             $data = [];
             if($book->id){

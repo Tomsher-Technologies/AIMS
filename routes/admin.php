@@ -67,6 +67,11 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
 
         Route::get('/student-bookings', [StudentController::class, 'getAllStudentBookings'])->name('student.bookings');
         Route::post('/booking/cancel/', [StudentController::class, 'cancelBooking'])->name('booking.cancel');
+        Route::get('/booking/create', [StudentController::class, 'createBooking'])->name('booking.create');
+        Route::post('/booking/store', [StudentController::class, 'storeBooking'])->name('booking.store');
+        Route::get('/student/divisions', [StudentController::class, 'getStudentDivisions'])->name('student.divisions');
+        Route::get('/get-slots', [StudentController::class, 'getTimeSlots'])->name('get-slots');
+        Route::get('/get-available-teachers', [StudentController::class, 'getAvailableTeachers'])->name('get-available-teachers');
         Route::get('/remarks', [StudentController::class, 'remarks'])->name('remarks');
     });
 
