@@ -7,7 +7,7 @@
                 <h1 class="m-0 p-0">All Student Bookings</h1>
                 <div class="btn_group">
                     
-                    <!-- <a href="{{ route('student.create') }}" class="btn btn_primary">Add New Student</a> -->
+                    <a href="{{ route('booking.create') }}" class="btn btn_primary">Add New Booking</a>
                 </div>
             </div>
             
@@ -26,28 +26,23 @@
                             
                             <div class="form-row">
                                 <div class="form-group col-md-3">
-                                    <label for="#">Search By Name/Student Code/Email</label>
-                                    <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter Name/Student Code/Email">
+                                    <label for="#">Search By Student Name/Code/Email</label>
+                                    <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter Student Name/Code/Email">
                                 </div>
 
                                 <div class="form-group col-md-3">
-                                    <label for="#">Teachers</label>
-                                    <select class="form-control"  id="course" name="course" onchange="getDivisions(this.value)">
+                                    <label for="#">Teacher</label>
+                                    <select class="form-control"  id="teacher" name="teacher" >
                                         <option value="">Select Course</option>
                                         @foreach($teacher as $teach)
-                                            <option value="{{ $teach->id }}" @if($course_search == $teach->id) selected @endif > {{ $teach->name }} </option>
+                                            <option value="{{ $teach->id }}" @if($teacher_search == $teach->id) selected @endif > {{ $teach->name }} </option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 <div class="form-group col-md-3">
-                                    <label for="#">Course Package</label>
-                                    <select class="form-control"  id="package" name="package">
-                                        <option value="">Select Course Package</option>
-                                        @foreach($package as $div)
-                                            <option value="{{ $div->id }}" @if($package_search == $div->id) selected @endif > {{ $div->package_title }} </option>
-                                        @endforeach
-                                    </select>
+                                    <label for="#">Booking Date</label>
+                                    <input type="text" class="form-control" value="{{ $date_search }}" id="date_search" name="date_search" placeholder="YYYY-MM-DD">
                                 </div>
                                 <div class="form-group col-md-3 filterDiv">
                                     <button type="submit" class="btn btn_primary">Filter</button>
@@ -69,7 +64,8 @@
                                         <th scope="col" class="text-center">Student Code</th>
                                         <th scope="col" class="text-center">Teacher Name</th>
                                         <th scope="col" class="text-center">Division</th>
-                                        <th scope="col" class="text-center">Action</th>
+                                        <th scope="col" class="text-center">Created By</th>
+                                        <th scope="col" class="text-center">Cancel Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -80,15 +76,17 @@
                                                 <td>{{ $stud->booking_date }}</td>
                                                 <td>{{ $stud->slot->slot }}</td>
                                                 <td class="text-center">{{ $stud->student->name }}</td>
-                                                <td class="text-center">{{ $stud->student->name }}</td>
+                                                <td class="text-center">{{ $stud->student->unique_id }}</td>
                                                 <td class="text-center">{{ $stud->teacher->name }}</td>
                                                 <td class="text-center">
                                                    {{ $stud->course_division->title }}
                                                 </td>
-                                        
+                                                <td class="text-center ">
+                                                    <span class="">{{ $stud->createdBy->name ?? '' }}</span>
+                                                </td>
                                                 <td class="text-center ">
                                                     @if($stud->is_cancelled == 1)
-                                                        <span class="error">Cancelled By </span>
+                                                        <span class="error">Cancelled By {{ $stud->cancelledBy->name }}</span>
                                                     @else
                                                         <button class="btn btn-danger pending mt-1 " onclick="cancelBooking({{$stud->id}})"><span class="label label-danger">Cancel Booking</span> </button>
                                                     @endif
@@ -119,6 +117,12 @@
 @endsection
 @section('footer')
 <script type="text/javascript">
+     $("#date_search").datepicker({
+        dateFormat: "yy-mm-dd",
+        changeYear: true,
+        changeMonth: true,
+        yearRange: '-60:+2'
+    });
     $('div.alert').not('.alert-important').delay(3000).fadeOut(350);
 
     function cancelBooking(id){

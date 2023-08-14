@@ -246,7 +246,14 @@
             var start_date= $('#start_date').val();
             var end_date = new Date(start_date); // pass start date here
             end_date.setDate(end_date.getDate() + valid_days);
-            var end= $('#end_date').val(end_date.getFullYear() +'-'+ (end_date.getMonth() + 1)+ '-' + end_date.getDate());
+            var month = end_date.getMonth() + 1;
+            var day = end_date.getDate();
+
+            var output = end_date.getFullYear() + '-' +
+                (('' + month).length < 2 ? '0' : '') + month + '-' +
+                (('' + day).length < 2 ? '0' : '') + day;
+          
+            $('#end_date').val(output);
         }
     }
 

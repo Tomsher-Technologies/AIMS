@@ -170,8 +170,18 @@
                                 <label for="#">Course Package<span class="error">*</span></label>
                                 <select class="form-control"  id="course_package" name="course_package">
                                     <option value="">Select Package</option>
+                                    @php 
+                                        $days ='0';
+                                    @endphp
                                     @foreach($packages as $pack)
-                                        <option value="{{ $pack->id }}" {{ (isset($student->student_packages[0]) && $student->student_packages[0]->package_id == $pack->id) ? 'selected' : '' }} >{{ $pack->package_title }} </option>
+                                        @php
+                                            $selected=''; 
+                                            if(isset($student->student_packages[0]) && $student->student_packages[0]->package_id == $pack->id){
+                                                $days = $pack->duration;
+                                                $selected = 'selected';
+                                            }
+                                        @endphp
+                                        <option value="{{ $pack->id }}" {{ $selected }} data-id="{{$pack->duration}}" >{{ $pack->package_title }} </option>
                                     @endforeach
                                 </select>
                                 @error('course_package')
@@ -180,7 +190,7 @@
                             </div>
 
                             <div class="form-group col-md-7">
-                                <input type="hidden" name="valid_days" id="valid_days">
+                                <input type="hidden" name="valid_days" id="valid_days" value="{{$days}}">
                                 <label for="#">Start Date<span class="error">*</span></label>
                                 @php   
                                     $startdate = isset($student->student_packages[0]) ? $student->student_packages[0]->start_date : '';
@@ -290,7 +300,14 @@
             var start_date= $('#start_date').val();
             var end_date = new Date(start_date); // pass start date here
             end_date.setDate(end_date.getDate() + valid_days);
-            var end= $('#end_date').val(end_date.getFullYear() +'-'+ (end_date.getMonth() + 1)+ '-' + end_date.getDate());
+            var month = end_date.getMonth() + 1;
+            var day = end_date.getDate();
+
+            var output = end_date.getFullYear() + '-' +
+                (('' + month).length < 2 ? '0' : '') + month + '-' +
+                (('' + day).length < 2 ? '0' : '') + day;
+          
+            $('#end_date').val(output);
         }
     }
 
