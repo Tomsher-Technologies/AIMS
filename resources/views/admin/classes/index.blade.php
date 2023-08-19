@@ -24,12 +24,12 @@
                         <form class="" id="classes" action="" method="GET">
                             
                             <div class="form-row">
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-md-2">
                                     <label for="#">Class Title</label>
                                     <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter class title">
                                 </div>
 
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-md-2">
                                     <label for="#">Course</label>
                                     <select class="form-control"  id="course" name="course" onchange="getDivisions(this.value)">
                                         <option value="">Select Course</option>
@@ -39,7 +39,7 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-md-2">
                                     <label for="#">Course Divisions</label>
                                     <select class="form-control"  id="course_division" name="course_division">
                                         <option value="">Select Course Division</option>
@@ -48,7 +48,18 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group col-md-3 filterDiv">
+
+                                <div class="form-group col-md-2">
+                                    <label for="#">Course Package</label>
+                                    <select class="form-control"  id="package" name="package">
+                                        <option value="">Select Package</option>
+                                        @foreach($packages as $pack)
+                                            <option value="{{ $pack->id }}" @if($package_search == $pack->id) selected @endif > {{ $pack->package_title }} </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2 filterDiv">
                                     <button type="submit" class="btn btn_primary">Filter</button>
                                     <a href="{{ route('classes') }}"  class="btn btn-info">Reset</a>
                                 </div>
@@ -66,6 +77,7 @@
                                         <th scope="col">Class Title</th>
                                         <th scope="col" class="text-center">Course Name</th>
                                         <th scope="col" class="text-center">Division Name</th>
+                                        <th scope="col" class="text-center">Course Packages</th>
                                         <th scope="col" class="text-center">Order</th>
                                         <th scope="col" class="text-center">Mandatory</th>
                                         <th scope="col" class="text-center">Active Status</th>
@@ -80,6 +92,17 @@
                                                 <td>{{ $cls->class_name }}</td>
                                                 <td class="text-center">{{ $cls->course->name }}</td>
                                                 <td class="text-center">{{ $cls->course_division->title }}</td>
+                                                <td>
+                                                    @if($cls->packages)
+                                                        <ul>
+                                                            @foreach($cls->packages as $pack)
+                                                                <li> 
+                                                                    {{ $pack->package->package_title }}
+                                                                </li>
+                                                            @endforeach
+                                                        </ul>
+                                                    @endif
+                                                </td>
                                                 <td class="text-center">{{ $cls->order }}</td>
                                                 <td class="text-center">
                                                     @if($cls->is_mandatory == 1)
@@ -166,16 +189,22 @@
 
     function getDivisions(course){
         $.ajax({
-            url: "{{ route('course.divisions') }}",
+            url: "{{ route('course.pack-divisions') }}",
             type: "GET",
             data: {
                 id: course,
                 _token:'{{ @csrf_token() }}',
             },
             success: function (response) {
+                var jsonData = JSON.parse(response);
+                
                 $('#course_division').empty();
                 $('#course_division').append('<option value="">Select Course Division</option>');
-                $('#course_division').append(response);
+                $('#course_division').append(jsonData.divisions).trigger('change');
+
+                $('#package').empty();
+                $('#package').append('<option value="">Select Package</option>');
+                $('#package').append(jsonData.packages).trigger('change');
             }
         });
     }

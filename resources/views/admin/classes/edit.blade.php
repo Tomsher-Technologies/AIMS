@@ -17,7 +17,7 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <form class="form-horizontal repeater" action="{{ route('class.update', $classes->id) }}" method="POST"
-                        enctype="multipart/form-data">
+                        enctype="multipart/form-data" autocomplete="off">
                         @csrf
                         <div class="form-row justify-content-center">
                             <div class="form-group col-md-7">
@@ -31,7 +31,7 @@
                             <div class="form-group col-md-7">
                                 <label for="#">Course<span class="error">*</span></label>
                                 
-                                    <select class="form-control"  id="course" name="course" onchange="getDivisions(this.value)">
+                                    <select class="form-control"  id="course" name="course" onchange="getPackDivisions(this.value)">
                                         <option value="">Select Course</option>
                                         @foreach($courses as $course)
                                             <option value="{{ $course->id }}"  @if($classes->course_id == $course->id) selected @endif > {{ $course->name }} </option>
@@ -53,6 +53,25 @@
                                     </select>
                                 
                                 @error('course_division')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-group col-md-7">
+                                <label for="#">Course Packages<span class="error">*</span></label>
+                                <select class="form-control"  id="packages" name="packages[]" multiple="multiple">
+                                    @foreach($packages as $pack)
+                                        @php
+                                            $selected = '';
+                                            if(in_array($pack->id, $packs)){
+                                                $selected = 'selected';
+                                            }           
+                                        @endphp
+                                        <option value="{{ $pack->id }}" {{$selected}} > {{ $pack->package_title }}</option>
+                                    @endforeach
+                                </select>
+                                
+                                @error('packages')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -118,18 +137,23 @@
     $('#course_division').select2({
 
     });
+    $('#packages').select2();
 
-    function getDivisions(course){
+    function getPackDivisions(course){
         $.ajax({
-            url: "{{ route('course.divisions') }}",
+            url: "{{ route('course.pack-divisions') }}",
             type: "GET",
             data: {
                 id: course,
                 _token:'{{ @csrf_token() }}',
             },
             success: function (response) {
+                var jsonData = JSON.parse(response);
+                
                 $('#course_division').empty();
-                $('#course_division').append(response).trigger('change');
+                $('#course_division').append(jsonData.divisions).trigger('change');
+                $('#packages').empty();
+                $('#packages').append(jsonData.packages).trigger('change');
             }
         });
     }

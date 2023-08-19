@@ -6,7 +6,7 @@
             <div class="mb-3 d-flex align-items-center justify-content-between">
                 <h1 class="m-0 p-0">All Students</h1>
                 <div class="btn_group">
-                    
+                    <a href="{{ route('student.bulk-create') }}" class="btn btn-success">Upload Bulk Students</a>
                     <a href="{{ route('student.create') }}" class="btn btn_primary">Add New Student</a>
                 </div>
             </div>
@@ -121,6 +121,12 @@
                                                 </td>
                                                 <td>
                                                     <ul class="action_list">
+                                                        <li class="mt-1" style="margin-bottom: 0px;">
+                                                            <a class="" data-id="{{$stud->id}}" title="View Student" href="{{ route('view-student',['id'=>$stud->id]) }}">
+                                                                <!-- <img src="{{ asset('assets/images/eye.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                            <i class="simple-icon-eye view-icon"> </i>
+                                                            </a>
+                                                        </li>
                                                         <li>
                                                             <a class="" data-id="{{$stud->id}}" title="Edit Student" href="{{ route('student.edit',['id'=>$stud->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
                                                         </li>

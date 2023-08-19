@@ -2,6 +2,7 @@
     text-align: left;
     margin: auto;
     padding: 27px;
+    margin-left: 0 !important;
 }
 .profileImage{
     width: 100px !important;
@@ -16,4 +17,57 @@
 }
 .pending{
     padding: 3px 10px 3px !important;
+}
+
+.menu .main-menu {
+    width: 180px !important;
+    overflow: auto !important;
+}
+
+#app-container.main-hidden .main-menu, #app-container.menu-hidden .main-menu {
+    transform: translateX(-175px) !important;
+}
+
+.wh-17{
+    width: 17px !important;
+    height: 17px !important;
+}
+.yes-icon{
+    font-size: 20px !important;
+    color: #0cb70c !important;
+}
+.close-icon{
+    font-size: 20px !important;
+    color: red !important;
+}
+
+.select2-selection{
+    border-radius: 0.1rem!important;
+    outline: initial!important;
+    box-shadow: initial!important;
+    font-size: .8rem!important;
+    padding: 0.5rem 0.75rem!important;
+    line-height: 1!important;
+    border: 1px solid #d7d7d7!important;
+    background: #fff!important;
+    color: #3a3a3a!important;
+    border-color: #d7d7d7!important;
+    height: calc(2em + 0.8rem)!important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 35px!important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 21px!important;
+}
+
+.view-icon{
+    font-size: 20px!important;
+    font-weight: 700!important;
+}
+.edit-icon{
+    font-size: 18px!important;
+    font-weight: 700!important;
 }

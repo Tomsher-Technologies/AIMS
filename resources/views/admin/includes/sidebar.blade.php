@@ -13,6 +13,11 @@
                             <i class="iconsminds-digital-drawing"></i> Courses
                         </a>
                     </li>
+                    <li class="{{ areActiveRoutes(['all-divisions', 'division.create','division.edit']) }}">
+                        <a href="{{ route('all-divisions') }}">
+                            <i class="iconsminds-digital-drawing"></i> Course Divisions
+                        </a>
+                    </li>
                     <li class="{{ areActiveRoutes(['course-packages', 'packages.create','packages.edit']) }}">
                         <a href="{{ route('course-packages') }}">
                             <i class="iconsminds-digital-drawing"></i> Course Packages
@@ -37,6 +42,23 @@
                     <li class="{{ areActiveRoutes(['student.bookings']) }}">
                         <a href="{{ route('student.bookings') }}">
                             <i class="iconsminds-conference"></i> Student Bookings
+                        </a>
+                    </li>
+
+                    <li class="{{ areActiveRoutes(['mock-tests']) }}">
+                        <a href="{{ route('mock-tests') }}">
+                            <i class="iconsminds-pen"></i>Mock Test Results
+                        </a>
+                    </li>
+
+                    <li class="{{ areActiveRoutes(['attendance-list']) }}">
+                        <a href="{{ route('attendance-list') }}">
+                            <i class="iconsminds-conference"></i>Attendance List
+                        </a>
+                    </li>
+                    <li class="{{ areActiveRoutes(['attendance']) }}">
+                        <a href="{{ route('attendance') }}">
+                            <i class="iconsminds-conference"></i> Manage Attendance
                         </a>
                     </li>
 

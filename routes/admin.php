@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\CustomAuthController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\TeachersController;
 use App\Http\Controllers\Admin\StudentController;
+use App\Http\Controllers\Admin\MockTestController;
+
 
 Route::get('/', [CustomAuthController::class, 'index'])->name('login');
 Route::namespace('Admin')->prefix('admin')->group(function () {
@@ -26,6 +28,14 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::post('/course/update/{id}', [HomeController::class, 'updateCourse'])->name('course.update');
         Route::post('/course/delete/', [HomeController::class, 'deleteCourse'])->name('course.delete');
         Route::get('/course/divisions', [HomeController::class, 'getCourseDivisions'])->name('course.divisions');
+
+        /* Course Divisions section*/
+        Route::get('/all-divisions', [HomeController::class, 'getAllDivisions'])->name('all-divisions');
+        Route::get('/division/create', [HomeController::class, 'createDivision'])->name('division.create');
+        Route::post('/division/store', [HomeController::class, 'storeDivision'])->name('division.store');
+        Route::get('/division/edit/{id}', [HomeController::class, 'editDivision'])->name('division.edit');
+        Route::post('/division/update/{id}', [HomeController::class, 'updateDivision'])->name('division.update');
+        Route::post('/division/delete/', [HomeController::class, 'deleteDivision'])->name('division.delete');
         
         Route::get('/course-packages', [HomeController::class, 'getAllCoursePackages'])->name('course-packages');
         // Route::get('/packages/create', [HomeController::class, 'createPackages'])->name('packages.create');
@@ -41,6 +51,7 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::get('/class/edit/{id}', [HomeController::class, 'editClass'])->name('class.edit');
         Route::post('/class/update/{id}', [HomeController::class, 'updateClass'])->name('class.update');
         Route::post('/class/delete/', [HomeController::class, 'deleteClass'])->name('class.delete');
+        Route::get('/course/pack-divisions', [HomeController::class, 'getCourseDivisionsPackages'])->name('course.pack-divisions');
 
         Route::get('/teachers', [TeachersController::class, 'getAllTeachers'])->name('teachers');
         Route::get('/teacher/create', [TeachersController::class, 'createTeacher'])->name('teacher.create');
@@ -64,6 +75,9 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::post('/student/update/{id}', [StudentController::class, 'updateStudent'])->name('student.update');
         Route::post('/student/delete/', [StudentController::class, 'deleteStudent'])->name('student.delete');
         Route::post('/student/approve/', [StudentController::class, 'approveStudent'])->name('student.approve');
+        Route::get('/bulk-student/create', [StudentController::class, 'createBulkStudent'])->name('student.bulk-create');
+        Route::post('/student/bulk-store', [StudentController::class, 'storeBulkStudent'])->name('student.bulk-store');
+        Route::get('/view-student', [StudentController::class, 'viewStudent'])->name('view-student');
 
         Route::get('/student-bookings', [StudentController::class, 'getAllStudentBookings'])->name('student.bookings');
         Route::post('/booking/cancel/', [StudentController::class, 'cancelBooking'])->name('booking.cancel');
@@ -73,6 +87,28 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::get('/get-slots', [StudentController::class, 'getTimeSlots'])->name('get-slots');
         Route::get('/get-available-teachers', [StudentController::class, 'getAvailableTeachers'])->name('get-available-teachers');
         Route::get('/remarks', [StudentController::class, 'remarks'])->name('remarks');
+        Route::post('/booking/attend/', [StudentController::class, 'attendBooking'])->name('booking.attend');
+        Route::get('/bookings-export', [StudentController::class, 'exportBooking'])->name('export.bookings');
+
+        Route::get('/attendance/list', [StudentController::class, 'getAttendanceList'])->name('attendance-list');
+        Route::get('/view-attendance/{id}', [StudentController::class, 'getStudentsAttendanceList'])->name('view-attendance');
+        Route::get('/edit-attendance/{id}', [StudentController::class, 'getStudentsEditList'])->name('edit-attendance');
+        Route::get('/attendance', [StudentController::class, 'getAttendance'])->name('attendance');
+        Route::get('/course/classes', [StudentController::class, 'getCourseClasses'])->name('course.classes');
+        Route::get('/students-list', [StudentController::class, 'getStudentsList'])->name('students-list');
+        Route::post('/save/attendance', [StudentController::class, 'saveAttendance'])->name('save-attendance');
+        Route::post('/update/attendance', [StudentController::class, 'updateAttendance'])->name('update.attendance');
+
+
+        Route::get('/mock-tests', [MockTestController::class, 'getMockTestList'])->name('mock-tests');
+        Route::get('/mock/create', [MockTestController::class, 'createMockTest'])->name('mock.create');
+        Route::post('/mock/store', [MockTestController::class, 'storeMockTest'])->name('mock.store');
+        Route::get('/mock/edit/{id}', [MockTestController::class, 'editMockTest'])->name('mock.edit');
+        Route::post('/mock/update/{id}', [MockTestController::class, 'updateMockTest'])->name('mock.update');
+        Route::post('/mock/delete/', [MockTestController::class, 'deleteMockTest'])->name('mock.delete');
+
+        Route::get('/bulk-mock/create', [MockTestController::class, 'createBulkMockTest'])->name('mock.bulk-create');
+        Route::post('/mock/bulk-store', [MockTestController::class, 'storeBulkMockTest'])->name('mock.bulk-store');
     });
 
 });

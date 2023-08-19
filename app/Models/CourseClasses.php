@@ -17,4 +17,8 @@ class CourseClasses extends Model
     public function course_division(){
     	return $this->belongsTo(CourseDivisions::class,'module_id','id');
     }
+    public function packages()
+    {
+        return $this->hasMany(PackageClasses::class,'class_id','id')->with(['package'])->where('is_deleted',0);
+    } 
 }

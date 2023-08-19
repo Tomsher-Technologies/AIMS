@@ -26,9 +26,9 @@
                                     <tr>
                                         <th scope="col">Sl. No</th>
                                         <th scope="col" class="w-15">Course Name</th>
-                                        <th scope="col" class="w-30">Course Description</th>
+                                        <th scope="col" class="w-40">Course Description</th>
                                         <th scope="col" class="w-10">Banner Image</th>
-                                        <th scope="col" class="w-20">Divisions</th>
+                                        <!-- <th scope="col" class="w-20">Divisions</th> -->
                                         <th scope="col" class="text-center">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -43,7 +43,7 @@
                                                 <td>
                                                     @if($crs->banner_image != '') <img src="{{ asset($crs->banner_image) }}" style="width: 100px;"/>@endif
                                                 </td>
-                                                <td>
+                                                <!-- <td>
                                                     @if($crs->course_divisions)
                                                         <ul>
                                                         @foreach($crs->course_divisions as $div)
@@ -57,7 +57,7 @@
                                                         @endforeach
                                                         </ul>
                                                     @endif
-                                                </td>
+                                                </td> -->
                                                 <td class="text-center">
                                                     @if($crs->is_active == 1)
                                                         <span class="green">Active</span>

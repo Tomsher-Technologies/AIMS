@@ -22,12 +22,12 @@
 
                 <div class="">
                         <!-- <h3> Filters </h3> -->
-                        <form class="" id="classes" action="" method="GET">
+                        <form class="" id="classes" action="" method="GET" autocomplete="off">
                             
                             <div class="form-row">
                                 <div class="form-group col-md-3">
-                                    <label for="#">Search By Student Name/Code/Email</label>
-                                    <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter Student Name/Code/Email">
+                                    <label for="#">Search By Student Name/Code/Email/Phone</label>
+                                    <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter Student Name/Code/Email/Phone">
                                 </div>
 
                                 <div class="form-group col-md-3">
@@ -47,6 +47,7 @@
                                 <div class="form-group col-md-3 filterDiv">
                                     <button type="submit" class="btn btn_primary">Filter</button>
                                     <a href="{{ route('student.bookings') }}"  class="btn btn-info">Reset</a>
+                                    <a href="{{ route('export.bookings') }}"  class="btn btn-success">Excel Export</a>
                                 </div>
                             </div>
                         </form>
@@ -65,6 +66,7 @@
                                         <th scope="col" class="text-center">Teacher Name</th>
                                         <th scope="col" class="text-center">Division</th>
                                         <th scope="col" class="text-center">Created By</th>
+                                        <th scope="col" class="text-center">Attended Status</th>
                                         <th scope="col" class="text-center">Cancel Status</th>
                                     </tr>
                                 </thead>
@@ -84,11 +86,27 @@
                                                 <td class="text-center ">
                                                     <span class="">{{ $stud->createdBy->name ?? '' }}</span>
                                                 </td>
+
                                                 <td class="text-center ">
-                                                    @if($stud->is_cancelled == 1)
-                                                        <span class="error">Cancelled By {{ $stud->cancelledBy->name }}</span>
-                                                    @else
+                                                    @if($stud->is_cancelled == 0)
+                                                        @if($stud->is_attended == 1)
+                                                            <span class="green success">Attended</span>
+                                                        @elseif($stud->is_attended == 2)
+                                                            <span class="error">Not Attended</span>
+                                                        @else
+                                                            <button class="btn btn-success pending mt-1 " onclick="markAttendance({{$stud->id}},1)"><span class="label label-success"><i class="iconsminds-yes"></i>Yes</span> </button>
+                                                            <button class="btn btn-danger pending mt-1 " onclick="markAttendance({{$stud->id}},2)"><span class="label label-danger"><i class="iconsminds-close"></i>No</span> </button>
+                                                        @endif
+                                                    @endif
+                                                </td>
+
+                                                <td class="text-center ">
+                                                    @if($stud->is_cancelled == 0 && ($stud->booking_date > date('Y-m-d')))
                                                         <button class="btn btn-danger pending mt-1 " onclick="cancelBooking({{$stud->id}})"><span class="label label-danger">Cancel Booking</span> </button>
+                                                    @elseif($stud->is_cancelled == 1)
+                                                        <span class="error">Cancelled By {{ $stud->cancelledBy->name ?? ''}}</span>
+                                                    @else
+                                                    <span class="success">Not Cancelled</span>
                                                     @endif
                                                 </td>
                                                
@@ -135,16 +153,56 @@
             showCancelButton: true,
         }).then((result) => {
             if (result.isConfirmed){
+                Swal.fire({
+                    title: 'Enter notification message',
+                    input: 'textarea'
+                }).then(function(result) {
+                    $.ajax({
+                        url: "{{ route('booking.cancel') }}",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            msg:result.value,
+                            _token:'{{ @csrf_token() }}',
+                        },
+                        dataType: "html",
+                        success: function () {
+                            swal.fire("Done!", "Succesfully cancelled!", "success");
+                            setTimeout(function () { 
+                                window.location.reload();
+                            }, 3000);  
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            swal.fire("Error cancelling!", "Please try again", "error");
+                        }
+                    });
+                })
+                
+            }  
+        });
+    }
+
+    function markAttendance(id, status){
+        
+        Swal.fire({
+            title: "Are you sure?",
+            text: 'Do you want to change the status?',
+            icon: 'warning',
+            confirmButtonText: "Yes",
+            showCancelButton: true,
+        }).then((result) => {
+            if (result.isConfirmed){
                 $.ajax({
-                    url: "{{ route('booking.cancel') }}",
+                    url: "{{ route('booking.attend') }}",
                     type: "POST",
                     data: {
                         id: id,
+                        status : status,
                         _token:'{{ @csrf_token() }}',
                     },
                     dataType: "html",
                     success: function () {
-                        swal.fire("Done!", "Succesfully cancelled!", "success");
+                        swal.fire("Done!", "Succesfully changed!", "success");
                         setTimeout(function () { 
                             window.location.reload();
                         }, 3000);  

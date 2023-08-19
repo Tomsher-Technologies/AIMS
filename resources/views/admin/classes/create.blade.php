@@ -17,7 +17,7 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <form class="form-horizontal repeater" action="{{ route('class.store') }}" method="POST"
-                        enctype="multipart/form-data">
+                        enctype="multipart/form-data" autocomplete="off">
                         @csrf
                         <div class="form-row justify-content-center">
                             <div class="form-group col-md-7">
@@ -31,7 +31,7 @@
                             <div class="form-group col-md-7">
                                 <label for="#">Course<span class="error">*</span></label>
                                 
-                                    <select class="form-control"  id="course" name="course" onchange="getDivisions(this.value)">
+                                    <select class="form-control"  id="course" name="course" onchange="getPackDivisions(this.value)">
                                         <option value="">Select Course</option>
                                         @foreach($courses as $course)
                                             <option value="{{ $course->id }}"> {{ $course->name }} </option>
@@ -45,10 +45,9 @@
 
                             <div class="form-group col-md-7">
                                 <label for="#">Course Divisions<span class="error">*</span></label>
-                                
-                                    <select class="form-control"  id="course_division" name="course_division">
-                                        
-                                    </select>
+                                <select class="form-control"  id="course_division" name="course_division">
+                                    
+                                </select>
                                 
                                 @error('course_division')
                                     <div class="alert alert-danger">{{ $message }}</div>
@@ -56,11 +55,20 @@
                             </div>
 
                             <div class="form-group col-md-7">
-                                <label for="#">Sort Order Number<span class="error">*</span></label>
-                                <input type="number" class="form-control" value="{{ old('order') }}" id="order" name="order" >
-                                @error('order')
+                                <label for="#">Course Packages<span class="error">*</span></label>
+                                <select class="form-control"  id="packages" name="packages[]" multiple="multiple">
+
+                                </select>
+                                
+                                @error('packages')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
+                            </div>
+
+                            <div class="form-group col-md-7">
+                                <label for="#">Sort Order Number</label>
+                                <input type="number" class="form-control" value="{{ old('order',1) }}" id="order" name="order" >
+                               
                             </div>
 
                             <div class="form-group col-md-7">
@@ -105,21 +113,24 @@
         headers:{'X-CSRF-TOKEN':$('meta[name="_token"]').attr('content')}
     });
 
-    $('#course_division').select2({
+    $('#course_division').select2();
+    $('#packages').select2();
 
-    });
-
-    function getDivisions(course){
+    function getPackDivisions(course){
         $.ajax({
-            url: "{{ route('course.divisions') }}",
+            url: "{{ route('course.pack-divisions') }}",
             type: "GET",
             data: {
                 id: course,
                 _token:'{{ @csrf_token() }}',
             },
             success: function (response) {
+                var jsonData = JSON.parse(response);
+                
                 $('#course_division').empty();
-                $('#course_division').append(response).trigger('change');
+                $('#course_division').append(jsonData.divisions).trigger('change');
+                $('#packages').empty();
+                $('#packages').append(jsonData.packages).trigger('change');
             }
         });
     }
