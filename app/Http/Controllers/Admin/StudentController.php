@@ -21,6 +21,13 @@ use App\Models\States;
 use App\Models\Bookings;
 use App\Models\Notifications;
 use App\Models\Remarks;
+use App\Models\PackageClasses;
+use App\Models\Attendances;
+use App\Models\AttendanceStudents;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use Auth;
 use Validator;
 use Storage;
@@ -28,6 +35,7 @@ use Str;
 use File;
 use Hash;
 use DB;
+use Session;
 
 class StudentController extends Controller
 {
@@ -191,27 +199,23 @@ class StudentController extends Controller
             $pack->due_date = ($request->fee_pending != 0) ? $request->due_date : '';
             $pack->save();
             $student_package_id = $pack->id;
-
-            $packageModules= PackageModules::where('package_id', $request->course_package)
-                                            ->where('is_deleted',0)->pluck('module_id')->toArray();
-            if(!empty($packageModules)){
-                $classes = CourseClasses::whereIn('module_id', $packageModules)
-                                        ->where('is_active',1)->where('is_deleted',0)->pluck('id')->toArray();
-                $stud_classes = [];
-                foreach($classes as $class){
-                    $stud_classes[] = array(
-                        'user_id' => $user->id, 
-                        'student_package_id' => $student_package_id, 
-                        'course_package_id' => $request->course_package, 
-                        'class_id' => $class, 
-                        'start_date' => $request->start_date, 
-                        'end_date' => $request->end_date, 
-                        'created_at' => date('Y-m-d H:i:s')
-                    );
-                }
-                if(!empty($stud_classes)){
-                    StudentClasses::insert($stud_classes);
-                }
+            
+            $classes = PackageClasses::where('package_id', $request->course_package)
+                                    ->where('is_active',1)->where('is_deleted',0)->pluck('class_id')->toArray();
+            $stud_classes = [];
+            foreach($classes as $class){
+                $stud_classes[] = array(
+                    'user_id' => $user->id, 
+                    'student_package_id' => $student_package_id, 
+                    'course_package_id' => $request->course_package, 
+                    'class_id' => $class, 
+                    'start_date' => $request->start_date, 
+                    'end_date' => $request->end_date, 
+                    'created_at' => date('Y-m-d H:i:s')
+                );
+            }
+            if(!empty($stud_classes)){
+                StudentClasses::insert($stud_classes);
             }
         }
 
@@ -264,6 +268,9 @@ class StudentController extends Controller
         $currentStudentPack = (isset($user->student_packages[0])) ? $user->student_packages[0]->id : '';
         $currentPackageId =  (isset($user->student_packages[0])) ? $user->student_packages[0]->package_id : '';
         $currentCourse =  (isset($user->student_packages[0])) ? $user->student_packages[0]->course_id : '';
+
+        $oldStartDate = (isset($user->student_packages[0])) ? $user->student_packages[0]->start_date : '';
+        $oldEndDate = (isset($user->student_packages[0])) ? $user->student_packages[0]->end_date : '';
         
         $user->name = $request->first_name.' '.$request->last_name;
         $user->email = $request->email;
@@ -352,30 +359,28 @@ class StudentController extends Controller
             $pack->save();
             $student_package_id = $pack->id;
 
-            $packageModules= PackageModules::where('package_id', $request->course_package)
-                                            ->where('is_deleted',0)->pluck('module_id')->toArray();
-            if(!empty($packageModules)){
-                if($currentStudentPack != ''){
-                    StudentClasses::where('student_package_id',$currentStudentPack)->update(['is_active' => 0]);
-                }
-                $classes = CourseClasses::whereIn('module_id', $packageModules)
-                                        ->where('is_active',1)->where('is_deleted',0)->pluck('id')->toArray();
-                $stud_classes = [];
-                foreach($classes as $class){
-                    $stud_classes[] = array(
-                        'user_id' => $user->id, 
-                        'student_package_id' => $student_package_id, 
-                        'course_package_id' => $request->course_package, 
-                        'class_id' => $class, 
-                        'start_date' => $request->start_date, 
-                        'end_date' => $request->end_date, 
-                        'created_at' => date('Y-m-d H:i:s')
-                    );
-                }
-                if(!empty($stud_classes)){
-                    StudentClasses::insert($stud_classes);
-                }
-            }    
+           
+            if($currentStudentPack != ''){
+                StudentClasses::where('student_package_id',$currentStudentPack)->update(['is_active' => 0]);
+            }
+
+            $classes = PackageClasses::where('package_id', $request->course_package)
+                                    ->where('is_active',1)->where('is_deleted',0)->pluck('class_id')->toArray();
+            $stud_classes = [];
+            foreach($classes as $class){
+                $stud_classes[] = array(
+                    'user_id' => $user->id, 
+                    'student_package_id' => $student_package_id, 
+                    'course_package_id' => $request->course_package, 
+                    'class_id' => $class, 
+                    'start_date' => $request->start_date, 
+                    'end_date' => $request->end_date, 
+                    'created_at' => date('Y-m-d H:i:s')
+                );
+            }
+            if(!empty($stud_classes)){
+                StudentClasses::insert($stud_classes);
+            }
         }else{
             $pack = StudentPackages::find($currentStudentPack);
             $pack->start_date = $request->start_date;
@@ -384,6 +389,11 @@ class StudentController extends Controller
             $pack->due_date = ($request->fee_pending != 0) ? $request->due_date : '';
             $pack->save();
             $student_package_id = $pack->id;
+
+            if($oldStartDate != $request->start_date || $oldEndDate != $request->end_date){
+                // Update student classes start and end dates.
+                $classes = StudentClasses::where('student_package_id','=',$currentStudentPack)->update(['start_date' => $request->start_date, 'end_date' => $request->end_date]);
+            }
         }
        
         flash('Student has been updated successfully')->success();
@@ -406,6 +416,12 @@ class StudentController extends Controller
     }
    
     public function getAllStudentBookings(Request $request){
+        if(!empty($request->all())){
+            Session::put('booking_filter', $request->all());
+        }else{
+            Session::forget('booking_filter');
+        }
+
         $title_search = $teacher_search =  $date_search = null;
         
         if ($request->has('title')) {
@@ -418,7 +434,7 @@ class StudentController extends Controller
             $date_search = $request->date_search;
         }
 
-        $query = Bookings::with(['student','teacher','course_division','slot','cancelledBy','createdBy'])
+        $query = Bookings::with(['student','student_details','teacher','course_division','slot','cancelledBy','createdBy'])
                 ->where('is_deleted',0)
                 ->orderBy('id','DESC');
 
@@ -429,7 +445,9 @@ class StudentController extends Controller
                         ->orWhere('users.email', 'LIKE', "%$title_search%")
                         ->orWhere('users.unique_id', 'LIKE', "%$title_search%"); 
                 });
-                  
+                $query->orWhereHas('student_details', function ($query)  use($title_search) {
+                    $query->where('user_details.phone_number', 'LIKE', "%$title_search%"); 
+                });
             }); 
         }
         if($date_search){
@@ -441,6 +459,7 @@ class StudentController extends Controller
         
 
         $bookings = $query->paginate(10);
+        
         $teacher = User::where('user_type', 'staff')->where('is_deleted',0)->orderBy('name','ASC')->get();
 
         $package = CoursePackages::leftJoin('courses as co','course_packages.courses_id','=','co.id')
@@ -454,6 +473,7 @@ class StudentController extends Controller
 
     public function cancelBooking(Request $request){
         $id = $request->id;
+        $msg = $request->msg;
         $cancel = Bookings::findorfail($id);
 
         $slot_id = $cancel->slot_id;
@@ -463,9 +483,14 @@ class StudentController extends Controller
         $cancel->update(['is_cancelled'=>1, 'cancelled_by' => Auth::user()->id]);
         TeacherSlots::where('id', '=', $slot_id)->update(['is_booked'=>0]);
         if($cancel->is_cancelled == 1){
+            if($msg != ''){
+                $message = $msg;
+            }else{
+                $message = 'Your booking for '.date("d M, Y",strtotime($date)).' has been cancelled by Admin';
+            }
             $not = new Notifications ();
             $not->user_id = $student_id;
-            $not->content ='Your booking for '.date("d M, Y",strtotime($date)).' has been cancelled by Admin';
+            $not->content = $message;
             $not->save();
         }
     }
@@ -583,5 +608,348 @@ class StudentController extends Controller
         flash('Booking has been created successfully')->success();
         return redirect()->route('student.bookings');
     }
-  
+
+    public function getAttendance(){
+        $courses = Courses::where('is_deleted',0)
+                            ->where('is_active',1)
+                            ->orderBy('name','ASC')
+                            ->get();
+        return  view('admin.attendance.index',compact('courses'));
+    }
+
+    public function getAttendanceList(Request $request){
+
+        $title_search = $teacher_search =  $date_search = null;
+        
+        if ($request->has('title')) {
+            $title_search = $request->title;
+        }
+        if ($request->has('teacher')) {
+            $teacher_search = $request->teacher;
+        }
+        if ($request->has('date_search')) {
+            $date_search = $request->date_search;
+        }
+
+        $query = Attendances::with(['course','course_division','class'])->orderBy('id','DESC');
+        if($date_search){
+            $query->where('attend_date', $date_search);
+        }
+        $attendances = $query->paginate(15);
+        return  view('admin.attendance.list',compact('attendances','date_search'));
+    }
+    public function getStudentsEditList(Request $request, $id){
+        $attend = Attendances::with(['class'])->find($id);
+        $class_id = $attend->class_id;
+        $date = $attend->attend_date;
+        $course_division = $attend->division_id;
+        $course = $attend->course_id;
+        $class_name = $attend->class->class_name;
+        //Get Students List for the selected class and date
+        // DB::enableQueryLog();
+        $students = StudentClasses::leftJoin('users as u','u.id','=','student_classes.user_id')
+                                ->where('student_classes.class_id', $class_id)
+                                ->where('student_classes.is_active', 1)
+                                ->where('student_classes.is_attended', 1)
+                                ->where('student_classes.attended_date', $date)
+                                ->whereRaw('? between start_date and end_date', [$date])
+                                ->select('u.name','u.email','u.id as user_id','student_classes.id','student_classes.is_attended','student_classes.attended_date','u.unique_id')
+                                ->get();
+        // dd(DB::getQueryLog());
+       
+        return  view('admin.attendance.edit_list',compact('students','class_id','id','date','course_division','course','class_name'));
+    }
+
+    public function getCourseClasses(Request $request){
+        $moduleId = $request->id;
+        $classes = CourseClasses::where('module_id', $moduleId)
+                                ->where('is_deleted',0)
+                                ->where('is_active',1)
+                                ->orderBy('id', 'ASC')
+                                ->get();
+
+        $options = '';
+        foreach($classes as $cla){
+            $options .= '<option value="'.$cla->id.'">'.$cla->class_name.'</option>';
+        }
+        return $options;
+    }
+
+    public function getStudentsList(Request $request){
+        $class_id = $request->class_id;
+        $date = $request->date;
+        $course_division = $request->course_division;
+        $course = $request->course;
+        //Get Students List for the selected class and date
+        // DB::enableQueryLog();
+        $students = StudentClasses::leftJoin('users as u','u.id','=','student_classes.user_id')
+                                ->where('student_classes.class_id', $class_id)
+                                ->where('student_classes.is_active', 1)
+                                ->whereRaw('? between start_date and end_date', [$date])
+                                ->select('u.name','u.email','u.id as user_id','student_classes.id','student_classes.is_attended','student_classes.attended_date','u.unique_id')
+                                ->where('student_classes.is_attended', 0)
+                                ->get();
+        // dd(DB::getQueryLog());
+        $viewdata = view('admin.attendance.students_list', compact('students','class_id','date','course_division','course'))->render();
+        return $viewdata;
+    }
+
+    public function saveAttendance(Request $request){
+        // echo '<pre>';
+        // print_r($request->all());
+        $class_id = $request->class_id;
+        $date_value = $request->date_value;
+        $course_id = $request->course_id;
+        $division_id = $request->division_id;
+        $attendance = $request->attendance;
+        
+        $check = Attendances::where('attend_date', $date_value)->where('class_id', $class_id)->first();
+        
+        if($check){
+            $attendId = $check['id'];
+            foreach ($attendance as $key => $value) {
+                $saveData = [
+                        'attend_id' => $attendId,
+                        'student_id' => $key,
+                        'status' => $value
+                    ];
+                AttendanceStudents::updateOrCreate(['attend_id' => $attendId, 'student_id' => $key],$saveData);
+                if($value == 0){
+                    $dateValue = null;
+                }else{
+                    $dateValue = $date_value;
+                }
+                StudentClasses::where('class_id', $class_id)->where('user_id', $key)->where('is_active',1)->update(['is_attended' => $value, 'attended_date' => $dateValue]);
+            }
+        }else{
+            $attend = new Attendances();
+            $attend->attend_date = $date_value;
+            $attend->class_id = $class_id;
+            $attend->course_id = $course_id;
+            $attend->division_id = $division_id;
+            $attend->save();
+            $attendId = $attend->id;
+
+            if(!empty($attendance)){
+                $data = [];
+                foreach($attendance as $key => $value){
+                    $data[] = array(
+                        'attend_id' => $attendId,
+                        'student_id' => $key,
+                        'status' => $value
+                    );
+                    if($value == 1){
+                        StudentClasses::where('class_id', $class_id)->where('user_id', $key)->where('is_active',1)->update(['is_attended' => 1, 'attended_date' => $date_value]);
+                    }
+                }
+                AttendanceStudents::insert($data);
+            }
+        }
+        return 'success';
+    }
+
+    public function updateAttendance(Request $request){
+        $id = $request->id;
+        $user_id = $request->user_id;
+        $status = $request->status;
+        $date = $request->date;
+        $class_id = $request->classid;
+        // AttendanceStudents::updateOrCreate(['attend_id' => $id, 'student_id' => $user_id],['status' => $status]);
+        AttendanceStudents::where('attend_id' , $id)->where('student_id',$user_id)->where('status',1)->delete();
+        if($status == 0){
+            $dateValue = null;
+        }else{
+            $dateValue = $date;
+        }
+        StudentClasses::where('class_id', $class_id)->where('user_id', $user_id)->update(['is_attended' => $status, 'attended_date' => $dateValue]);
+    }
+    
+    public function getStudentsAttendanceList($id){
+        $attend = Attendances::with(['class'])->find($id);
+        $date = $attend->attend_date;
+        $class_name = $attend->class->class_name;
+
+        $students = AttendanceStudents::with(['student'])
+                ->where('attend_id', $id)
+                ->orderBy('id','ASC')->paginate(50);
+        return  view('admin.attendance.view_list',compact('students','date','class_name'));
+    }
+
+    public function attendBooking(Request $request){
+        $id = $request->id;
+        Bookings::where('id', $id)->update(['is_attended'=> $request->status, 'attend_date' => date('Y-m-d')]);
+    }
+
+    public function createBulkStudent(){
+        return view('admin.students.bulk_create');
+    }
+
+    public function storeBulkStudent(Request $request){
+        $validator = Validator::make($request->all(), [
+            'student_file' => 'required|mimes:xlsx, csv, xls'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $students = User::where('user_type','student')
+                        ->where('is_deleted',0)
+                        ->orderBy('name','ASC')
+                        ->get()->pluck('email')->toArray();
+       
+        $the_file = $request->file('student_file');
+        
+        $notFound = [];
+        $spreadsheet = IOFactory::load($the_file->getRealPath());
+        $sheet        = $spreadsheet->getActiveSheet();
+        $row_limit    = $sheet->getHighestDataRow();
+        $column_limit = $sheet->getHighestDataColumn();
+        $row_range    = range( 2, $row_limit );
+        $column_range = range( 'F', $column_limit );
+        $data = array();
+
+        $approvedCount = User::where('user_type', 'student')->where('is_approved',1)->count();
+       
+        foreach ( $row_range as $row ) {
+            $dob = '';
+            $email = trim($sheet->getCell( 'C' . $row )->getValue());
+            if($email != ''){
+                if(!in_array($email, $students)){
+                    $dob = $sheet->getCell( 'F' . $row )->getValue();
+                    $dob = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dob)->format('Y-m-d');
+         
+                    $first_name = $sheet->getCell( 'A' . $row )->getValue();
+                    $last_name = $sheet->getCell( 'B' . $row )->getValue();
+
+                    $user = new User();
+                    $user->name = $first_name.' '.$last_name;
+                    $user->email = $email;
+                    $user->password = null;
+                    $user->user_type = 'student';
+                    $user->unique_id = 'ST'.($approvedCount+1);
+                    $user->is_approved = 1;
+                    $user->save();
+
+                    if($user->id){
+                        $approvedCount++;
+                        $data[] = [
+                            'user_id' => $user->id,
+                            'first_name' => $first_name,
+                            'last_name' => $last_name,
+                            'phone_number' => $sheet->getCell( 'D' . $row )->getValue(),
+                            'gender' => strtolower($sheet->getCell( 'E' . $row )->getValue()),
+                            'date_of_birth' => $dob,
+                            'address' => $sheet->getCell( 'G' . $row )->getValue(),
+                        ];
+                    }
+                }else{
+                    $notFound[] = $email;
+                }
+            }
+        }
+        if(!empty($notFound)){
+            flash("The following email ids were already saved in the system ( ".implode(', ',$notFound)." )")->warning()->important();
+        }
+
+        if(!empty($data)){
+            UserDetails::insert($data);
+            flash("Successfully uploaded! ")->success()->important();
+        }else{
+            flash("No data uploaded")->error()->important();
+        }
+        
+        return redirect()->route('student.bulk-create');
+    }
+
+    function exportBooking(){
+        $data = [];
+        if(Session::has('booking_filter')){
+            $data = Session::get('booking_filter');
+        }
+       
+        if(isset($data['bookingID']) && $data['bookingID'] != ''){
+            $query->where('unique_booking_id', $data['bookingID']);
+        }
+
+        $title_search = $teacher_search =  $date_search = null;
+        
+        if(isset($data['title']) && $data['title'] != '') {
+            $title_search = $data['title'];
+        }
+        if(isset($data['teacher']) && $data['teacher'] != '') {
+            $teacher_search = $data['teacher'];
+        }
+        if(isset($data['date_search']) && $data['date_search'] != '') {
+            $date_search = $data['date_search'];
+        }
+
+        $query = Bookings::with(['student','student_details','teacher','course_division','slot','cancelledBy','createdBy'])
+                ->where('is_deleted',0)
+                ->orderBy('id','DESC');
+
+        if($title_search){
+            $query->Where(function ($query) use ($title_search) {
+                $query->whereHas('student', function ($query)  use($title_search) {
+                    $query->where('users.name', 'LIKE', "%$title_search%")
+                        ->orWhere('users.email', 'LIKE', "%$title_search%")
+                        ->orWhere('users.unique_id', 'LIKE', "%$title_search%"); 
+                });
+                $query->orWhereHas('student_details', function ($query)  use($title_search) {
+                    $query->where('user_details.phone_number', 'LIKE', "%$title_search%"); 
+                });
+            }); 
+        }
+        if($date_search){
+            $query->where('booking_date', $date_search);
+        }
+        if($teacher_search){
+            $query->where('teacher_id', $teacher_search);
+        }
+    
+        $bookings = $query->get();
+       
+
+        $data_array [] = array("Booking Date","Booking Slot","Student Name","Student Code","Teacher Name","Division","Created By","Attended Status","Cancel Status");
+        foreach($bookings as $data_item)
+        {  
+            $data_array[] = array(
+                'Booking Date' => $data_item->booking_date,
+                'Booking Slot' => $data_item->slot->slot,
+                'Student Name' => $data_item->student->name,
+                'Student Code' => $data_item->student->unique_id,
+                'Teacher Name' => $data_item->teacher->name,
+                'Division' => $data_item->course_division->title,
+                'Created By' => $data_item->createdBy->name ?? '',
+                'Attended Status' => (($data_item->is_attended) == 1) ? 'Attended' : ((($data_item->is_attended) == 2) ? 'Not Attended' : '-') ,
+                'Cancel Status' => ($data_item->is_cancelled == 1) ? 'Cancelled By'.($data_item->cancelledBy->name ?? '') : '-',
+            );
+        }
+        $this->ExportExcel($data_array);
+    }
+
+    public function ExportExcel($booking_data){
+        ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '4000M');
+        try {
+            $spreadSheet = new Spreadsheet();
+            $spreadSheet->getActiveSheet()->getDefaultColumnDimension()->setWidth(20);
+            $spreadSheet->getActiveSheet()->getStyle('1:1')->getFont()->setBold(true);
+            $spreadSheet->getActiveSheet()->getStyle('1:1')->getFont()->setSize('13px');
+            $spreadSheet->getActiveSheet()->fromArray($booking_data);
+            $Excel_writer = new Xls($spreadSheet);
+            header('Content-Type: application/vnd.ms-excel');
+            header('Content-Disposition: attachment;filename="Bookings_'.date('d-m-Y').'.xls"');
+            header('Cache-Control: max-age=0');
+            // ob_end_clean();
+            $Excel_writer->save('php://output');
+            exit();
+        } catch (Exception $e) {
+            return;
+        }
+    }
+
+    public function viewStudent(){
+        return view('admin.students.view');
+    }
 }

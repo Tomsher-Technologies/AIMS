@@ -598,6 +598,18 @@ class ApiAuthController extends Controller
             return response()->json(["status" => false,'message'=>'No data found!', 'data' => []]);
         }
     }
+
+    public function updateClassStatus(Request $request){
+        $cancel = Bookings::findorfail($request->booking_id);
+        $slot_id = $cancel->slot_id;
+        $cancel->update(['is_cancelled'=>1, 'cancelled_by' => $request->user_id]);
+        TeacherSlots::where('id', '=', $slot_id)->update(['is_booked'=>0]);
+        if($cancel->is_cancelled == 1){
+            return response()->json(["status" => true, "message"=>"Booking cancelled successfully",'data' => []]);
+        }else{
+            return response()->json(["status"=>false,"message"=>"Cancellation failed!",'data' => [] ]);
+        }
+    }
 }
 
 

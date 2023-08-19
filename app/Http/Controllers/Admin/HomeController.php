@@ -13,6 +13,8 @@ use App\Models\PackageModules;
 use App\Models\CourseClasses;
 use App\Models\TeacherDivisions;
 use App\Models\States;
+use App\Models\PackageClasses;
+use App\Models\CronAddClasses;
 use Auth;
 use Validator;
 use Storage;
@@ -87,18 +89,7 @@ class HomeController extends Controller
             'banner_image' => $imageUrl
         ]);
 
-        if ($request->divisions) {
-            foreach ($request->divisions as $div) {
-                if(isset($div['division_name']) && $div['division_name'] != ''){
-                    CourseDivisions::create([
-                        'courses_id' => $course->id,
-                        'title' =>  $div['division_name'],
-                        'description' =>  isset($div['division_description']) ? $div['division_description'] : NULL,
-                        'is_active' => isset($div['division_status']) ? $div['division_status'] : 1,
-                    ]);
-                }
-            }
-        }
+        
         flash('Course has been created successfully')->success();
         return redirect()->route('all-courses');
     }
@@ -163,19 +154,6 @@ class HomeController extends Controller
         $course->is_active = $request->is_active;
         $course->save();
 
-        if($request->divisions) {
-            CourseDivisions::where('courses_id', $id)->delete();
-            foreach ($request->divisions as $div) {
-                if(isset($div['division_name']) && $div['division_name'] != ''){
-                    CourseDivisions::create([
-                        'courses_id' => $course->id,
-                        'title' =>  $div['division_name'],
-                        'description' =>  isset($div['division_description']) ? $div['division_description'] : NULL,
-                        'is_active' => isset($div['division_status']) ? $div['division_status'] : 1,
-                    ]);
-                }
-            }
-        }
         flash('Course has been updated successfully')->success();
         return redirect()->route('all-courses');
     }
@@ -184,12 +162,134 @@ class HomeController extends Controller
         Courses::where('id', $request->id)->update(['is_deleted' => 1]);
     }
 
-    public function getAllCoursePackages(){
+    public function getAllDivisions(Request $request){
+        $title_search = $course_search = $status_search = '';
+        if ($request->has('title')) {
+            $title_search = $request->title;
+        }
+        if ($request->has('course')) {
+            $course_search = $request->course;
+        }
+        if ($request->has('is_active')) {
+            $status_search = $request->is_active;
+        }
+
+        $query = CourseDivisions::with(['course_name'])->select('*')
+                    ->where('is_deleted',0)
+                    ->orderBy('id','DESC');
+
+        if($title_search){
+            $query->where('title', 'LIKE', "%$title_search%");
+        }
+        if($course_search){
+            $query->where('courses_id', $course_search);
+        }
+
+        if($status_search != ''){
+            $query->where('is_active', $status_search);
+        }
+
+        $divisions = $query->paginate(10);
+
+        $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
+        return  view('admin.course_divisions.index',compact('divisions','courses','title_search','course_search','status_search'));
+    }
+
+    public function createDivision()
+    {
+        $courses = Courses::where('is_active',1)->where('is_deleted',0)->orderBy('name','ASC')->get();
+        return view('admin.course_divisions.create',compact('courses'));
+    }
+
+    public function storeDivision(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'division_name' => 'required',
+            'description' => 'required',
+            'course_id' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $course = CourseDivisions::create([
+            'courses_id' => $request->course_id,
+            'title' =>  $request->division_name,
+            'description' => $request->description ?? NULL
+        ]);
+
+        flash('Course Division has been created successfully')->success();
+        return redirect()->route('all-divisions');
+    }
+
+    public function editDivision(Request $request, $id)
+    {
+        $division = CourseDivisions::findOrFail($id);
+        $courses = Courses::where('is_active',1)->where('is_deleted',0)->orderBy('name','ASC')->get();
+        return view('admin.course_divisions.edit', compact('division','courses'));
+    }
+
+    public function updateDivision(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'division_name' => 'required',
+            'description' => 'required',
+            'course_id' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $division = CourseDivisions::findOrFail($id);
+        $division->courses_id = $request->course_id;
+        $division->title = $request->division_name;
+        $division->description = $request->description;
+        $division->is_active = $request->is_active;
+        $division->save();
+
+        flash('Course Division has been updated successfully')->success();
+        return redirect()->route('all-divisions');
+    }
+
+    public function deleteDivision(Request $request){
+        CourseDivisions::where('id', $request->id)->update(['is_deleted' => 1]);
+    }
+
+    public function getAllCoursePackages(Request $request){
+
+        $title_search = $course_search = $status_search = '';
+        if ($request->has('title')) {
+            $title_search = $request->title;
+        }
+        if ($request->has('course')) {
+            $course_search = $request->course;
+        }
+        if ($request->has('is_active')) {
+            $status_search = $request->is_active;
+        }
+
         $query = CoursePackages::with(['course_name','active_package_modules'])->select('*')
                 ->where('is_deleted',0)
                 ->orderBy('id','DESC');
+
+        if($title_search){
+            $query->where('package_title', 'LIKE', "%$title_search%");
+        }
+        if($course_search){
+            $query->where('courses_id', $course_search);
+        }
+
+        if($status_search != ''){
+            $query->where('is_active', $status_search);
+        }
+
         $packages = $query->paginate(10);
-        return  view('admin.course_packages.index',compact('packages'));
+
+        $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
+
+        return  view('admin.course_packages.index',compact('packages','courses','title_search','course_search','status_search'));
     }
     
     public function createPackage(){
@@ -305,7 +405,7 @@ class HomeController extends Controller
     }
    
     public function getAllClasses(Request $request){
-        $title_search = $course_search =  $division_search = null;
+        $title_search = $course_search =  $division_search = $package_search = null;
         if ($request->has('title')) {
             $title_search = $request->title;
         }
@@ -315,9 +415,12 @@ class HomeController extends Controller
         if ($request->has('course_division')) {
             $division_search = $request->course_division;
         }
+        if ($request->has('package')) {
+            $package_search = $request->package;
+        }
 
         $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
-        $query = CourseClasses::with(['course','course_division'])->select('*')
+        $query = CourseClasses::with(['course','course_division','packages'])->select('*')
                 ->where('is_deleted',0)
                 ->orderBy('order','ASC');
 
@@ -330,14 +433,24 @@ class HomeController extends Controller
         if($division_search){
             $query->where('module_id', $division_search);
         }
+
+        if($package_search){
+            $query->whereHas('packages', function ($query)  use($package_search) {
+                $query->where('package_id', $package_search);
+            });
+        }
+
         $classes = $query->paginate(10);
 
         if($course_search){
-            $divisions = CourseDivisions::where('courses_id', $course_search)->where('is_active',1)->orderBy('id','ASC')->get();
+            $divisions = CourseDivisions::where('courses_id', $course_search)->where('is_active',1)->where('is_deleted',0)->orderBy('title','ASC')->get();
+            $packages = CoursePackages::where('courses_id', $course_search)->where('is_active',1)->where('is_deleted',0)->orderBy('package_title','ASC')->get();
         }else{
-            $divisions = CourseDivisions::where('is_active',1)->orderBy('id','ASC')->get();
+            $divisions = CourseDivisions::where('is_active',1)->where('is_deleted',0)->orderBy('title','ASC')->get();
+            $packages = CoursePackages::where('is_active',1)->where('is_deleted',0)->orderBy('package_title','ASC')->get();
         }
-        return  view('admin.classes.index',compact('classes','courses','divisions','title_search','course_search','division_search'));
+
+        return  view('admin.classes.index',compact('classes','packages','package_search','courses','divisions','title_search','course_search','division_search'));
     }
 
     public function createClass()
@@ -353,20 +466,36 @@ class HomeController extends Controller
             'title' => 'required',
             'course' => 'required',
             'course_division' => 'required',
-            'order' => 'required'
+            'packages' => 'required'
         ]);
         
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $package = CourseClasses::create([
-            'module_id' => $request->course_division,
-            'course_id' => $request->course,
-            'class_name' => $request->title,
-            'order' => $request->order,
-            'is_mandatory' => $request->mandatory,
-        ]);
+        $class = new CourseClasses();
+        $class->module_id = $request->course_division;
+        $class->course_id  = $request->course ;
+        $class->class_name = $request->title;
+        $class->order = $request->order;
+        $class->is_mandatory = $request->mandatory;
+        $class->save();
+
+        $classId = $class->id;
+        $package = [];
+        if ($request->packages) {
+            foreach ($request->packages as $pack) {
+                $package[] = array(
+                    'package_id' => $pack,
+                    'class_id' => $classId,
+                    'created_at' => date('Y-m-d H:i:s')
+                );
+
+            }
+        }
+        
+        PackageClasses::insert($package);
+        CronAddClasses::insert($package);
 
         flash('Class has been created successfully')->success();
         return redirect()->route('classes');
@@ -379,11 +508,18 @@ class HomeController extends Controller
     public function editClass(Request $request, $id)
     {
         $courses = Courses::where('is_deleted',0)->where('is_active',1)->orderBy('name','ASC')->get();
-        $classes = CourseClasses::find($id);
+        $classes = CourseClasses::with(['packages'])->find($id);
 
-        $divisions = CourseDivisions::where('courses_id', $classes->course_id)->where('is_active',1)->orderBy('id','ASC')->get();
-       
-        return view('admin.classes.edit', compact('courses','classes','divisions'));
+        $divisions = CourseDivisions::where('courses_id', $classes->course_id)->where('is_active',1)->where('is_deleted',0)->orderBy('id','ASC')->get();
+        $packages = CoursePackages::where('courses_id', $classes->course_id)->where('is_active',1)->where('is_deleted',0)->orderBy('package_title','ASC')->get();
+
+        $packs = [];
+        if(!empty($classes->packages)){
+            foreach($classes->packages as $pack){
+                $packs[] = $pack->package_id;
+            }
+        }
+        return view('admin.classes.edit', compact('courses','classes','packs','packages','divisions'));
     }
 
     public function updateClass(Request $request, $id){
@@ -391,13 +527,24 @@ class HomeController extends Controller
             'title' => 'required',
             'course' => 'required',
             'course_division' => 'required',
-            'order' => 'required'
+            'order' => 'required',
+            'packages' => 'required'
         ]);
         
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
-        $class = CourseClasses::findOrFail($id);
+        $class = CourseClasses::with(['packages'])->find($id);
+
+        $packs = [];
+        if(!empty($class->packages)){
+            foreach($class->packages as $pack){
+                $packs[] = $pack->package_id;
+            }
+        }
+
+        $newArray = $request->packages;
+       
         $class->module_id = $request->course_division;
         $class->course_id = $request->course;
         $class->class_name = $request->title;
@@ -405,6 +552,31 @@ class HomeController extends Controller
         $class->is_mandatory = $request->mandatory;
         $class->is_active = $request->is_active;
         $class->save();
+
+        if(!empty($newArray)){
+            if ($packs != $newArray) {
+                $diffAdd = array_diff($newArray, $packs);
+                $diffRemove = array_diff($packs, $newArray);
+                
+                if(!empty($diffAdd)){
+                    $package = [];
+                    foreach ($diffAdd as $addvalue){
+                        $package[] = array(
+                            'package_id' => $addvalue,
+                            'class_id' => $class->id,
+                            'created_at' => date('Y-m-d H:i:s')
+                        );
+                    }
+                    PackageClasses::insert($package);
+                    CronAddClasses::insert($package);
+                }
+                if(!empty($diffRemove)){
+                    foreach ($diffRemove as $remvalue){
+                        PackageClasses::where("package_id", $remvalue)->where('class_id',$class->id)->update(['is_deleted' => 1]);
+                    }
+                }
+            }  
+        }
 
         flash('Class has been updated successfully')->success();
         return redirect()->route('classes');
@@ -438,6 +610,27 @@ class HomeController extends Controller
         return $options;
     }
 
-   
+    public function getCourseDivisionsPackages(Request $request){
+        $courseId = $request->id;
+        $divisions = CourseDivisions::where('courses_id', $courseId)->where('is_active',1)->orderBy('id', 'ASC')->get();
+
+        $divisionOptions = '';
+        foreach($divisions as $div){
+            $divisionOptions .= '<option value="'.$div->id.'">'.$div->title.'</option>';
+        }
+
+        $packages = CoursePackages::where('courses_id', $courseId)
+                                ->where('is_active',1)
+                                ->where('is_deleted',0)
+                                ->orderBy('package_title','ASC')
+                                ->get();
+        $packOptions = '';
+        foreach($packages as $pack){
+            $packOptions .= '<option value="'.$pack->id.'">'.$pack->package_title.'</option>';
+        }
+
+        return json_encode(array('divisions'=> $divisionOptions, 'packages' => $packOptions));
+    }
+
    
 }

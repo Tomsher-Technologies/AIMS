@@ -15,6 +15,10 @@ class Bookings extends Model
     	return $this->belongsTo(User::class,'student_id','id');
     }
 
+    public function student_details(){
+    	return $this->belongsTo(UserDetails::class,'student_id','user_id');
+    }
+
     public function teacher(){
     	return $this->belongsTo(User::class,'teacher_id','id');
     }

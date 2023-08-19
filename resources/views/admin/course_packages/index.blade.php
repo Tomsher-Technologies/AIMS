@@ -19,14 +19,50 @@
             <div class="card recent_certificate">
                 <div class="card-body">
                 @include('flash::message')
+                    <div class="">
+                        <!-- <h3> Filters </h3> -->
+                        <form class="" id="classes" action="" method="GET">
+                            
+                            <div class="form-row">
+                                <div class="form-group col-md-3">
+                                    <label for="#">Package Title</label>
+                                    <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter package title">
+                                </div>
+
+                                <div class="form-group col-md-3">
+                                    <label for="#">Course</label>
+                                    <select class="form-control"  id="course" name="course" >
+                                        <option value="">Select Course</option>
+                                        @foreach($courses as $cou)
+                                            <option value="{{ $cou->id }}" @if($course_search == $cou->id) selected @endif > {{ $cou->name }} </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-3">
+                                    <label for="inputPassword4">Active Status</label>
+                                    <select class="form-control" name="is_active" id="is_active">
+                                        <option value="">Select</option>
+                                        <option {{ ($status_search == '1') ? 'selected' : '' }} value="1">Active</option>
+                                        <option {{ ($status_search == '0') ? 'selected' : '' }} value="0">In-Active</option>
+                                    </select>
+                                </div>
+                               
+                                <div class="form-group col-md-3 filterDiv">
+                                    <button type="submit" class="btn btn_primary">Filter</button>
+                                    <a href="{{ route('course-packages') }}"  class="btn btn-info">Reset</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                     <div class="data_card">
                         <div class="table-responsive">
                             <table class="table table-bordered mb-0">
                                 <thead>
                                     <tr>
-                                        <th scope="col">Sl. No</th>
+                                        <th scope="col" class="text-center">Sl. No</th>
                                         <th scope="col">Package Name</th>
-                                        <th scope="col" class="w-20">Description</th>
+                                        <th scope="col" class="w-30">Description</th>
                                         <th scope="col" class="text-center">Course Name</th>
                                         <th scope="col" class="text-center">Duration</th>
                                         <th scope="col" class="text-center">Course Fee</th>
@@ -39,7 +75,7 @@
                                     @if(isset($packages[0]))
                                         @foreach($packages as $key => $pack)
                                             <tr>
-                                                <td>{{ $key + 1 + ($packages->currentPage() - 1) * $packages->perPage() }}</td>
+                                                <td class="text-center">{{ $key + 1 + ($packages->currentPage() - 1) * $packages->perPage() }}</td>
                                                 <td>{{ $pack->package_title }}</td>
                                                 <td>{{ $pack->description }}</td>
                                                 <td class="text-center">{{ $pack->course_name->name }}</td>

@@ -17,7 +17,7 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <form class="form-horizontal repeater" action="{{ route('assign-teacher.store') }}" method="POST"
-                        enctype="multipart/form-data">
+                        enctype="multipart/form-data" autocomplete="off">
                         @csrf
                         <div class="form-row justify-content-center">
                             <div class="form-group col-md-7">
