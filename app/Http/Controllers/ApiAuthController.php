@@ -584,6 +584,7 @@ class ApiAuthController extends Controller
                                         ->orderBy('cc.order','ASC')
                                         ->get();
             $allClass = $data['classes']->toArray();
+
             $attended = array_filter($allClass, function($elem){
                 return $elem['is_attended'] === 1;
             });
