@@ -579,7 +579,7 @@ class ApiAuthController extends Controller
                                         ->leftJoin('course_divisions as cd','cc.module_id','=','cd.id')
                                         ->where('cc.is_active',1)->where('cc.is_deleted',0)
                                         ->where('student_classes.user_id', $user_id)
-                                        ->select('student_classes.id','cc.class_name','cd.title','student_classes.is_attended')
+                                        ->select('student_classes.id','cc.class_name','cd.title','student_classes.is_attended','student_classes.created_at')
                                         ->orderBy('student_classes.is_active','DESC')
                                         ->orderBy('cc.order','ASC')
                                         ->get();
@@ -602,7 +602,7 @@ class ApiAuthController extends Controller
     }
 
     public function updateClassStatus(Request $request){
-        $attended = StudentClasses::where('user_id', $request->user_id)->where('class_id', $request->class_id)
+        $attended = StudentClasses::where('user_id', $request->user_id)->where('id', $request->class_id)
                                 ->update(['is_attended' => 1, 'attended_date' => date('Y-m-d')]);
         if($attended){
             return response()->json(["status" => true, "message"=>"Updated successfully",'data' => []]);
