@@ -17,6 +17,7 @@ use App\Models\Bookings;
 use App\Models\Remarks;
 use App\Models\Notifications;
 use App\Models\StudentClasses;
+use App\Models\MockTests;
 use Validator;
 use Hash;
 use Str;
@@ -600,16 +601,28 @@ class ApiAuthController extends Controller
     }
 
     public function updateClassStatus(Request $request){
-        $cancel = Bookings::findorfail($request->booking_id);
-        $slot_id = $cancel->slot_id;
-        $cancel->update(['is_cancelled'=>1, 'cancelled_by' => $request->user_id]);
-        TeacherSlots::where('id', '=', $slot_id)->update(['is_booked'=>0]);
-        if($cancel->is_cancelled == 1){
-            return response()->json(["status" => true, "message"=>"Booking cancelled successfully",'data' => []]);
+        $attended = StudentClasses::where('user_id', $request->user_id)->where('class_id', $request->class_id)
+                                ->update(['is_attended' => 1, 'attended_date' => date('Y-m-d')]);
+        if($attended){
+            return response()->json(["status" => true, "message"=>"Updated successfully",'data' => []]);
         }else{
-            return response()->json(["status"=>false,"message"=>"Cancellation failed!",'data' => [] ]);
+            return response()->json(["status"=>false,"message"=>"Updation failed!",'data' => [] ]);
         }
     }
+
+    public function studentMockTests(Request $request){
+        $user_id = $request->user_id;
+        $mock_tests = MockTests::where('student_id', $user_id)
+                                    ->where('is_deleted',0)
+                                    ->orderBy('test_date', 'DESC')
+                                    ->select('test_date', 'student_id', 'listening_a', 'listening_b', 'listening_c', 'listening_total', 'reading_a', 'reading_b', 'reading_c', 'reading_total')->get();
+        if(!empty($mock_tests[0])){
+            return response()->json(["status" => true, "message"=>"Success",'data' => $mock_tests]);
+        }else{
+            return response()->json(["status" => false,'message'=>'No data found!', 'data' => []]);
+        }
+    }
+
 }
 
 

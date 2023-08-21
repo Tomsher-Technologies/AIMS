@@ -46,6 +46,7 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
     Route::get('/student-course', [ApiAuthController::class, 'getStudentClasses'])->name('student-course');
     Route::get('/notification-count', [ApiAuthController::class, 'unreadNotifications'])->name('notification-count');
     Route::post('/update-status', [ApiAuthController::class, 'updateClassStatus'])->name('update-status');
+    Route::get('/mock-test-results', [ApiAuthController::class, 'studentMockTests'])->name('mock-test-results');
 });
 
 
