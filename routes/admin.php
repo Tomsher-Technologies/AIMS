@@ -60,6 +60,7 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::post('/teacher/update/{id}', [TeachersController::class, 'updateTeacher'])->name('teacher.update');
         Route::post('/teacher/delete/', [TeachersController::class, 'deleteTeacher'])->name('teacher.delete');
         Route::get('/teacher/divisions', [TeachersController::class, 'getTeacherDivisions'])->name('teacher.divisions');
+        Route::get('/teacher/divisions/filter', [TeachersController::class, 'getTeacherDivisionsFilter'])->name('teacher.divisions.filter');
 
         Route::get('/assign-teachers', [TeachersController::class, 'getAllAssignedTeachers'])->name('assign-teachers');
         Route::get('/assign-teacher/create', [TeachersController::class, 'createAssign'])->name('assign-teacher.create');

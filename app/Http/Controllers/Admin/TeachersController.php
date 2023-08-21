@@ -242,7 +242,7 @@ class TeachersController extends Controller
                         ->where('is_deleted',0)
                         ->get();
         $teacherdivisions = $divisions = [];
-        if($teacher_search){
+        if($teacher_search != ''){
             $teacherdivisions = TeacherDivisions::with(['course_division'])->where('teacher_id', $teacher_search)->where('is_deleted',0)->orderBy('id', 'ASC')->get();
         }else{
             $divisions = CourseDivisions::where('is_active',1)->orderBy('id','ASC')->get();
@@ -270,6 +270,31 @@ class TeachersController extends Controller
         foreach($divisions as $div){
             $options .= '<option value="'.$div->course_division->id.'">'.$div->course_division->title.'</option>';
         }
+        return $options;
+    }
+
+    public function getTeacherDivisionsFilter(Request $request){
+        $teacherId = $request->id;
+        $divisions = $teacher_divisions = [];
+        if($teacherId != ''){
+            $divisions = TeacherDivisions::with(['course_division'])->where('teacher_id', $teacherId)->where('is_deleted',0)->orderBy('id', 'ASC')->get();
+        }else{
+            $teacher_divisions = CourseDivisions::where('is_active', 1)->orderBy('title','asc')->get();
+        }
+   
+        $options = '';
+        if(!empty($divisions)){
+            foreach($divisions as $div){
+                $options .= '<option value="'.$div->course_division->id.'">'.$div->course_division->title.'</option>';
+            }
+        }
+
+        if(!empty($teacher_divisions)){
+            foreach($teacher_divisions as $tdiv){
+                $options .= '<option value="'.$tdiv->id.'">'.$tdiv->title.'</option>';
+            }
+        }
+       
         return $options;
     }
 
