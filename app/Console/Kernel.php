@@ -14,6 +14,8 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         'App\Console\Commands\AddStudentClasses',
+        'App\Console\Commands\CourseExpiry',
+        'App\Console\Commands\FeeExpiry',
     ];
 
     /**
@@ -24,7 +26,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('student:classes')->everyMinute();
+        $schedule->command('student:classes')->hourly();
+        $schedule->command('course:expiry')->everyMinute();
+        $schedule->command('fee:expiry')->everyMinute();
     }
 
     /**
