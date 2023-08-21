@@ -390,6 +390,7 @@ class ApiAuthController extends Controller
         if(isset($request->user_id)){
             $checkUserPackage = StudentPackages::where('user_id',$request->user_id)
                                                 ->where('package_id',$request->id)
+                                                ->where('end_date','>', date('Y-m-d'))
                                                 ->where('is_active',1)
                                                 ->where('is_deleted',0)->count();
         }

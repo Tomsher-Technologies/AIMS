@@ -21,7 +21,7 @@
                 @include('flash::message')
                     <div class="">
                         <!-- <h3> Filters </h3> -->
-                        <form class="" id="classes" action="" method="GET">
+                        <form class="" id="classes" action="" method="GET" autocomplete="off">
                             
                             <div class="form-row">
                                 <div class="form-group col-md-3">
@@ -43,9 +43,17 @@
                                     <label for="#">Course Divisions</label>
                                     <select class="form-control"  id="course_division" name="course_division">
                                         <option value="">Select Course Division</option>
-                                        @foreach($divisions as $div)
-                                            <option value="{{ $div->id }}" @if($division_search == $div->id) selected @endif > {{ $div->title }} </option>
-                                        @endforeach
+                                        @if(!empty($divisions))
+                                            @foreach($divisions as $div)
+                                                <option value="{{ $div->id }}" @if($division_search == $div->id) selected @endif > {{ $div->title }} </option>
+                                            @endforeach
+                                        @endif
+
+                                        @if(!empty($teacherdivisions))
+                                            @foreach($teacherdivisions as $tdiv)
+                                                <option value="{{ $tdiv->course_division->id }}" @if($division_search == $tdiv->course_division->id) selected @endif > {{ $tdiv->course_division->title }} </option>
+                                            @endforeach
+                                        @endif
                                     </select>
                                 </div>
                                 <div class="form-group col-md-3 filterDiv">
@@ -149,6 +157,14 @@
 @section('footer')
 <script type="text/javascript">
     $('div.alert').not('.alert-important').delay(3000).fadeOut(350);
+
+    $("#assigned_date").datepicker({
+        dateFormat: "yy-mm-dd",
+        changeYear: true,
+        changeMonth: true,
+        yearRange: '-20:+5'
+    });
+
     $(document).on('click','.deleteTeacherAssign',function(){
         var id = $(this).attr('data-id');
         Swal.fire({
@@ -183,7 +199,7 @@
 
     function getTeacherDivisions(course){
         $.ajax({
-            url: "{{ route('teacher.divisions') }}",
+            url: "{{ route('teacher.divisions.filter') }}",
             type: "GET",
             data: {
                 id: course,
