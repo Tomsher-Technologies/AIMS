@@ -1,18 +1,31 @@
     <div class="menu">
-        <div class="main-menu">
+        
+    
+    <div class="main-menu">
             <div class="scroll">
                 <ul class="list-unstyled">
-                    <li class="{{ areActiveRoutes(['admin.dashboard']) }}">
+                   
+                
+                <li class="{{ areActiveRoutes(['admin.dashboard']) }}">
                         <a href="{{ route('admin.dashboard') }}">
                             <i class="iconsminds-shop-4"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
+                    <li>
+                            <a href="#applications">
+                                <i class="iconsminds-air-balloon-1"></i>
+                                Main Menu
+                            </a>
+                        </li>
+
                     <li class="{{ areActiveRoutes(['all-courses', 'course.create','course.edit']) }}">
                         <a href="{{ route('all-courses') }}">
                             <i class="iconsminds-digital-drawing"></i> Courses
                         </a>
                     </li>
+
+
                     <li class="{{ areActiveRoutes(['all-divisions', 'division.create','division.edit']) }}">
                         <a href="{{ route('all-divisions') }}">
                             <i class="iconsminds-digital-drawing"></i> Course Divisions
@@ -67,8 +80,53 @@
                             <i class="iconsminds-conference"></i> Students
                         </a>
                     </li>
+
+
+
                 </ul>
             </div>
         </div>
+
+
+
+        <div class="sub-menu">
+                <div class="scroll">
+                    
+                 
+                    <ul class="list-unstyled" data-link="applications">
+                        <li>
+                            <a href="Apps.MediaLibrary.html">
+                                <i class="simple-icon-picture"></i>
+                                <span class="d-inline-block">Library</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="Apps.Todo.List.html">
+                                <i class="simple-icon-check"></i>
+                                <span class="d-inline-block">Todo</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="Apps.Survey.List.html">
+                                <i class="simple-icon-calculator"></i>
+                                <span class="d-inline-block">Survey</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="Apps.Chat.html">
+                                <i class="simple-icon-bubbles"></i>
+                                <span class="d-inline-block">Chat</span>
+                            </a>
+                        </li>
+                    </ul>
+
+
+         
+                
+                </div>
+            </div>
         
     </div>
+
+
+     

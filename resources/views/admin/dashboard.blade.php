@@ -12,7 +12,8 @@
                     <div class="col-xl-3 mb-4 mb-xl-0">
                         <a href="#" class="card">
                             <div class="card-body text-center align-items-center">
-                                <img src="{{ asset('assets/images/no_users.svg') }}" alt="">
+                            <div class="glyph-icon simple-icon-people" bis_skin_checked="1" style="font-size: 50px;"></div>
+                                <!-- <img src="{{ asset('assets/images/no_users.svg') }}" alt=""> -->
                                 <p class="card-text mb-0 my-2"><b>Total Number of New<br>Students Registered</b> </p>
                                 <p class="lead text-center">{{ $total_students }}</p>
                             </div>
@@ -21,7 +22,8 @@
                     <div class="col-xl-3 mb-4 mb-xl-0">
                         <a href="#" class="card">
                             <div class="card-body text-center align-items-center">
-                                <img src="{{ asset('assets/images/no_users.svg') }}" alt="">
+                            <div class="glyph-icon simple-icon-people" bis_skin_checked="1" style="font-size: 50px;"></div>
+                                <!-- <img src="{{ asset('assets/images/no_users.svg') }}" alt=""> -->
                                 <p class="card-text mb-0 my-2"><b>Number of <br>Approved Students</b> </p>
                                 <p class="lead text-center">{{ $approved_students }}</p>
                             </div>
@@ -30,7 +32,8 @@
                     <div class="col-xl-3 mb-4 mb-xl-0">
                         <a href="#" class="card">
                             <div class="card-body text-center align-items-center">
-                                <img src="{{ asset('assets/images/no_users.svg') }}" alt="">
+                            <div class="glyph-icon simple-icon-people" bis_skin_checked="1" style="font-size: 50px;"></div>
+                                <!-- <img src="{{ asset('assets/images/no_users.svg') }}" alt=""> -->
                                 <p class="card-text mb-0 my-2"><b>Number of <br>Rejected Students</b> </p>
                                 <p class="lead text-center">{{ $rejected_students }}</p>
                             </div>

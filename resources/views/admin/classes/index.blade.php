@@ -138,7 +138,21 @@
                                 </tbody>
                             </table>
                             <div class="aiz-pagination float-right">
-                                {{ $classes->appends(request()->input())->links() }}
+                                <!-- {{ $classes->appends(request()->input())->links() }} -->
+
+                                <nav aria-label="Page navigation example mt-4">
+   <ul class="pagination justify-content-end mb-0">
+      <li class="page-item"><a class="page-link first" href="#"><i class="simple-icon-control-start"></i></a></li>
+      <li class="page-item"><a class="page-link prev" href="#"><i class="simple-icon-arrow-left"></i></a></li>
+      <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">1</a></li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li>
+      <li class="page-item"><a class="page-link next" href="#" aria-label="Next"><i class="simple-icon-arrow-right"></i></a></li>
+      <li class="page-item"><a class="page-link last" href="#"><i class="simple-icon-control-end"></i></a></li>
+   </ul>
+</nav>
+
+
                             </div>
                         </div>
                     </div>
