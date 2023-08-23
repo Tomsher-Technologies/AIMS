@@ -36,10 +36,38 @@ class HomeController extends Controller
         // print_r($students);
         // die;
 
-        $total_students = User::where('user_type','student')->count();
-        $approved_students = User::where('user_type','student')->where('is_approved', 1)->count();
-        $rejected_students = User::where('user_type','student')->where('is_approved', 2)->count();
-        return  view('admin.dashboard',compact('total_students','approved_students','rejected_students'));
+        // $total_students = User::where('user_type','student')->count();
+        // $approved_students = User::where('user_type','student')->where('is_approved', 1)->count();
+        // $rejected_students = User::where('user_type','student')->where('is_approved', 2)->count();
+        return  view('admin.dashboard');
+    }
+
+    public function dashboardCounts(Request $request)
+    {
+        $startDate = $request->start;
+        $endDate = $request->end;
+
+        $data['total_students'] = User::whereDate('created_at', '>=', $startDate)
+                                ->whereDate('created_at', '<=', $endDate)
+                                ->where('user_type','student')
+                                ->where('is_deleted', 0)
+                                ->count();
+
+        $data['approved_students'] = User::whereDate('created_at', '>=', $startDate)
+                                ->whereDate('created_at', '<=', $endDate)
+                                ->where('user_type','student')
+                                ->where('is_deleted', 0)
+                                ->where('is_approved', 1)
+                                ->count();
+
+        $data['rejected_students'] = User::whereDate('created_at', '>=', $startDate)
+                                ->whereDate('created_at', '<=', $endDate)
+                                ->where('user_type','student')
+                                ->where('is_deleted', 0)
+                                ->where('is_approved', 2)
+                                ->count();
+
+        return json_encode(array('status' => true, 'data' => $data));
     }
 
     public function getAllCourses(){

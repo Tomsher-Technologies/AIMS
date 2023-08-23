@@ -77,7 +77,7 @@
                                         <th scope="col" class="text-center">End Time</th>
                                         <th scope="col" class="text-center">Time Interval<br> (In Minutes)</th>
                                         <th scope="col" class="text-center">Slots </th>
-                                        <th scope="col" class="text-center">Active Status</th>
+                                        <th scope="col" class="text-center">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -104,7 +104,11 @@
                                                     <ul>
                                                         @foreach($assign->slots as $slot)
                                                             @if($slot->is_booked == 1)
-                                                                @php $deletable = 0; @endphp
+                                                                @php 
+                                                                    if($slot->is_deleted == 0){
+                                                                        $deletable = 0;
+                                                                    }
+                                                                @endphp
                                                                 <li class="error"> {{ $slot->slot}} (Booked) </li>
                                                             @else
                                                                 <li class="green"> {{ $slot->slot}} (Available) </li>
@@ -117,18 +121,31 @@
                                                     @if($assign->is_active == 1)
                                                         <span class="green">Active</span>
                                                     @else
-                                                        <span class="error">In-Active</span>
+                                                        <span class="error">All Bookings Canceled</span>
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <ul class="action_list">
-                                                        <li>
-                                                            <a class="" data-id="{{$assign->id}}" title="Edit Teacher Assign" href="{{ route('assign-teacher.edit',['id'=>$assign->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
-                                                        </li>
-                                                        @if($deletable == 1)
-                                                        <li> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
-                                                        @endif
-                                                    </ul>
+                                                    
+                                                        <ul class="action_list">
+                                                            @if($assign->assigned_date >= date('Y-m-d') )
+                                                                @if($assign->is_active == 1)
+                                                                    <li>
+                                                                        <a class="" data-id="{{$assign->id}}" title="Edit Teacher Assign" href="{{ route('assign-teacher.edit',['id'=>$assign->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                                    </li>
+                                                                @endif
+                                                            @endif
+
+                                                            @if($deletable == 1)
+                                                            <li> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                            @endif
+
+                                                            @if($assign->assigned_date >= date('Y-m-d') )
+                                                                @if($deletable == 0)
+                                                                <li> <button class="btn btn-danger pending mt-1 " onclick="cancelAllBooking({{$assign->id}})"><span class="label label-danger">Cancel All Bookings</span> </button></li>
+                                                                @endif
+                                                            @endif
+                                                        </ul>
+                                                   
                                                 </td>
                                                
                                             </tr>
@@ -210,6 +227,45 @@
                 $('#course_division').append('<option value="">Select Course Division</option>');
                 $('#course_division').append(response).trigger('change');
             }
+        });
+    }
+
+    function cancelAllBooking(id){
+        
+        Swal.fire({
+            title: "Are you sure?",
+            text: 'Do you want to cancel all the bookings?',
+            icon: 'warning',
+            confirmButtonText: "Yes, cancel it!",
+            showCancelButton: true,
+        }).then((result) => {
+            if (result.isConfirmed){
+                Swal.fire({
+                    title: 'Enter notification message to students',
+                    input: 'textarea'
+                }).then(function(result) {
+                    $.ajax({
+                        url: "{{ route('assign-teacher.cancel') }}",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            msg:result.value,
+                            _token:'{{ @csrf_token() }}',
+                        },
+                        dataType: "html",
+                        success: function () {
+                            swal.fire("Done!", "Succesfully cancelled!", "success");
+                            setTimeout(function () { 
+                                window.location.reload();
+                            }, 3000);  
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            swal.fire("Error cancelling!", "Please try again", "error");
+                        }
+                    });
+                })
+                
+            }  
         });
     }
 </script>

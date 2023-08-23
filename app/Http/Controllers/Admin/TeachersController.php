@@ -14,6 +14,8 @@ use App\Models\CourseClasses;
 use App\Models\TeacherDivisions;
 use App\Models\AssignTeachers;
 use App\Models\TeacherSlots;
+use App\Models\Bookings;
+use App\Models\Notifications;
 use Auth;
 use Validator;
 use Storage;
@@ -404,6 +406,36 @@ class TeachersController extends Controller
 
         flash('Teacher has been assigned successfully')->success();
         return redirect()->route('assign-teachers');
+    }
+
+    public function cancelBooking(Request $request){
+        $id = $request->id;
+        $msg = $request->msg;
+        $cancel = AssignTeachers::find($id);
+        
+
+        $cancel->update(['is_active'=>0]);
+        $date = $cancel->assigned_date;
+        TeacherSlots::where('assigned_id','=', $id)->update(['is_deleted'=>1]);
+        $slots = TeacherSlots::where('assigned_id', '=', $id)->pluck('id')->toArray();
+
+        $allBookings = Bookings::whereIn('slot_id', $slots)->where('is_cancelled', 0)->get();
+        if($allBookings){
+            Bookings::whereIn('slot_id', $slots)->where('is_cancelled', 0)->update(['is_cancelled'=>1, 'cancelled_by' => Auth::user()->id]);
+            if($msg != ''){
+                $message = $msg;
+            }else{
+                $message = 'Your booking for '.date("d M, Y",strtotime($date)).' has been cancelled by Admin';
+            }
+            $nots = [];
+            foreach($allBookings as $book){
+                $nots[] = [
+                    'user_id' => $book->student_id,
+                    'content' => $message
+                ];
+            }
+            Notifications::insert($nots);
+        }
     }
    
 }
