@@ -6,7 +6,7 @@
             <div class="mb-0">
                 <h1>Add New Course Division</h1>
                 <div class="text-zero top-right-button-container">
-                <a href="{{ route('all-courses') }}" class="btn btn-primary btn-lg top-right-button btn_primary">Back</a>
+                <a href="{{ route('all-divisions') }}" class="btn btn-primary btn-lg top-right-button btn_primary">Back</a>
                 </div>
             </div>
             <div class="separator mb-5"></div>

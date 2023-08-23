@@ -15,6 +15,10 @@ class StudentClasses extends Model
     	return $this->belongsTo(CoursePackages::class,'course_package_id','id');
     }
 
+    public function class_details(){
+    	return $this->belongsTo(CourseClasses::class,'class_id','id');
+    }
+
     public function student_package(){
     	return $this->belongsTo(StudentPackages::class,'student_package_id','id');
     }

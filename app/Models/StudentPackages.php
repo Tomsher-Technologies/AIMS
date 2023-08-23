@@ -21,5 +21,10 @@ class StudentPackages extends Model
     public function student(){
     	return $this->belongsTo(User::class,'user_id','id');
     }
+
+    public function classes()
+    {
+        return $this->hasMany(StudentClasses::class,'student_package_id','id')->with(['class_details']);
+    }
     
 }

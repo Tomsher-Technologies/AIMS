@@ -10,7 +10,7 @@
     height: 80px !important;
 }
 .menu .main-menu ul li a {
-    height: 70px;
+    height: 60px;
 }
 .padding-left0{
     padding-left: 0 !important;
@@ -20,7 +20,7 @@
 }
 
 .menu .main-menu {
-    width: 120px !important;
+    width: 125px !important;
     overflow: auto !important;
 }
 
@@ -70,4 +70,13 @@
 .edit-icon{
     font-size: 18px!important;
     font-weight: 700!important;
+}
+.w-5{
+    width: 5% !important;
+}
+
+.class_details{
+    margin-bottom: 10px !important;
+    color: #e20513 !important;
+    margin-top: 2px !important;
 }

@@ -660,5 +660,57 @@ class HomeController extends Controller
         return json_encode(array('divisions'=> $divisionOptions, 'packages' => $packOptions));
     }
 
-   
+    public function profile(){
+        $user = User::with(['user_details'])->find(Auth::user()->id);
+        return   view("admin.profile", compact('user'));
+    }
+
+    public function updateProfile(Request $request){
+        $id = Auth::user()->id;
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|string|email|max:100|unique:users,email,'.$id,
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $user = User::with(['user_details'])->findOrFail($id);
+
+        $presentLogo = $user->user_details->profile_image;
+        $logo = '';
+        if ($request->hasFile('profile_image')) {
+            $uploadedFilel = $request->file('profile_image');
+            $filenamel =    strtolower(Str::random(2)).time().'.'. $uploadedFilel->getClientOriginalName();
+            $namel = Storage::disk('public')->putFileAs(
+                'users/'.$id,
+                $uploadedFilel,
+                $filenamel
+            );
+            $logo = Storage::url($namel);
+            if($presentLogo != '' && File::exists(public_path($presentLogo))){
+                unlink(public_path($presentLogo));
+            }
+        } 
+        $user->name = $request->first_name.' '.$request->last_name;
+        $user->email = $request->email;
+        if($request->password != ''){
+            $user->password = Hash::make($request->password);
+        }
+        $user->save();
+        $userId = $user->id;
+       
+        $data = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'phone_number' => $request->phone_number,
+            'profile_image' => ($logo != '') ? $logo : $presentLogo,
+        ];
+        UserDetails::where('user_id', $userId)->update($data);
+
+        flash('Profile details updated successfully')->success();
+        return redirect()->route('profile');
+    }
 }

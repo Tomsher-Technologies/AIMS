@@ -80,8 +80,9 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::post('/student/approve/', [StudentController::class, 'approveStudent'])->name('student.approve');
         Route::get('/bulk-student/create', [StudentController::class, 'createBulkStudent'])->name('student.bulk-create');
         Route::post('/student/bulk-store', [StudentController::class, 'storeBulkStudent'])->name('student.bulk-store');
-        Route::get('/view-student', [StudentController::class, 'viewStudent'])->name('view-student');
-
+        Route::get('/view-student/{id}', [StudentController::class, 'viewStudent'])->name('view-student');
+        Route::post('/booking/approve/', [StudentController::class, 'approveStudentBooking'])->name('booking.approve');
+        
         Route::get('/student-bookings', [StudentController::class, 'getAllStudentBookings'])->name('student.bookings');
         Route::post('/booking/cancel/', [StudentController::class, 'cancelBooking'])->name('booking.cancel');
         Route::get('/booking/create', [StudentController::class, 'createBooking'])->name('booking.create');
@@ -112,6 +113,9 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
 
         Route::get('/bulk-mock/create', [MockTestController::class, 'createBulkMockTest'])->name('mock.bulk-create');
         Route::post('/mock/bulk-store', [MockTestController::class, 'storeBulkMockTest'])->name('mock.bulk-store');
+
+        Route::get('/profile', [HomeController::class, 'profile'])->name('profile');
+        Route::post('/profile/store', [HomeController::class, 'updateProfile'])->name('profile.update');
     });
 
 });

@@ -25,24 +25,24 @@
                             <table class="table table-bordered mb-0">
                                 <thead>
                                     <tr>
-                                        <th scope="col" class="" w-10="">Sl. No</th>
-                                        <th scope="col">Student Name</th>
-                                        <th scope="col" class="text-center">Student Code</th>
+                                        <th scope="col" class="w-5 text-center">Sl. No</th>
+                                        <th scope="col" class="w-20">Student Name</th>
+                                        <th scope="col" class="text-center w-10">Student Code</th>
                                         <th scope="col" class="w-50">Remark</th>
-                                        <th scope="col" class="w-10">Date</th>
+                                        <th scope="col" class="w-15">Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @if(isset($remarks[0]))
                                         @foreach($remarks as $key => $rem)
                                             <tr>
-                                                <td>{{ $key + 1 + ($remarks->currentPage() - 1) * $remarks->perPage() }}</td>
+                                                <td class="text-center">{{ $key + 1 + ($remarks->currentPage() - 1) * $remarks->perPage() }}</td>
                                                 <td>{{ $rem->name }}</td>
                                                 <td class="text-center">{{ $rem->unique_id }}</td>
                                                 <td class="text-center">{{ $rem->remarks }}</td>          
                                                
                                                 <td>
-                                                    {{ date('d-m-Y', strtotime($rem->created_at)) }}
+                                                    {{ ($rem->created_at != null) ? date('d-m-Y H:i a', strtotime($rem->created_at)) :'' }}
                                                 </td>
                                                
                                             </tr>
