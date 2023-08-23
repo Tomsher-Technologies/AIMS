@@ -1998,7 +1998,7 @@ button {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 10px;
+    font-size: 11px;
     font-style: normal;
     font-weight: 400;
     border-bottom: 1px solid #f3f3f3;
@@ -2013,8 +2013,8 @@ button {
 }
 
 .menu .main-menu ul li i {
-    font-size: 32px;
-    line-height: 42px
+    font-size: 30px;
+    line-height: 35px
 }
 
 .menu .main-menu ul li.active a {
@@ -2027,9 +2027,9 @@ button {
     color: #fff;
     border-radius: 10px;
     position: absolute;
-    width: 6px;
-    height: 90px;
-    top: 50%;
+    width: 5px;
+    height: 65px;
+    top: 45%;
     transform: translateY(-50%);
     left: 0
 }
@@ -2074,7 +2074,7 @@ button {
 }
 
 .menu .sub-menu {
-    width: 230px;
+    width: 200px;
     background: #fff;
     z-index: 2;
     position: fixed;
@@ -2108,7 +2108,7 @@ button {
 }
 
 .menu .sub-menu ul li {
-    margin-left: 30px;
+    margin-left: 15px;
     margin-bottom: 0;
     position: relative
 }
@@ -2769,9 +2769,9 @@ button {
 }
 
 main {
-    margin-left: 380px;
+    margin-left: 350px;
     margin-top: 122px;
-    margin-right: 60px;
+    margin-right: 40px;
     margin-bottom: 40px
 }
 
@@ -2820,12 +2820,12 @@ main .container-fluid {
 #app-container.menu-hidden main,
 #app-container.menu-sub-hidden main,
 #app-container.sub-hidden main {
-    margin-left: 210px
+    margin-left: 165px
 }
 
 #app-container.main-hidden main,
 #app-container.menu-hidden main {
-    margin-left: 60px
+    margin-left: 40px
 }
 
 #app-container.menu-main-hidden main {

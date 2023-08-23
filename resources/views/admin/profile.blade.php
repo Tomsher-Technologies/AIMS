@@ -4,9 +4,9 @@
     <div class="row">
         <div class="col-12">
             <div class="mb-0">
-                <h1>Add New Teacher</h1>
+                <h1>Update Profile</h1>
                 <div class="text-zero top-right-button-container">
-                    <a href="{{ route('teachers') }}" class="btn btn-primary btn-lg top-right-button btn_primary">Back</a>
+                    <!-- <a href="{{ route('teachers') }}" class="btn btn-primary btn-lg top-right-button btn_primary">Back</a> -->
                 </div>
             </div>
             <div class="separator mb-5"></div>
@@ -16,13 +16,14 @@
         <div class="col-lg-12 col-md-12 mb-4">
             <div class="card mb-4">
                 <div class="card-body">
-                    <form class="form-horizontal repeater" action="{{ route('teacher.store') }}" method="POST"
+                @include('flash::message')
+                    <form class="form-horizontal repeater" action="{{ route('profile.update', $user->id) }}" method="POST"
                         enctype="multipart/form-data" autocomplete="off">
                         @csrf
                         <div class="form-row justify-content-center">
                             <div class="form-group col-md-7">
                                 <label for="#">First Name<span class="error">*</span></label>
-                                <input type="text" class="form-control" value="{{ old('first_name') }}" id="first_name" name="first_name" placeholder="Enter first name">
+                                <input type="text" class="form-control" value="{{ old('first_name', $user->user_details->first_name) }}" id="first_name" name="first_name" placeholder="Enter first name">
                                 @error('first_name')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -30,7 +31,7 @@
 
                             <div class="form-group col-md-7">
                                 <label for="#">Last Name<span class="error">*</span></label>
-                                <input type="text" class="form-control" value="{{ old('last_name') }}" id="last_name" name="last_name" placeholder="Enter last name">
+                                <input type="text" class="form-control" value="{{ old('last_name', $user->user_details->last_name) }}" id="last_name" name="last_name" placeholder="Enter last name">
                                 @error('last_name')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
@@ -38,50 +39,33 @@
 
                             <div class="form-group col-md-7">
                                 <label for="#">Email<span class="error">*</span></label>
-                                <input type="email" class="form-control" value="{{ old('email') }}" id="email" name="email" placeholder="Enter email">
+                                <input type="email" class="form-control" value="{{ old('email', $user->email) }}" id="email" name="email" placeholder="Enter email">
                                 @error('email')
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="form-group col-md-7">
-                                <label for="#">Password<span class="error">*</span></label>
+                                <label for="#">Password</label>
                                 <input type="password" autocomplete="new-password" class="form-control" value="{{ old('password') }}" id="password" name="password" placeholder="Enter password">
-                                @error('password')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
                             </div>
 
                             <div class="form-group col-md-7">
-                                <label for="#">Phone Number<span class="error">*</span></label>
-                                <input type="integer" class="form-control" value="{{ old('phone_number') }}" id="phone_number" name="phone_number" placeholder="Enter phone number">
-                                @error('phone_number')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <div class="form-group col-md-7">
-                                <label for="#">Course Divisions<span class="error">*</span></label>
-                                
-                                    <select class="form-control"  id="course_division" name="course_division[]" multiple="multiple">
-                                        @foreach($divisions as $div)
-                                            <option value="{{ $div->id }}" > {{ $div->title }} ({{ $div->course_name->name }}) </option>
-                                        @endforeach
-                                    </select>
-                                
-                                @error('course_division')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
+                                <label for="#">Phone Number</label>
+                                <input type="integer" class="form-control" value="{{ old('phone_number', $user->user_details->phone_number) }}" id="phone_number" name="phone_number" placeholder="Enter phone number">
                             </div>
 
                             <div class="form-group col-md-7">
                                 <label for="#">Profile Image </label>
-                                <input type="file" class="form-control" id="profile_image" value="{{ old('profile_image') }}" name="profile_image" />
+                                <input type="file" class="form-control" id="profile_image"  name="profile_image" />
+                                @if($user->user_details->profile_image != NULL)
+                                    <img class="mt-3" src="{{ asset($user->user_details->profile_image) }}" style="width:250px" />
+                                @endif
                             </div>
 
                             <div class="form-group col-md-7 d-flex">
-                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Save</button>
-                                <a href="{{ route('teachers') }}" class="btn btn-info d-block mt-2 ml-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Update Profile</button>
+                                <a href="{{ route('profile') }}" class="btn btn-info d-block mt-2 ml-2">Cancel</a>
                             </div>
                         </div>
                     </form>

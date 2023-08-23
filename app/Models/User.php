@@ -67,7 +67,7 @@ class User extends Authenticatable implements JWTSubject
     }  
     public function user_details()
     {
-        return $this->hasOne(UserDetails::class);
+        return $this->hasOne(UserDetails::class)->with('country_name','state_name');
     }  
 
     public function approved()
@@ -84,9 +84,14 @@ class User extends Authenticatable implements JWTSubject
     //     return $this->hasMany(TeacherDivisions::class,'teacher_id','id');
     // }
 
+    public function student_all_packages()
+    {
+        return $this->hasMany(StudentPackages::class,'user_id','id')->with(['course','package','classes'])->where('is_deleted',0);
+    } 
+
     public function student_packages()
     {
-        return $this->hasMany(StudentPackages::class,'user_id','id')->with(['package'])->where('is_active',1)->where('is_deleted',0);
+        return $this->hasMany(StudentPackages::class,'user_id','id')->with(['course','package','classes'])->where('is_active',1)->where('is_deleted',0);
     } 
 
     public function teacher_divisions(){
@@ -111,4 +116,9 @@ class User extends Authenticatable implements JWTSubject
     // {
     //     return $this->hasMany(Bookings::class,'cancelled_by','id');
     // }
+
+    public function mock_tests()
+    {
+        return $this->hasMany(MockTests::class,'student_id','id')->where('is_deleted',0);
+    }
 }

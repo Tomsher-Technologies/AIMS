@@ -30,7 +30,7 @@
                                     <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter Name/Student Code/Email">
                                 </div>
 
-                                <div class="form-group col-md-3">
+                                <div class="form-group col-md-2">
                                     <label for="#">Course</label>
                                     <select class="form-control"  id="course" name="course" onchange="getDivisions(this.value)">
                                         <option value="">Select Course</option>
@@ -49,7 +49,21 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="form-group col-md-3 filterDiv">
+
+                                <div class="form-group col-md-2">
+                                    <label for="#">Status</label>
+                                    <select class="form-control"  id="status" name="status" >
+                                        <option value="">Select Status</option>
+                                        <option value="active" @if($status_search == "active") selected @endif>Active</option>
+                                        <option value="inactive" @if($status_search == "inactive") selected @endif>In-Active</option>
+                                        <option value="approved" @if($status_search == "approved") selected @endif>Approved</option>
+                                        <option value="rejected" @if($status_search == "rejected") selected @endif>Rejected</option>
+                                        <option value="pending" @if($status_search == "pending") selected @endif>Approval Pending</option>
+                                        <option value="booking" @if($status_search == "booking") selected @endif>Booking Approval</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group col-md-2 filterDiv">
                                     <button type="submit" class="btn btn_primary">Filter</button>
                                     <a href="{{ route('students') }}"  class="btn btn-info">Reset</a>
                                 </div>
@@ -66,13 +80,14 @@
                                         <th scope="col">Name</th>
                                         <th scope="col" class="text-center">Student Code</th>
                                         <th scope="col" class="text-center">Email</th>
-                                        <th scope="col" class="text-center">Phone</th>
-                                        <th scope="col" class="text-center">Image</th>
+                                        <!-- <th scope="col" class="text-center">Phone</th> -->
+                                        <!-- <th scope="col" class="text-center">Image</th> -->
                                         <th scope="col" class="text-center">Course Package</th>
                                         <th scope="col" class="text-center w-10">Start Date</th>
                                         <th scope="col" class="text-center w-10">End Date</th>
                                         <th scope="col" class="text-center">Approval Status</th>
                                         <th scope="col" class="text-center">Active Status</th>
+                                        <th scope="col" class="text-center">Booking Approval</th>
                                         <th scope="col" class="w-10">Action</th>
                                     </tr>
                                 </thead>
@@ -84,12 +99,12 @@
                                                 <td>{{ $stud->name }}</td>
                                                 <td class="text-center">{{ $stud->unique_id }}</td>
                                                 <td class="text-center">{{ $stud->email }}</td>
-                                                <td class="text-center">{{ $stud->user_details->phone_code }}{{ $stud->user_details->phone_number }}</td>
-                                                <td class="text-center">
+                                                <!-- <td class="text-center">{{ $stud->user_details->phone_code }}{{ $stud->user_details->phone_number }}</td> -->
+                                                <!-- <td class="text-center">
                                                     @if($stud->user_details->profile_image != NULL)
                                                     <img class="profileImage" src="{{ asset($stud->user_details->profile_image) }}"/>
                                                     @endif
-                                                </td>
+                                                </td> -->
                                                 @if(!empty($stud->student_packages) && $stud->student_packages != '[]')
                                                     @foreach($stud->student_packages as $stPack)
                                                     <td class="text-center"> {{ $stPack->package->package_title }}</td>
@@ -117,6 +132,11 @@
                                                         <span class="green">Active</span>
                                                     @else
                                                         <span class="error">In-Active</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center"> 
+                                                    @if($stud->booking_approval == 0)
+                                                        <button class="btn btn-success pending" onclick="approveBooking({{$stud->id}})"><span class="label label-success">Approve</span> </button>
                                                     @endif
                                                 </td>
                                                 <td>
@@ -245,6 +265,38 @@
                 }, 3000);  
             }
         });
+    }
+
+    function approveBooking(id){
+        Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to approve?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+        }).then(function(result) {
+            var status = 1;
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('booking.approve')}}",
+                    type: "POST",
+                    data: { "_token": "{{ csrf_token() }}", "id":id},
+                    success: function( response ) {
+                        Swal.fire(
+                            'Approved successfully',
+                            '',
+                            'success'
+                        );
+                        setTimeout(function () { 
+                            window.location.reload();
+                        }, 3000);  
+                    }
+                });
+            } 
+            
+        })
     }
 
 </script>

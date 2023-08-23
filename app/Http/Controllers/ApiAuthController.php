@@ -210,7 +210,7 @@ class ApiAuthController extends Controller
             'token_type' => 'bearer',
             // 'expires_in' => auth('api')->factory()->getTTL() * 60,
             
-        ]);
+        ]); 
     }
 
     
@@ -462,24 +462,29 @@ class ApiAuthController extends Controller
         $slot_id = $request->slot_id;
         $booking_date = $request->booking_date;
 
-        if($student_id != '' && $teacher_id != '' && $module_id != '' && $slot_id != '' && $booking_date != '' ){
-            $book = new Bookings();
-            $book->student_id = $student_id;
-            $book->teacher_id = $teacher_id;
-            $book->module_id = $module_id;
-            $book->slot_id = $slot_id;
-            $book->booking_date = $booking_date;
-            $book->created_by = $student_id;
-            $book->save();
-            $data = [];
-            if($book->id){
-                TeacherSlots::where('id',$slot_id)->update(['is_booked' => 1]);
-                return response()->json([ 'status' => true, 'message' => 'Successfully Booked', 'data' => $data]);
+        $user = User::find($student_id);
+        if($user->booking_approval == 1){
+            if($student_id != '' && $teacher_id != '' && $module_id != '' && $slot_id != '' && $booking_date != '' ){
+                $book = new Bookings();
+                $book->student_id = $student_id;
+                $book->teacher_id = $teacher_id;
+                $book->module_id = $module_id;
+                $book->slot_id = $slot_id;
+                $book->booking_date = $booking_date;
+                $book->created_by = $student_id;
+                $book->save();
+                $data = [];
+                if($book->id){
+                    TeacherSlots::where('id',$slot_id)->update(['is_booked' => 1]);
+                    return response()->json([ 'status' => true, 'message' => 'Successfully Booked', 'data' => $data]);
+                }else{
+                    return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
+                }
             }else{
                 return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
             }
         }else{
-            return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
+            return response()->json([ 'status' => false, 'message' => 'Booking failed! Contact admin for booking approval.', 'data' => []]);
         }
     }
 

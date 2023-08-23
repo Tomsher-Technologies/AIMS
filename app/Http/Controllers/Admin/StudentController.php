@@ -45,7 +45,7 @@ class StudentController extends Controller
     }
 
     public function getAllStudents(Request $request){
-        $title_search = $course_search =  $package_search = null;
+        $title_search = $course_search =  $package_search = $status_search = null;
         
         if ($request->has('title')) {
             $title_search = $request->title;
@@ -56,11 +56,29 @@ class StudentController extends Controller
         if ($request->has('package')) {
             $package_search = $request->package;
         }
+        if ($request->has('status')) {
+            $status_search = $request->status;
+        }
 
         $query = User::with(['user_details','student_packages'])
                 ->where('user_type', 'student')
                 ->where('is_deleted',0)
                 ->orderBy('id','DESC');
+        if($status_search){
+            if($status_search == "active"){
+                $query->where('is_active',1);
+            }elseif($status_search == "inactive"){
+                $query->where('is_active',0);
+            }elseif($status_search == "approved"){
+                $query->where('is_approved',1);
+            }elseif($status_search == "rejected"){
+                $query->where('is_approved',2);
+            }elseif($status_search == "pending"){
+                $query->where('is_approved',0);
+            }elseif($status_search == "booking"){
+                $query->where('booking_approval',0);
+            }
+        }
 
         if($title_search){
             $query->Where(function ($query) use ($title_search) {
@@ -89,7 +107,7 @@ class StudentController extends Controller
                         ->where('course_packages.is_deleted',0)
                         ->orderBy('package_title','ASC')
                         ->get();
-        return  view('admin.students.index',compact('students','package','courses','title_search','course_search','package_search'));
+        return  view('admin.students.index',compact('students','package','courses','status_search','title_search','course_search','package_search'));
     }
 
     public function createStudent()
@@ -777,7 +795,24 @@ class StudentController extends Controller
 
     public function attendBooking(Request $request){
         $id = $request->id;
-        Bookings::where('id', $id)->update(['is_attended'=> $request->status, 'attend_date' => date('Y-m-d')]);
+        if($request->status == 2){
+            $book_success = 0;
+        }else{
+            $book_success = 1;
+        }
+        // Bookings::where('id', $id)->update(['is_attended'=> $request->status, 'attend_date' => date('Y-m-d'),'booking_success' => $book_success]);
+
+        $book = Bookings::find($id);
+        $student_id = $book->student_id;
+        $book->is_attended = $request->status;
+        $book->attend_date = date('Y-m-d');
+        $book->booking_success = $book_success;
+        $book->save();
+
+        $count = Bookings::where('student_id', $student_id)->where('booking_success',0)->count();
+        if($count >= 3){
+            User::where('id', $student_id)->update(['booking_approval' => 0]);
+        }
     }
 
     public function createBulkStudent(){
@@ -949,7 +984,24 @@ class StudentController extends Controller
         }
     }
 
-    public function viewStudent(){
-        return view('admin.students.view');
+    public function viewStudent(Request $request, $id){
+       
+        $user = User::with(['user_details','student_all_packages','mock_tests'])
+                ->where('user_type', 'student')
+                ->where('is_deleted',0)
+                ->where('id',$id)->first();
+        // echo '<pre>';
+        // print_r($user);
+        // die;
+        return view('admin.students.view',compact('user'));
+    }
+
+    public function approveStudentBooking(Request $request){
+        $user = User::find($request->id);
+        $user->booking_approval = 1;
+        $user->save();
+
+        Bookings::where('student_id',$request->id)->where('booking_success',0)->update(['booking_success' => 1]);
+        
     }
 }
