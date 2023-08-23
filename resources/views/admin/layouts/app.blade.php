@@ -37,6 +37,7 @@
     <script src="{{ asset('assets/js/dore.script.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
     <script src="{{ asset('assets/js/sweetalert2.min.js') }}"></script>
+    <script src="{{ asset('assets/js/moment.js') }}"></script>
     @yield('footer')
     <script type="text/javascript">
         

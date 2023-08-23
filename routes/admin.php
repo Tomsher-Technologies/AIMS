@@ -17,6 +17,7 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
     
     Route::group(['middleware' => ['auth','admin']], function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.dashboard');
+        Route::get('/dashboard-counts', [HomeController::class, 'dashboardCounts'])->name('dashboard-counts');
         Route::get('/state/{id?}', [HomeController::class, 'getCountryStates'])->name('country.states');
         Route::get('/packages/{id?}', [HomeController::class, 'getCoursePackages'])->name('course.packages');
 
@@ -68,6 +69,7 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::get('/assign-teacher/edit/{id}', [TeachersController::class, 'editAssign'])->name('assign-teacher.edit');
         Route::post('/assign-teacher/update/{id}', [TeachersController::class, 'updateAssign'])->name('assign-teacher.update');
         Route::post('/assign-teacher/delete/', [TeachersController::class, 'deleteAssign'])->name('assign-teacher.delete');
+        Route::post('/assign-teacher/cancel', [TeachersController::class, 'cancelBooking'])->name('assign-teacher.cancel');
 
         Route::get('/students', [StudentController::class, 'getAllStudents'])->name('students');
         Route::get('/student/create', [StudentController::class, 'createStudent'])->name('student.create');
