@@ -56,7 +56,7 @@ class TeachersController extends Controller
             'last_name' => 'required',
             'email' => 'required|string|email|max:100|unique:users',
             'phone_number' => 'required',
-            'password' => 'required',
+            'password' => 'required|min:6',
             'course_division' => 'required'
         ]);
         
@@ -133,7 +133,8 @@ class TeachersController extends Controller
             'last_name' => 'required',
             'email' => 'required|string|email|max:100|unique:users,email,'.$id,
             'phone_number' => 'required',
-            'course_division' => 'required'
+            'course_division' => 'required',
+            'password' => 'nullable|min:6',
         ]);
         
         if ($validator->fails()) {

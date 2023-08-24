@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\TeachersController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\MockTestController;
+use App\Http\Controllers\Admin\ForgotPasswordController;
 
 
 Route::get('/', [CustomAuthController::class, 'index'])->name('login');
@@ -14,6 +15,14 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
     Route::get('login', [CustomAuthController::class, 'index'])->name('login');
     Route::post('custom-login', [CustomAuthController::class, 'customLogin'])->name('login.custom');  
     Route::get('logout', [CustomAuthController::class, 'signOut'])->name('logout');
+
+    Route::get('forget-password', [ForgotPasswordController::class, 'showForgetPasswordForm'])->name('forget.password.get');
+    Route::post('forget-password', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('forget.password.post'); 
+    Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetPasswordForm'])->name('reset.password.get');
+    Route::post('reset-password', [ForgotPasswordController::class, 'submitResetPasswordForm'])->name('reset.password.post');
+
+    Route::get('reset-password-app/{token}', [ForgotPasswordController::class, 'showResetPasswordFormApp'])->name('reset.password.app');
+    Route::post('reset-password-app', [ForgotPasswordController::class, 'submitResetPasswordFormApp'])->name('reset.password.post.app');
     
     Route::group(['middleware' => ['auth','admin']], function () {
         Route::get('/dashboard', [HomeController::class, 'index'])->name('admin.dashboard');
@@ -116,6 +125,13 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
 
         Route::get('/profile', [HomeController::class, 'profile'])->name('profile');
         Route::post('/profile/store', [HomeController::class, 'updateProfile'])->name('profile.update');
+
+        Route::get('/admins', [HomeController::class, 'getAllAdmins'])->name('admins');
+        Route::get('/admin/create', [HomeController::class, 'createAdmin'])->name('admin.create');
+        Route::post('/admin/store', [HomeController::class, 'storeAdmin'])->name('admin.store');
+        Route::get('/admin/edit/{id}', [HomeController::class, 'editAdmin'])->name('admin.edit');
+        Route::post('/admin/update/{id}', [HomeController::class, 'updateAdmin'])->name('admin.update');
+        Route::post('/admin/delete/', [HomeController::class, 'deleteAdmin'])->name('admin.delete');
     });
 
 });

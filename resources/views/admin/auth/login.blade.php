@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>{{ env('APP_NAME') }}</title>
+    <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
     <link rel="stylesheet" href="{{ asset('assets/font/iconsmind-s/css/iconsminds.css') }}" />
@@ -20,7 +21,7 @@
 <body class="background show-spinner no-footer">
     <nav class="navbar fixed-top">
         <div class="container">
-            <a class="navbar-logo m-auto" href="#">
+            <a class="navbar-logo m-auto"  href="{{ route('login') }}">
                 <span class=" d-block"><img src="{{ asset('assets/images/logo.png') }}" class="login-logo"></span>
 
             </a>
@@ -32,9 +33,16 @@
                 <div class="col-12 col-md-4 mx-auto my-auto">
                     <div class="card auth-card">
                       
-                        <div class="form-side">
-                            <h6 class="mb-1">admin login</h6>
+                        <div class="form-side text-center">
+                            <h6 class="mb-1"> login</h6>
                             <p>If you have an AIMS account, please log in below.</p>
+
+                            @if(session()->has('message'))
+                                <div class="alert alert-success">
+                                    <strong>{{ session()->get('message') }}</strong>
+                                </div>
+                            @endif
+
                             <form method="POST" action="{{ route('login.custom') }}">
                                 @csrf
                                 <label class="form-group has-float-label mb-4">
@@ -62,8 +70,13 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class=" justify-content-between align-items-center mt-3 text-center">
                                     <button type="submit" class="btn btn-primary btn-lg btn_primary">LOGIN</button>
+                                </div>
+                                <div class=" justify-content-between align-items-center mt-3 text-center">
+                                    <label>
+                                        <a href="{{ route('forget.password.get') }}" style="color: #007bff;">Forgot Password?</a>
+                                    </label>
                                 </div>
                             </form>
                         </div>

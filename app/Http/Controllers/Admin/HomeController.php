@@ -15,6 +15,8 @@ use App\Models\TeacherDivisions;
 use App\Models\States;
 use App\Models\PackageClasses;
 use App\Models\CronAddClasses;
+use App\Models\Permissions;
+use App\Models\UserPermissions;
 use Auth;
 use Validator;
 use Storage;
@@ -712,5 +714,155 @@ class HomeController extends Controller
 
         flash('Profile details updated successfully')->success();
         return redirect()->route('profile');
+    }
+
+    public function getAllAdmins(){
+        $query = User::with(['user_details','user_permissions'])
+                ->where('user_type', 'admin')
+                ->where('is_deleted',0)
+                ->orderBy('id','DESC');
+        $admins = $query->paginate(10);
+    
+        return  view('admin.admin_users.index',compact('admins'));
+    }
+
+    public function createAdmin()
+    {
+        $permissions = Permissions::orderBy('title', 'ASC')->get();
+        return   view("admin.admin_users.create", compact('permissions'));
+    }
+
+    public function storeAdmin(Request $request)
+    {
+        // echo '<pre>'; print_r($request->all());die;
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|string|email|max:100|unique:users',
+            'password' => 'required|min:6',
+            'permissions' => 'required'
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+        $user = new User;
+        $user->user_type = 'admin';
+        $user->name = $request->first_name.' '.$request->last_name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->is_approved = 1;
+        $user->save();
+        $userId = $user->id;
+        if($userId){
+            $profileImage = '';
+            if ($request->hasFile('profile_image')) {
+                $uploadedFile = $request->file('profile_image');
+                $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
+                $name = Storage::disk('public')->putFileAs(
+                    'users/'.$userId,
+                    $uploadedFile,
+                    $filename
+                );
+               $profileImage = Storage::url($name);
+            } 
+
+            $uDetails = new UserDetails();
+            $uDetails->user_id = $user->id;
+            $uDetails->first_name = $request->first_name;
+            $uDetails->last_name = $request->last_name;
+            $uDetails->phone_number = $request->phone_number;
+            $uDetails->profile_image = $profileImage;
+            $uDetails->save();
+            $permissions = [];
+            if(!empty($request->permissions)){
+                foreach ($request->permissions as $per){
+                    $permissions[] = [
+                                    "user_id"      =>   $userId,
+                                    "permission_id"=>     $per
+                                    ];
+                }
+                UserPermissions::insert($permissions);
+            }
+        }
+        flash('Admin created successfully')->success();
+        return redirect()->route('admins');
+    }
+
+    public function editAdmin(Request $request, $id)
+    {
+        $user = User::with(['user_details','user_permissions'])->find($id);
+        $permissions = Permissions::orderBy('title', 'ASC')->get();
+        $user_permissions = $user->user_permissions->pluck('permission_id')->toArray();
+        return   view("admin.admin_users.edit", compact('permissions','user','user_permissions'));
+    }
+
+    public function updateAdmin(Request $request, $id)
+    {
+        // echo '<pre>'; print_r($request->all());die;
+        $validator = Validator::make($request->all(), [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'email' => 'required|string|email|max:100|unique:users,email,'.$id,
+            'permissions' => 'required',
+            'password' => 'nullable|min:6',
+        ]);
+        
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+        
+        $user = User::with(['user_details','user_permissions'])->findOrFail($id);
+
+        $presentImage = $user->user_details->profile_image;
+        $imageUrl = '';
+        if ($request->hasFile('profile_image')) {
+            $uploadedFile = $request->file('profile_image');
+            $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
+            $name = Storage::disk('public')->putFileAs(
+                'users/'.$id,
+                $uploadedFile,
+                $filename
+            );
+           $imageUrl = Storage::url($name);
+           if($presentImage != '' && File::exists(public_path($presentImage))){
+                unlink(public_path($presentImage));
+            }
+        }  
+        
+        $user->name = $request->first_name.' '.$request->last_name;
+        $user->email = $request->email;
+        if($request->password != ''){
+            $user->password = Hash::make($request->password);
+        }
+        $user->is_active = $request->is_active;
+        $user->save();
+        $userId = $user->id;
+
+        $data = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'phone_number' => $request->phone_number,
+            'profile_image' => ($imageUrl != '') ? $imageUrl : $presentImage,
+        ];
+        UserDetails::where('user_id', $userId)->update($data);
+
+        if(!empty($request->permissions)){
+            UserPermissions::where('user_id', $userId)->delete();
+            foreach ($request->permissions as $per){
+                $permissions[] = [
+                                "user_id"      =>   $userId,
+                                "permission_id"=>     $per
+                                ];
+            }
+            UserPermissions::insert($permissions);
+        }
+
+        flash('Admin details updated successfully')->success();
+        return redirect()->route('admins');
+    }
+
+    public function deleteAdmin(Request $request){
+        User::where('id', $request->id)->update(['is_deleted' => 1]);
     }
 }

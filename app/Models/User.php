@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Auth;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -39,6 +40,8 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'remember_token',
     ];
+
+    protected $appends = [ 'permissions' ];
 
     /**
      * The attributes that should be cast.
@@ -120,5 +123,22 @@ class User extends Authenticatable implements JWTSubject
     public function mock_tests()
     {
         return $this->hasMany(MockTests::class,'student_id','id')->where('is_deleted',0);
+    }
+
+    public function user_permissions()
+    {
+        return $this->hasMany(UserPermissions::class,'user_id','id')->with(['permission']);
+    }
+
+    public function getPermissionsAttribute()
+    {
+        $permissions = User::with(['user_permissions'])->find(Auth::user()->id ?? auth('api')->user()->id);
+        $user_permissions = array();
+        if(!empty($permissions['user_permissions'])){
+            foreach ($permissions['user_permissions'] as $value ){
+                $user_permissions[] = $value->permission->type ?? '';
+            }
+        }
+        return $user_permissions;
     }
 }

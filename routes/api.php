@@ -18,6 +18,8 @@ use App\Http\Controllers\ApiController;
 Route::group(['prefix' => 'auth'], function ($router) {
     Route::get('/countries', [ApiController::class, 'getCountries'])->name('countries');
     Route::get('/state/{country_id?}', [ApiController::class, 'getCountryStates'])->name('state');
+
+    Route::post('/forgot-password', [ApiController::class, 'forgotPassword'])->name('forgot-password');
 });
 
 Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {

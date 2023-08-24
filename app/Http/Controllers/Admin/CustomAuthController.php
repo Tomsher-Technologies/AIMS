@@ -45,12 +45,22 @@ class CustomAuthController extends Controller
         $credentials = array('email' => $request->email, 'password' => $request->password);
         if (Auth::attempt($credentials)) {
             if(Auth::user()->user_type != "student"){
-                return redirect()->route('admin.dashboard');
+                if(Auth::user()->is_deleted == 1){
+                    auth()->guard()->logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    return back()->withInput()->with('status', 'Your account is Deleted.');
+                }else if(Auth::user()->is_active == 0){
+                    auth()->guard()->logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    return back()->withInput()->with('status', 'Your account is Disabled. You are not allowed to access!');
+                }else{
+                    return redirect()->route('admin.dashboard');
+                }
             }else{
                 auth()->guard()->logout();
-       
                 $request->session()->invalidate();
-
                 $request->session()->regenerateToken();
                 return back()->withInput()->with('status', 'You are not allowed to access!');
             }
