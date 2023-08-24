@@ -275,7 +275,8 @@ class StudentController extends Controller
             'gender' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
-            'course_package' => 'required'
+            'course_package' => 'required',
+            'password' => 'nullable|min:6',
         ]);
         
         if ($validator->fails()) {
@@ -455,6 +456,9 @@ class StudentController extends Controller
         $query = Bookings::with(['student','student_details','teacher','course_division','slot','cancelledBy','createdBy'])
                 ->where('is_deleted',0)
                 ->orderBy('id','DESC');
+        if(Auth::user()->user_type != 'admin'){
+            $query->where('teacher_id', Auth::user()->id);
+        }
 
         if($title_search){
             $query->Where(function ($query) use ($title_search) {
@@ -922,7 +926,9 @@ class StudentController extends Controller
         $query = Bookings::with(['student','student_details','teacher','course_division','slot','cancelledBy','createdBy'])
                 ->where('is_deleted',0)
                 ->orderBy('id','DESC');
-
+        if(Auth::user()->user_type != 'admin'){
+            $query->where('teacher_id', Auth::user()->id);
+        }
         if($title_search){
             $query->Where(function ($query) use ($title_search) {
                 $query->whereHas('student', function ($query)  use($title_search) {

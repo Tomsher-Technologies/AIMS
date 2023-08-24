@@ -9,11 +9,14 @@ use App\Models\UserDetails;
 use App\Models\Countries;
 use App\Models\States;
 use App\Models\Courses;
+use Carbon\Carbon; 
 use Validator;
 use Hash;
 use Str;
 use File;
 use Storage;
+use Mail;
+use DB;
 
 class ApiController extends Controller
 {
@@ -37,4 +40,25 @@ class ApiController extends Controller
         return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $states]);
     }
     
+    public function forgotPassword(Request $request){
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users',
+        ]);
+        if($validator->fails()){
+            return response()->json(['status' => false, 'message' => 'The selected email is not found in our system.', 'data' => []  ], 400);
+        }
+        $token = Str::random(64);
+  
+        DB::table('password_resets')->insert([
+            'email' => $request->email, 
+            'token' => $token, 
+            'created_at' => Carbon::now()
+          ]);
+
+        Mail::send('admin.email.forgetPassword_app', ['token' => $token], function($message) use($request){
+            $message->to($request->email);
+            $message->subject('Reset Password');
+        });
+        return response()->json([ 'status' => true, 'message' => 'We have e-mailed your password reset link!', 'data' => []]);
+    }
 }

@@ -29,17 +29,17 @@
                                     <label for="#">Search By Student Name/Code/Email/Phone</label>
                                     <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter Student Name/Code/Email/Phone">
                                 </div>
-
-                                <div class="form-group col-md-3">
-                                    <label for="#">Teacher</label>
-                                    <select class="form-control"  id="teacher" name="teacher" >
-                                        <option value="">Select Course</option>
-                                        @foreach($teacher as $teach)
-                                            <option value="{{ $teach->id }}" @if($teacher_search == $teach->id) selected @endif > {{ $teach->name }} </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
+                                @if(Auth::user()->user_type == 'admin')
+                                    <div class="form-group col-md-3">
+                                        <label for="#">Teacher</label>
+                                        <select class="form-control"  id="teacher" name="teacher" >
+                                            <option value="">Select Course</option>
+                                            @foreach($teacher as $teach)
+                                                <option value="{{ $teach->id }}" @if($teacher_search == $teach->id) selected @endif > {{ $teach->name }} </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                @endif
                                 <div class="form-group col-md-3">
                                     <label for="#">Booking Date</label>
                                     <input type="text" class="form-control" value="{{ $date_search }}" id="date_search" name="date_search" placeholder="YYYY-MM-DD">
