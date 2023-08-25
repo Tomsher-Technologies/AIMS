@@ -19,6 +19,23 @@
             <div class="card recent_certificate">
                 <div class="card-body">
                 @include('flash::message')
+                    <div class="">
+                        <!-- <h3> Filters </h3> -->
+                        <form class="" id="classes" action="" method="GET">
+                            
+                            <div class="form-row">
+                                <div class="form-group col-md-4">
+                                    <label for="#">Search By Name/Student Code/Email</label>
+                                    <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter Name/Student Code/Email">
+                                </div>
+
+                                <div class="form-group col-md-2 filterDiv">
+                                    <button type="submit" class="btn btn_primary">Filter</button>
+                                    <a href="{{ route('remarks') }}"  class="btn btn-info">Reset</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
 
                     <div class="data_card">
                         <div class="table-responsive">
@@ -42,7 +59,7 @@
                                                 <td class="text-center">{{ $rem->remarks }}</td>          
                                                
                                                 <td>
-                                                    {{ ($rem->created_at != null) ? date('d-m-Y H:i a', strtotime($rem->created_at)) :'' }}
+                                                    {{ ($rem->created_at != null) ? date('Y-m-d H:i a', strtotime($rem->created_at)) :'' }}
                                                 </td>
                                                
                                             </tr>

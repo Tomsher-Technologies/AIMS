@@ -517,11 +517,26 @@ class StudentController extends Controller
         }
     }
 
-    public function remarks(){
-        $remarks = Remarks::leftJoin('users as ud','ud.id','=','remarks.student_id')
+    public function remarks(Request $request){
+        $title_search = null;
+
+        if($request->has('title')){
+            $title_search = $request->title;
+        }
+
+        $query = Remarks::leftJoin('users as ud','ud.id','=','remarks.student_id')
                     ->select('remarks.id','remarks.remarks','remarks.created_at','ud.name','ud.unique_id')
-                    ->orderBy('remarks.id', 'DESC')->paginate(10);
-        return  view('admin.students.remarks',compact('remarks'));
+                    ->orderBy('remarks.id', 'DESC');
+         if($title_search){
+            $query->Where(function ($query) use ($title_search) {
+                $query->where('ud.name', 'LIKE', "%$title_search%")
+                        ->orWhere('ud.email', 'LIKE', "%$title_search%")
+                        ->orWhere('ud.unique_id', 'LIKE', "%$title_search%")
+                        ->orWhere('remarks.created_at', 'LIKE', "%$title_search%"); 
+            }); 
+         }           
+        $remarks = $query->paginate(10);
+        return  view('admin.students.remarks',compact('remarks','title_search'));
     }
 
     public function createBooking(Request $request){
