@@ -107,7 +107,7 @@
         dateFormat: "yy-mm-dd",
         changeYear: true,
         changeMonth: true,
-        yearRange: '-60:+2'
+        yearRange: '-10:+2'
     });
 </script>
 @endsection

@@ -75,7 +75,7 @@
 
                             <div class="form-group col-md-7">
                                 <label for="#">Date Of Birth</label>
-                                <input type="text" class="form-control datepicker" value="{{ old('dob') }}" id="dob" name="dob" placeholder="YYYY-MM-DD">
+                                <input type="text" class="form-control dob-datepicker" value="{{ old('dob') }}" id="dob" name="dob" placeholder="YYYY-MM-DD">
                             </div>
 
                             <div class="form-group col-md-7">
@@ -223,13 +223,19 @@
     $('.select2').select2({
         'placeholder' : 'select'
     });
+    $(".dob-datepicker").datepicker({
+        dateFormat: "yy-mm-dd",
+        changeYear: true,
+        changeMonth: true,
+        yearRange: '-50:-15'
+    });
 
     $(".datepicker").datepicker({
         dateFormat: "yy-mm-dd",
         changeYear: true,
         changeMonth: true,
-        yearRange: '-60:+2'
-    });
+        yearRange: '-5:+2'
+    })
 
     $('input[type=radio][name=fee_pending]').change(function() {
         if (this.value == '1') {
@@ -241,7 +247,9 @@
     });
 
     function getEndDate(){
+       
         var valid_days = parseInt($("#valid_days").val());
+       
         if(!isNaN(valid_days)){
             var start_date= $('#start_date').val();
             var end_date = new Date(start_date); // pass start date here
@@ -252,7 +260,8 @@
             var output = end_date.getFullYear() + '-' +
                 (('' + month).length < 2 ? '0' : '') + month + '-' +
                 (('' + day).length < 2 ? '0' : '') + day;
-          
+             
+            $( "#end_date" ).datepicker( "option", "minDate", new Date(start_date) );
             $('#end_date').val(output);
         }
     }
