@@ -20,7 +20,7 @@
                 <div class="card-body">
                 @include('flash::message')
 
-                <div class="">
+                    <div class="">
                         <!-- <h3> Filters </h3> -->
                         <form class="" id="classes" action="" method="GET">
                             
