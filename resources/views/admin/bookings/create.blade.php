@@ -118,7 +118,7 @@
         dateFormat: "yy-mm-dd",
         changeYear: true,
         changeMonth: true,
-        yearRange: '-60:+2'
+        yearRange: '-5:+2'
     });
 
     function getStudentDivisions(student){

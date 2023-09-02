@@ -139,7 +139,7 @@
         dateFormat: "yy-mm-dd",
         changeYear: true,
         changeMonth: true,
-        yearRange: '-60:+2'
+        yearRange: '-10:+2'
     });
     $('div.alert').not('.alert-important').delay(3000).fadeOut(350);
 
