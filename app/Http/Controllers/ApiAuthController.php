@@ -318,7 +318,7 @@ class ApiAuthController extends Controller
         // die;
         // The passwords matches
         if (!Hash::check($request->get('current_password'), $user->password)){
-            return response()->json(['status' => false,'message' => 'Current Password is Invalid', 'data' => []]);
+            return response()->json(['status' => false,'message' => 'Old password is incorrect', 'data' => []]);
         }
  
         // Current password and new password same
@@ -391,6 +391,7 @@ class ApiAuthController extends Controller
             $checkUserPackage = StudentPackages::where('user_id',$request->user_id)
                                                 ->where('package_id',$request->id)
                                                 ->where('end_date','>', date('Y-m-d'))
+                                                ->where('start_date','<=', date('Y-m-d'))
                                                 ->where('is_active',1)
                                                 ->where('is_deleted',0)->count();
         }
