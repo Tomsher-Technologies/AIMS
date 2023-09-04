@@ -29,7 +29,7 @@
                                     <label for="#">Search By Student Name/Code/Email/Phone</label>
                                     <input type="text" class="form-control" value="{{ $title_search }}" id="title" name="title" placeholder="Enter Student Name/Code/Email/Phone">
                                 </div>
-                                @if(Auth::user()->user_type == 'admin')
+                                @if(Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'super_admin')
                                     <div class="form-group col-md-3">
                                         <label for="#">Teacher</label>
                                         <select class="form-control"  id="teacher" name="teacher" >
