@@ -740,7 +740,8 @@ class HomeController extends Controller
             'last_name' => 'required',
             'email' => 'required|string|email|max:100|unique:users',
             'password' => 'required|min:6',
-            'permissions' => 'required'
+            'permissions' => 'required',
+            'phone_number' => 'nullable|numeric',
         ]);
         
         if ($validator->fails()) {
@@ -806,6 +807,7 @@ class HomeController extends Controller
             'email' => 'required|string|email|max:100|unique:users,email,'.$id,
             'permissions' => 'required',
             'password' => 'nullable|min:6',
+            'phone_number' => 'nullable|numeric',
         ]);
         
         if ($validator->fails()) {

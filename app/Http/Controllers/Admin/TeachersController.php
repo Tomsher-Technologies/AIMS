@@ -55,7 +55,7 @@ class TeachersController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|string|email|max:100|unique:users',
-            'phone_number' => 'required',
+            'phone_number' => 'required|numeric',
             'password' => 'required|min:6',
             'course_division' => 'required'
         ]);
@@ -132,7 +132,7 @@ class TeachersController extends Controller
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|string|email|max:100|unique:users,email,'.$id,
-            'phone_number' => 'required',
+            'phone_number' => 'required|numeric',
             'course_division' => 'required',
             'password' => 'nullable|min:6',
         ]);
