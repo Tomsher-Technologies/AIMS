@@ -19,7 +19,7 @@
     <script src="{{ asset('assets/js/jquery-3.3.1.min.js') }}"></script>
     @yield('header')
     
-    <link rel="shortcut icon" href="img/favicon.ico" />
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo.png') }}" />
 </head>
 <body id="app-container" class="menu-default show-spinner">
     @include('admin.includes.sidebar')

@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@section('title', 'Update Course Package')
 @section('content')
 <div class="container-fluid disable-text-selection">
     <div class="row">
