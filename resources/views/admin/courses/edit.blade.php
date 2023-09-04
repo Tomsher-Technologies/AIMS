@@ -54,7 +54,7 @@
                                 <label for="inputPassword4">Active Status</label>
                                 <select class="form-control" name="is_active" id="is_active">
                                     <option {{ ($course->is_active == 1) ? 'selected' : '' }} value="1">Active</option>
-                                    <option {{ ($course->is_active == 0) ? 'selected' : '' }} value="0">In-Active</option>
+                                    <option {{ ($course->is_active == 0) ? 'selected' : '' }} value="0">Inactive</option>
                                 </select>
                             </div>
                             

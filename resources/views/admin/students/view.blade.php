@@ -24,7 +24,7 @@
                         @if($user->is_active == 1)
                            <span class="badge badge-pill badge-success mb-1">Active</span>
                         @else
-                           <span class="badge badge-pill badge-danger mb-1">In-Active</span>
+                           <span class="badge badge-pill badge-danger mb-1">Inactive</span>
                         @endif
                      @else
                         <span class="badge badge-pill badge-outline-danger mb-1 ml-3">Rejected</span>

@@ -45,7 +45,7 @@
                                     <select class="form-control" name="is_active" id="is_active">
                                         <option value="">Select</option>
                                         <option {{ ($status_search == '1') ? 'selected' : '' }} value="1">Active</option>
-                                        <option {{ ($status_search == '0') ? 'selected' : '' }} value="0">In-Active</option>
+                                        <option {{ ($status_search == '0') ? 'selected' : '' }} value="0">Inactive</option>
                                     </select>
                                 </div>
                                
@@ -100,7 +100,7 @@
                                                     @if($pack->is_active == 1)
                                                         <span class="green">Active</span>
                                                     @else
-                                                        <span class="error">In-Active</span>
+                                                        <span class="error">Inactive</span>
                                                     @endif
                                                 </td>
                                                 <td>

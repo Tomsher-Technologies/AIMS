@@ -63,7 +63,7 @@
                                                     @if($crs->is_active == 1)
                                                         <span class="green">Active</span>
                                                     @else
-                                                        <span class="error">In-Active</span>
+                                                        <span class="error">Inactive</span>
                                                     @endif
                                                 </td>
                                                 <td>

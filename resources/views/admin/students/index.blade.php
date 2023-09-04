@@ -56,7 +56,7 @@
                                     <select class="form-control"  id="status" name="status" >
                                         <option value="">Select Status</option>
                                         <option value="active" @if($status_search == "active") selected @endif>Active</option>
-                                        <option value="inactive" @if($status_search == "inactive") selected @endif>In-Active</option>
+                                        <option value="inactive" @if($status_search == "inactive") selected @endif>Inactive</option>
                                         <option value="approved" @if($status_search == "approved") selected @endif>Approved</option>
                                         <option value="rejected" @if($status_search == "rejected") selected @endif>Rejected</option>
                                         <option value="pending" @if($status_search == "pending") selected @endif>Approval Pending</option>
@@ -132,7 +132,7 @@
                                                     @if($stud->is_active == 1)
                                                         <span class="green">Active</span>
                                                     @else
-                                                        <span class="error">In-Active</span>
+                                                        <span class="error">Inactive</span>
                                                     @endif
                                                 </td>
                                                 <td class="text-center"> 
