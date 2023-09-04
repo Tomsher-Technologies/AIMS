@@ -57,6 +57,9 @@
                             <div class="form-group col-md-7">
                                 <label for="#">Phone Number</label>
                                 <input type="integer" class="form-control" value="{{ old('phone_number', $user->user_details->phone_number) }}" id="phone_number" name="phone_number" placeholder="Enter phone number">
+                                @error('phone_number')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
                             </div>
 
                             <div class="form-group col-md-7">
