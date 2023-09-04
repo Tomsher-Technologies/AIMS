@@ -477,6 +477,12 @@ class ApiAuthController extends Controller
                 $data = [];
                 if($book->id){
                     TeacherSlots::where('id',$slot_id)->update(['is_booked' => 1]);
+                    $bookData = Bookings::with(['course_division','slot','teacher'])->find($book->id);
+                    $data['module'] = $bookData->course_division->title;
+                    $data['teacher'] = $bookData->teacher->name;
+                    $data['slot'] = $bookData->slot->slot;
+                    $data['date'] = $bookData->booking_date;
+
                     return response()->json([ 'status' => true, 'message' => 'Successfully Booked', 'data' => $data]);
                 }else{
                     return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
