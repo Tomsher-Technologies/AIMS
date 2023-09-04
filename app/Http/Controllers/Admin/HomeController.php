@@ -742,6 +742,8 @@ class HomeController extends Controller
             'password' => 'required|min:6',
             'permissions' => 'required',
             'phone_number' => 'nullable|numeric',
+        ],[
+            "phone_number.*"    => "The phone number is invalid",
         ]);
         
         if ($validator->fails()) {
@@ -808,6 +810,8 @@ class HomeController extends Controller
             'permissions' => 'required',
             'password' => 'nullable|min:6',
             'phone_number' => 'nullable|numeric',
+        ],[
+            "phone_number.*"    => "The phone number is invalid",
         ]);
         
         if ($validator->fails()) {

@@ -134,6 +134,8 @@ class StudentController extends Controller
             'start_date' => 'required',
             'end_date' => 'required',
             'course_package' => 'required'
+        ],[
+            "phone_number.*"    => "The phone number is invalid",
         ]);
         
         if ($validator->fails()) {
@@ -277,6 +279,8 @@ class StudentController extends Controller
             'end_date' => 'required',
             'course_package' => 'required',
             'password' => 'nullable|min:6',
+        ],[
+            "phone_number.*"    => "The phone number is invalid",
         ]);
         
         if ($validator->fails()) {

@@ -58,6 +58,8 @@ class TeachersController extends Controller
             'phone_number' => 'required|numeric',
             'password' => 'required|min:6',
             'course_division' => 'required'
+        ],[
+            "phone_number.*"    => "The phone number is invalid",
         ]);
         
         if ($validator->fails()) {
@@ -135,6 +137,8 @@ class TeachersController extends Controller
             'phone_number' => 'required|numeric',
             'course_division' => 'required',
             'password' => 'nullable|min:6',
+        ],[
+            "phone_number.*"    => "The phone number is invalid",
         ]);
         
         if ($validator->fails()) {
