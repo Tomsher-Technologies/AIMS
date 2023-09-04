@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@section('title', 'Upload Bulk Students Data')
 @section('content')
 <div class="container-fluid disable-text-selection">
     <div class="row">

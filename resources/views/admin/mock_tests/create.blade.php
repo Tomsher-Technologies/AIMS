@@ -1,4 +1,5 @@
 @extends('admin.layouts.app')
+@section('title', 'Add Mock Test')
 @section('content')
 <div class="container-fluid disable-text-selection">
     <div class="row">
