@@ -500,8 +500,9 @@ class ApiAuthController extends Controller
                             ->leftJoin('courses as c','c.id','=','cd.courses_id')
                             ->leftJoin('teacher_slots as slot','slot.id','=','bookings.slot_id')
                             ->leftJoin('users as teach','teach.id','=','bookings.teacher_id')
+                            ->leftJoin('users as cancel','cancel.id','=','bookings.cancelled_by')
                             ->where('bookings.student_id', $request->user_id)
-                            ->select('bookings.id as booking_id','bookings.booking_date','c.name as course_name','cd.title as module_name','teach.name as teacher_name','bookings.is_cancelled','slot.slot','bookings.created_at',)
+                            ->select('bookings.id as booking_id','bookings.booking_date','c.name as course_name','cd.title as module_name','teach.name as teacher_name','bookings.is_cancelled','slot.slot','bookings.created_at','bookings.is_attended','bookings.cancelled_by','cancel.name as cancelled_user')
                             ->orderBy('bookings.id','DESC')
                             ->get();
         if(isset($bookings[0])){
