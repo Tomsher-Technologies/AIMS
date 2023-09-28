@@ -15,6 +15,14 @@
 .padding-left0{
     padding-left: 0 !important;
 }
+
+.padding-right0{
+    padding-right: 0 !important;
+}
+
+.margin-auto{
+    margin: auto !important;
+}
 .pending{
     padding: 3px 10px 3px !important;
 }

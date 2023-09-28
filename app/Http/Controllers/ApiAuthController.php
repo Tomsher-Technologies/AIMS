@@ -505,10 +505,17 @@ class ApiAuthController extends Controller
                             ->select('bookings.id as booking_id','bookings.booking_date','c.name as course_name','cd.title as module_name','teach.name as teacher_name','bookings.is_cancelled','slot.slot','bookings.created_at','bookings.is_attended','bookings.cancelled_by','cancel.name as cancelled_user')
                             ->orderBy('bookings.id','DESC')
                             ->get();
+
+        $course = StudentPackages::where('user_id',$request->user_id)
+                                ->where('end_date','>', date('Y-m-d'))
+                                ->where('start_date','<=', date('Y-m-d'))
+                                ->where('is_active',1)
+                                ->where('is_deleted',0)->pluck('package_id')->toArray();
+
         if(isset($bookings[0])){
-            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $bookings]);
+            return response()->json([ 'status' => true, 'message' => 'Success', 'data' => $bookings,'package_id' => $course[0] ?? 0]);
         }else{
-            return response()->json(['status'=>false,'message'=>'N o bookings found','data' => [] ]);
+            return response()->json(['status'=>false,'message'=>'No bookings found','data' => [] ,'package_id' => $course[0] ?? 0]);
         } 
     }
 

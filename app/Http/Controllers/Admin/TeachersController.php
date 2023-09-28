@@ -16,6 +16,7 @@ use App\Models\AssignTeachers;
 use App\Models\TeacherSlots;
 use App\Models\Bookings;
 use App\Models\Notifications;
+use App\Models\AssignTimes;
 use Auth;
 use Validator;
 use Storage;
@@ -309,42 +310,67 @@ class TeachersController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'class_date' => 'required',
+            'class_date_to' => 'required',
             'teacher' => 'required',
             'course_division' => 'required',
             'interval' => 'required',
-            'from_time' => 'required',
-            'to_time' => 'required'
+        ],[
+            'class_date.required'=>'This field is required.',
+            'class_date_to.required'=>"This field is required.",
         ]);
         
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $assign = new AssignTeachers;
-        $assign->teacher_id = $request->teacher;
-        $assign->module_id = $request->course_division;
-        $assign->assigned_date = $request->class_date;
-        $assign->start_time = $request->from_time;
-        $assign->end_time = $request->to_time;
-        $assign->time_interval = $request->interval;
-        $assign->save();
-        $assignedId = $assign->id;
+        // echo '<pre>';
+        // print_r($request->all());
 
-        $slots = getTimeSlotHrMIn($request->interval, $request->from_time, $request->to_time);
-        if(!empty($slots)){
-            $datas = [];
-            foreach($slots as $sl){
-                $datas[] = array(
-                    'assigned_id' => $assignedId, 
-                    'slot' => $sl,
-                    'created_at' => date('Y-m-d H:i:s')
-                );
-            }
-            if(!empty($datas)){
-                TeacherSlots::insert($datas);
-            }  
+        $dates = getDatesBetween2Dates($request->class_date, $request->class_date_to);
+        
+        $slots = [];
+        foreach($request->times as $time){
+           $slots[] = getTimeSlotHrMIn($request->interval, $time['from_time'], $time['to_time']);
         }
+        $allSlots = array_merge(...$slots);
+       
+        $assignTimes = [];
+        $assignSlots = [];
+        foreach($dates as $dt){
+            $assign = new AssignTeachers;
+            $assign->teacher_id = $request->teacher;
+            $assign->module_id = $request->course_division;
+            $assign->assigned_date = $dt;
+            $assign->time_interval = $request->interval;
+            $assign->save();
+            $assignedId = $assign->id;
 
+            foreach($request->times as $time){
+                $assignTimes[] = [
+                    'start_time' => $time['from_time'],
+                    'end_time' => $time['to_time'],
+                    'assign_id' => $assignedId,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+            }
+
+            if(!empty($allSlots)){
+                foreach($allSlots as $sl){
+                    $assignSlots[] = array(
+                        'assigned_id' => $assignedId, 
+                        'slot' => $sl,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                }
+            }
+        }
+        if(!empty($assignTimes)){
+            AssignTimes::insert($assignTimes);
+        }  
+        if(!empty($assignSlots)){
+            TeacherSlots::insert($assignSlots);
+        }  
+       
         flash('Teacher has been assigned successfully')->success();
         return redirect()->route('assign-teachers');
     }
@@ -355,7 +381,20 @@ class TeachersController extends Controller
 
     public function editAssign(Request $request, $id)
     {
-        $assign = AssignTeachers::find($id);
+        $assign = AssignTeachers::with(['times'])->find($id);
+
+        $times = [];
+        $assignTimes = $assign->times;
+
+        foreach ($assignTimes as $i) {
+            $arr = [];
+            $arr['assign_id'] = $i->id;
+            $arr['from_time'] = $i->start_time;
+            $arr['to_time'] = $i->end_time;
+            $times[] = $arr;
+        }
+
+        $times = json_encode($times);
         
         $teachers = User::with(['user_details','teacher_divisions'])
                         ->where('user_type', 'staff')
@@ -365,7 +404,7 @@ class TeachersController extends Controller
 
         $divisions = TeacherDivisions::with(['course_division'])->where('teacher_id', $assign->teacher_id)->where('is_deleted',0)->orderBy('id', 'ASC')->get();
         
-        return view('admin.assign-teachers.edit', compact('assign','teachers','divisions'));
+        return view('admin.assign-teachers.edit', compact('assign','teachers','divisions','times'));
     }
 
     public function updateAssign(Request $request, $id)
@@ -393,21 +432,45 @@ class TeachersController extends Controller
         $assign->save();
         $assignedId = $assign->id;
 
-        $slots = getTimeSlotHrMIn($request->interval, $request->from_time, $request->to_time);
-        if(!empty($slots)){
+
+        $slots = [];
+        foreach($request->times as $time){
+           $slots[] = getTimeSlotHrMIn($request->interval, $time['from_time'], $time['to_time']);
+        }
+        $allSlots = array_merge(...$slots);
+    
+        if(!empty($allSlots)){
             TeacherSlots::where('assigned_id', $id)->where('is_booked',0)->delete();
             $datas = [];
-            foreach($slots as $sl){
-                $datas[] = array(
-                    'assigned_id' => $assignedId, 
-                    'slot' => $sl,
-                    'created_at' => date('Y-m-d H:i:s')
-                );
+            foreach($allSlots as $sl){
+                $check = TeacherSlots::where('assigned_id', $assignedId)->where('slot',$sl)->count();
+                if($check == 0){
+                    $datas[] = array(
+                        'assigned_id' => $assignedId, 
+                        'slot' => $sl,
+                        'created_at' => date('Y-m-d H:i:s')
+                    );
+                }
             }
             if(!empty($datas)){
                 TeacherSlots::insert($datas);
             }  
         }
+
+        AssignTimes::where('assign_id',$assignedId)->delete();
+        $assignTimes = [];
+        foreach($request->times as $time){
+            $assignTimes[] = [
+                'start_time' => $time['from_time'],
+                'end_time' => $time['to_time'],
+                'assign_id' => $assignedId,
+                'created_at' => date('Y-m-d H:i:s')
+            ];
+        }
+
+        if(!empty($assignTimes)){
+            AssignTimes::insert($assignTimes);
+        } 
 
         flash('Teacher has been assigned successfully')->success();
         return redirect()->route('assign-teachers');

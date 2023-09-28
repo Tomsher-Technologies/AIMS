@@ -74,8 +74,8 @@
                                         <th scope="col">Assigned Date</th>
                                         <th scope="col" class="text-center">Teacher Name</th>
                                         <th scope="col" class="text-center">Division</th>
-                                        <th scope="col" class="text-center">Start Time</th>
-                                        <th scope="col" class="text-center">End Time</th>
+                                        <!-- <th scope="col" class="text-center">Start Time</th>
+                                        <th scope="col" class="text-center">End Time</th> -->
                                         <th scope="col" class="text-center">Time Interval<br> (In Minutes)</th>
                                         <th scope="col" class="text-center">Slots </th>
                                         <th scope="col" class="text-center">Status</th>
@@ -91,12 +91,12 @@
                                                 <td>{{ $assign->assigned_date }}</td>
                                                 <td class="text-center">{{ $assign->teacher->name }}</td>
                                                 <td class="text-center">{{ $assign->course_division->title }}</td>
-                                                <td class="text-center">
+                                                <!-- <td class="text-center">
                                                 {{ $assign->start_time }}
                                                 </td>
                                                 <td class="text-center">
                                                 {{ $assign->end_time }}
-                                                </td>
+                                                </td> -->
                                                 <td class="text-center">
                                                 {{ $assign->time_interval }} Min
                                                 </td>
@@ -137,7 +137,8 @@
                                                             @endif
 
                                                             @if($deletable == 1)
-                                                            <li> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                            <li> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#"><img src="{{ asset('assets/images/delete.png') }}" wi
+                                                            dth="20" class="img-fluid" alt=""></a></span></li>
                                                             @endif
 
                                                             @if($assign->assigned_date >= date('Y-m-d') )
