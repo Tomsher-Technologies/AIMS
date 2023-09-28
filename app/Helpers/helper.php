@@ -5,6 +5,7 @@ use App\Models\UserDetails;
 use App\Models\User;
 use App\Models\StudentPackages;
 use App\Models\PackageModules;
+use Carbon\CarbonPeriod;
 
 /**
  * Write code on Method
@@ -37,6 +38,17 @@ if (!function_exists('areActiveRoutes')) {
         foreach ($routes as $route) {
             if (Route::currentRouteName() == $route) return $output;
         }
+    }
+}
+if (!function_exists('getDatesBetween2Dates')) {
+    function getDatesBetween2Dates($startDate, $endDate){
+        $dates = [];
+    
+        $period = CarbonPeriod::create($startDate,  $endDate);
+        foreach ($period as $date) {
+            $dates[] =  $date->format('Y-m-d');
+        }
+        return $dates;
     }
 }
 

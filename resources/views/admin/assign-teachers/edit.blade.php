@@ -43,38 +43,21 @@
                                     <div class="alert alert-danger">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <div class="form-group col-md-7">
-                                <label for="#">Course Divisions<span class="error">*</span></label>
-                                
-                                    <select class="form-control"  id="course_division" name="course_division">
-                                        @foreach($divisions as $div)
-                                            <option value="{{ $div->course_division->id }}"  @if($assign->module_id == $div->course_division->id) selected @endif> {{ $div->course_division->title }}</option>
-                                        @endforeach
-                                    </select>
-                                
-                                @error('course_division')
-                                    <div class="alert alert-danger">{{ $message }}</div>
-                                @enderror
-                            </div>
                             <div class="form-group col-md-7 d-flex">
-                                <div class="form-group col-md-4 padding-left0">
-                                    <label for="#">From Time<span class="error">*</span></label>
-                                    <input type="text" class="form-control datePicker" value="{{ old('from_time', $assign->start_time) }}" id="from_time" name="from_time" >
-                                    @error('from_time')
+                                <div class="form-group col-md-8 padding-left0">
+                                    <label for="#">Course Divisions<span class="error">*</span></label>
+                                    
+                                        <select class="form-control"  id="course_division" name="course_division">
+                                            @foreach($divisions as $div)
+                                                <option value="{{ $div->course_division->id }}"  @if($assign->module_id == $div->course_division->id) selected @endif> {{ $div->course_division->title }}</option>
+                                            @endforeach
+                                        </select>
+                                    
+                                    @error('course_division')
                                         <div class="alert alert-danger">{{ $message }}</div>
                                     @enderror
                                 </div>
-
-                                <div class="form-group col-md-4">
-                                    <label for="#">To Time<span class="error">*</span></label>
-                                    <input type="text" class="form-control datePicker" value="{{ old('to_time', $assign->end_time) }}" id="to_time" name="to_time" >
-                                    @error('to_time')
-                                        <div class="alert alert-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-md-4 padding-left0 padding-right0">
                                     <label for="#">Time Interval (In Minutes)<span class="error">*</span></label>
                                     <input type="text" class="form-control" value="{{ old('interval', $assign->time_interval) }}" id="interval" name="interval" >
                                     @error('interval')
@@ -83,10 +66,39 @@
                                 </div>
                             </div>
 
-                            
+                            <div class="form-group col-md-7">
+                                <h4>Time Slots</h4>
+                            </div>
+
+                            <div data-repeater-list="times" class="form-group col-md-7 mb-0">
+                                <div class="form-group col-md-12 d-flex" data-repeater-item>
+                                    <div class="form-group col-md-5 padding-left0">
+                                        <label for="#">From Time<span class="error">*</span></label>
+                                        <input type="text" class="form-control timePicker" value="{{ old('from_time') }}" id="from_time" name="from_time" >
+                                        @error('from_time')
+                                            <div class="alert alert-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group col-md-5 padding-left0 padding-right0">
+                                        <label for="#">To Time<span class="error">*</span></label>
+                                        <input type="text" class="form-control timePicker" value="{{ old('to_time') }}" id="to_time" name="to_time" >
+                                        @error('to_time')
+                                            <div class="alert alert-danger">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="text-right col-md-2 margin-auto">
+                                        <input data-repeater-delete class="btn btn-danger" type="button" value="Delete" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-7">
+                                <input data-repeater-create class="btn btn_primary mb-3 ml-3" type="button" value="Add New" />
+                            </div>
+
 
                             <div class="form-group col-md-7 d-flex">
-                                <button type="submit" class="btn btn-primary d-block mt-2 btn_primary">Save</button>
+                                <button type="submit" class="btn btn-success d-block mt-2">Save</button>
                                 <a href="{{ route('assign-teachers') }}" class="btn btn-info d-block mt-2 ml-2">Cancel</a>
                             </div>
                         </div>
@@ -98,21 +110,73 @@
 </div>
 @endsection
 @section('header')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css"/>
 <link rel="stylesheet" href="{{ asset('assets/css/select2.min.css') }}">
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+
 <style>
     .select2 {
         width:inherit !important
     }
+    .ui-timepicker-wrapper{
+        width: 15% !important;
+    }
+    
 </style>    
 @endsection
 @section('footer')
 <script src="{{ asset('assets/js/select2.min.js') }}"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.js"></script>
+<script src="{{ asset('assets/js/jquery.repeater.js') }}"></script>
 <!-- <script src="{{ asset('assets/js/moment.min.js') }}"></script> -->
 
 <script type="text/javascript">
-    
+    $(document).ready(function() {
+        var $repeater = $('.repeater').repeater({
+                            initEmpty: false,
+                            show: function() {
+                                $(this).slideDown();
+                                var repeaterItems = $("div[data-repeater-item]");
+                                addTimePicker(repeaterItems.length);
+                            },
+                            hide: function(deleteElement) {
+                                if (confirm('Are you sure you want to delete this element?')) {
+                                    $(this).slideUp(deleteElement);
+                                }
+                            },
+                            isFirstItemUndeletable: false
+                        });
+        
+        var data = {!! $times !!};
+        console.log(data);
+        $repeater.setList(data);
+    });
+
+    function addTimePicker(count){
+        var timeArray = [];
+        for(i=0; i<count; i++){
+            var arr = [];
+            var from_time = $('input[name="times['+i+'][from_time]"]').val();
+            var to_time = $('input[name="times['+i+'][to_time]"]').val();
+            
+            if(from_time != '' && to_time != ''){
+                arr.push(from_time);
+                arr.push(to_time);
+                timeArray.push(arr);
+            }  
+        }
+        $('.timePicker').timepicker({
+            format: 'h:mm a',
+            step: 15,
+            minTime: '6:00am',
+            maxTime: '10:00pm',
+            defaultTime: '',
+            dynamic: false,
+            dropdown: true,
+            scrollbar: true,
+            disableTimeRanges: timeArray,
+        });
+    }
 
     $("#class_date").datepicker({
         dateFormat: "yy-mm-dd",
@@ -120,9 +184,9 @@
         changeMonth: true,
         minDate: "-0y"
     });
-    $('#from_time').timepicker({
-        timeFormat: 'h:mm p',
-        interval: 60,
+    $('.timePicker').timepicker({
+        format: 'h:mm a',
+        step: 15,
         minTime: '6:00am',
         maxTime: '10:00pm',
         defaultTime: '',
@@ -130,16 +194,7 @@
         dropdown: true,
         scrollbar: true
     });
-    $('#to_time').timepicker({
-        timeFormat: 'h:mm p',
-        interval: 60,
-        minTime: '6:00am',
-        maxTime: '10:00pm',
-        defaultTime: '',
-        dynamic: false,
-        dropdown: true,
-        scrollbar: true
-    });
+   
     
     $.ajaxSetup({
         headers:{'X-CSRF-TOKEN':$('meta[name="_token"]').attr('content')}

@@ -22,4 +22,9 @@ class AssignTeachers extends Model
     {
         return $this->hasMany(TeacherSlots::class,'assigned_id','id');
     } 
+
+    public function times()
+    {
+        return $this->hasMany(AssignTImes::class,'assign_id','id');
+    } 
 }
