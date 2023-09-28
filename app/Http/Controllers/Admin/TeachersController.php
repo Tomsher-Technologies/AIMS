@@ -476,6 +476,22 @@ class TeachersController extends Controller
         return redirect()->route('assign-teachers');
     }
 
+    public function editAssignSlots(Request $request, $id)
+    {
+        $slots = TeacherSlots::where('is_deleted', 0)->where('assigned_id', $id)->get();
+        $assign = AssignTeachers::with(['teacher','course_division'])->find($id);
+
+        return view('admin.assign-teachers.edit-slot', compact('assign','slots'));
+    }
+
+    public function updateAssignSlots(Request $request, $id){
+        $slots = $request->slot;
+        TeacherSlots::whereIn('id',$slots)->delete();
+        
+        flash('Slots deleted successfully')->success();
+        return redirect()->back();
+    }
+
     public function cancelBooking(Request $request){
         $id = $request->id;
         $msg = $request->msg;

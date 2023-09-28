@@ -25,6 +25,6 @@ class AssignTeachers extends Model
 
     public function times()
     {
-        return $this->hasMany(AssignTImes::class,'assign_id','id');
+        return $this->hasMany(AssignTimes::class,'assign_id','id');
     } 
 }

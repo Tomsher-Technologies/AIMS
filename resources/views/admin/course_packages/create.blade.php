@@ -80,7 +80,13 @@
                                 @enderror
                             </div>
 
-                            
+                            <div class="form-group col-md-7">
+                                <label for="#">Banner Image <span class="error">*</span></label>
+                                <input type="file" class="form-control" id="banner_image" value="{{ old('banner_image') }}" name="banner_image" />
+                                @error('banner_image')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
                            
                            
                             <div class="form-group col-md-7 d-flex">

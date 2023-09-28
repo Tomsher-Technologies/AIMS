@@ -346,12 +346,24 @@ class HomeController extends Controller
             'course' => 'required',
             'duration' => 'required',
             'fee' => 'required',
-            'course_division' => 'required'
+            'course_division' => 'required',
+            'banner_image' => 'required'
         ]);
         
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
+
+        if ($request->hasFile('banner_image')) {
+            $uploadedFile = $request->file('banner_image');
+            $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
+            $name = Storage::disk('public')->putFileAs(
+                'courses',
+                $uploadedFile,
+                $filename
+            );
+           $imageUrl = Storage::url($name);
+        }   
 
         $package = CoursePackages::create([
             'courses_id' => $request->course,
@@ -359,6 +371,7 @@ class HomeController extends Controller
             'description' => $request->description,
             'duration' => $request->duration,
             'fees' => $request->fee,
+            'banner_image' => $imageUrl
         ]);
 
         if ($request->course_division) {
@@ -410,10 +423,28 @@ class HomeController extends Controller
             return back()->withErrors($validator)->withInput();
         }
         $package = CoursePackages::findOrFail($id);
+
+        $presentImage = $package->banner_image;
+        $imageUrl = '';
+        if ($request->hasFile('banner_image')) {
+            $uploadedFile = $request->file('banner_image');
+            $filename =    strtolower(Str::random(2)).time().'.'. $uploadedFile->getClientOriginalName();
+            $name = Storage::disk('public')->putFileAs(
+                'courses',
+                $uploadedFile,
+                $filename
+            );
+           $imageUrl = Storage::url($name);
+           if($presentImage != '' && File::exists(public_path($presentImage))){
+                unlink(public_path($presentImage));
+            }
+        }   
+
         $package->courses_id = $request->course;
         $package->package_title = $request->title;
         $package->description = $request->description;
         $package->duration = $request->duration;
+        $package->banner_image = ($imageUrl != '') ? $imageUrl : $presentImage;
         $package->fees = $request->fee;
         $package->is_active = $request->is_active;
         $package->save();

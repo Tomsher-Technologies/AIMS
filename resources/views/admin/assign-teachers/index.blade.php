@@ -145,6 +145,11 @@
                                                                 <li> <button class="btn btn-danger pending mt-1 " onclick="cancelAllBooking({{$assign->id}})"><span class="label label-danger">Cancel All Bookings</span> </button></li>
                                                                 @endif
                                                             @endif
+
+                                                            @if($assign->assigned_date >= date('Y-m-d') )
+                                                                <li> <a class="btn btn-warning pending mt-1" href="{{ route('assign-teacher.edit-slot',['id'=>$assign->id]) }}"><span class="label label-danger">Delete Slots</span> </a>
+                                                                </li>
+                                                            @endif
                                                         </ul>
                                                    
                                                 </td>
