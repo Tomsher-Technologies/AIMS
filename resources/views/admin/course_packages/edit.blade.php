@@ -89,6 +89,18 @@
                             </div>
 
                             <div class="form-group col-md-7">
+                                <label for="#">Banner Image</label>
+                                <input type="file" class="form-control" id="banner_image" value="{{ old('banner_image') }}" name="banner_image" />
+                                @error('banner_image')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+
+                                @if($package->banner_image != NULL)
+                                    <img class="mt-3" src="{{ asset($package->banner_image) }}" style="width:350px" />
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-7">
                                 <label for="inputPassword4">Active Status</label>
                                 <select class="form-control" name="is_active" id="is_active">
                                     <option {{ ($package->is_active == 1) ? 'selected' : '' }} value="1">Active</option>

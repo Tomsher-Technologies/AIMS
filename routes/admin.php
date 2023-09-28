@@ -79,6 +79,8 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::post('/assign-teacher/update/{id}', [TeachersController::class, 'updateAssign'])->name('assign-teacher.update');
         Route::post('/assign-teacher/delete/', [TeachersController::class, 'deleteAssign'])->name('assign-teacher.delete');
         Route::post('/assign-teacher/cancel', [TeachersController::class, 'cancelBooking'])->name('assign-teacher.cancel');
+        Route::get('/assign-teacher/edit-slot/{id}', [TeachersController::class, 'editAssignSlots'])->name('assign-teacher.edit-slot');
+        Route::post('/assign-teacher/update-slot/{id}', [TeachersController::class, 'updateAssignSlots'])->name('assign-teacher.update-slot');
 
         Route::get('/students', [StudentController::class, 'getAllStudents'])->name('students');
         Route::get('/student/create', [StudentController::class, 'createStudent'])->name('student.create');
