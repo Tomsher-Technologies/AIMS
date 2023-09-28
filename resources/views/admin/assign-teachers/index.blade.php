@@ -137,8 +137,7 @@
                                                             @endif
 
                                                             @if($deletable == 1)
-                                                            <li> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#"><img src="{{ asset('assets/images/delete.png') }}" wi
-                                                            dth="20" class="img-fluid" alt=""></a></span></li>
+                                                            <li> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
                                                             @endif
 
                                                             @if($assign->assigned_date >= date('Y-m-d') )
