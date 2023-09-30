@@ -414,8 +414,6 @@ class TeachersController extends Controller
             'teacher' => 'required',
             'course_division' => 'required',
             'interval' => 'required',
-            'from_time' => 'required',
-            'to_time' => 'required'
         ]);
         
         if ($validator->fails()) {
