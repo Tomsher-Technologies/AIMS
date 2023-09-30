@@ -645,6 +645,34 @@ class ApiAuthController extends Controller
         }
     }
 
+    public function studentMockTestDates(Request $request){
+        $user_id = $request->user_id;
+
+        $mock_tests = MockTests::where('student_id', $user_id)
+                                    ->where('is_deleted',0)
+                                    ->orderBy('test_date', 'DESC')
+                                    ->pluck('test_date')->toArray();
+        if(!empty($mock_tests)){
+            return response()->json(["status" => true, "message"=>"Success",'data' => $mock_tests]);
+        }else{
+            return response()->json(["status" => false,'message'=>'No data found!', 'data' => []]);
+        }
+    }
+
+    public function studentMockTestDateResult(Request $request){
+        $user_id = $request->user_id;
+        $date = $request->date;
+        $mock_tests = MockTests::where('student_id', $user_id)
+                                    ->where('is_deleted',0)
+                                    ->where('test_date', $date)
+                                    ->select('test_date', 'student_id', 'listening_a', 'listening_b', 'listening_c', 'listening_total', 'reading_a', 'reading_b', 'reading_c', 'reading_total')->get();
+        if(!empty($mock_tests[0])){
+            return response()->json(["status" => true, "message"=>"Success",'data' => $mock_tests]);
+        }else{
+            return response()->json(["status" => false,'message'=>'No data found!', 'data' => []]);
+        }
+    }
+
 }
 
 
