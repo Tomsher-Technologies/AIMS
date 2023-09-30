@@ -102,7 +102,7 @@
                                                 </td>
 
                                                 <td class="text-center ">
-                                                    @if($stud->is_cancelled == 0 && ($stud->booking_date > date('Y-m-d')))
+                                                    @if($stud->is_cancelled == 0 && ($stud->booking_date >= date('Y-m-d')))
                                                         <button class="btn btn-danger pending mt-1 " onclick="cancelBooking({{$stud->id}})"><span class="label label-danger">Cancel Booking</span> </button>
                                                     @elseif($stud->is_cancelled == 1)
                                                         <span class="error">Cancelled By {{ $stud->cancelledBy->name ?? ''}}</span>
