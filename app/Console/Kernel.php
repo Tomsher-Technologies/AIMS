@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('student:classes')->hourly();
+        $schedule->command('student:classes')->everyMinute();
         $schedule->command('course:expiry')->everyMinute();
         $schedule->command('fee:expiry')->everyMinute();
     }
