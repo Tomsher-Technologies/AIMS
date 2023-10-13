@@ -52,6 +52,8 @@ Route::group(['middleware' => 'api','prefix' => 'auth'], function ($router) {
 
     Route::get('/mock-test-dates', [ApiAuthController::class, 'studentMockTestDates'])->name('mock-test-dates');
     Route::get('/mock-test-date-result', [ApiAuthController::class, 'studentMockTestDateResult'])->name('mock-test-date-result');
+
+    Route::post('/delete-account', [ApiAuthController::class, 'deleteStudentAccount'])->name('delete-account');
 });
 
 
