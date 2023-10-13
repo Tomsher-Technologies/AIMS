@@ -50,14 +50,16 @@ class ApiAuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
         if (! $token = auth('api')->attempt($validator->validated())) {
-            return response()->json(['status' => false, 'message' => 'Invalid login details', 'data' => []], 401);
+            return response()->json(['status' => false, 'message' => 'Invalid login credentials', 'data' => []], 401);
         }else{
-            if(auth('api')->user()->is_approved == 0){
-                return response()->json(['status' => false, 'message' => 'Your account is waiting for admin approval.', 'data' => []], 401);
+            if(auth('api')->user()->is_app_deleted == 1){
+                return response()->json(['status' => false, 'message' => 'Invalid login credentials', 'data' => []], 401);
+            }elseif(auth('api')->user()->is_approved == 0){
+                return response()->json(['status' => false, 'message' => 'Your account is waiting for admin approval', 'data' => []], 401);
             }elseif(auth('api')->user()->is_deleted == 1){
-                return response()->json(['status' => false, 'message' => 'Your account is Deleted.', 'data' => []], 401);
+                return response()->json(['status' => false, 'message' => 'Your account is Deleted', 'data' => []], 401);
             }elseif(auth('api')->user()->is_active == 0){
-                return response()->json(['status' => false, 'message' => 'Your account is Disabled.', 'data' => []], 401);
+                return response()->json(['status' => false, 'message' => 'Your account is Disabled', 'data' => []], 401);
             }else{
                 return $this->createNewToken($token);
             }
@@ -76,7 +78,11 @@ class ApiAuthController extends Controller
             'password' => 'required|string|min:6',
         ]);
         if($validator->fails()){
-            return response()->json(['status' => false, 'message' => 'The email has already been taken.', 'data' => []  ], 400);
+            if($request->first_name == '' || $request->email == '' || $request->password == ''){
+                return response()->json(['status' => false, 'message' => 'Please make sure that you fill out all the required fields..', 'data' => []  ], 400);
+            }else{
+                return response()->json(['status' => false, 'message' => 'The email has already been taken.', 'data' => []  ], 400);
+            }
         }
         $user = new User;
         $user->user_type = 'student';
@@ -670,6 +676,15 @@ class ApiAuthController extends Controller
             return response()->json(["status" => true, "message"=>"Success",'data' => $mock_tests]);
         }else{
             return response()->json(["status" => false,'message'=>'No data found!', 'data' => []]);
+        }
+    }
+
+    public function deleteStudentAccount(Request $request){
+        $attended = User::where('id', $request->user_id)->update(['is_app_deleted' => 1, 'is_active' => 0]);
+        if($attended){
+            return response()->json(["status" => true, "message"=>"Account deleted successfully",'data' => []]);
+        }else{
+            return response()->json(["status"=>false,"message"=>"Failed!",'data' => [] ]);
         }
     }
 
