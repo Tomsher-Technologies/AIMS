@@ -134,6 +134,9 @@ Route::namespace('Admin')->prefix('admin')->group(function () {
         Route::get('/admin/edit/{id}', [HomeController::class, 'editAdmin'])->name('admin.edit');
         Route::post('/admin/update/{id}', [HomeController::class, 'updateAdmin'])->name('admin.update');
         Route::post('/admin/delete/', [HomeController::class, 'deleteAdmin'])->name('admin.delete');
+
+
+        Route::post('/account/recover/', [StudentController::class, 'accountRecoverStudent'])->name('recover.account');
     });
 
 });

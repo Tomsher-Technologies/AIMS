@@ -680,7 +680,7 @@ class ApiAuthController extends Controller
     }
 
     public function deleteStudentAccount(Request $request){
-        $attended = User::where('id', $request->user_id)->update(['is_app_deleted' => 1, 'is_active' => 0]);
+        $attended = User::where('id', $request->user_id)->update(['is_app_deleted' => 1]);
         if($attended){
             return response()->json(["status" => true, "message"=>"Account deleted successfully",'data' => []]);
         }else{

@@ -87,9 +87,9 @@
                                         <th scope="col" class="text-center w-10">Start Date</th>
                                         <th scope="col" class="text-center w-10">End Date</th>
                                         <th scope="col" class="text-center">Approval Status</th>
-                                        <th scope="col" class="text-center">Active Status</th>
+                                        <th scope="col" class="text-center"> Status</th>
                                         <th scope="col" class="text-center">Booking Approval</th>
-                                        <th scope="col" class="w-10">Action</th>
+                                        <th scope="col" class="">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -129,7 +129,10 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @if($stud->is_active == 1)
+                                                    @if($stud->is_app_deleted == 1)
+                                                        <span class="error">Account Deleted</span>
+                                                        <a class="btn btn-danger" onclick="recoverAccount({{$stud->id}})" title="Recover Student Account" href="#">Recover Account</a>
+                                                    @elseif($stud->is_active == 1)
                                                         <span class="green">Active</span>
                                                     @else
                                                         <span class="error">Inactive</span>
@@ -299,6 +302,40 @@
             
         })
     }
+
+    function recoverAccount(id){
+        Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to recover this account?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes!'
+        }).then(function(result) {
+            var status = 1;
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('recover.account')}}",
+                    type: "POST",
+                    data: { "_token": "{{ csrf_token() }}", "id":id},
+                    success: function( response ) {
+                        Swal.fire(
+                            'Account recovered successfully',
+                            '',
+                            'success'
+                        );
+                        setTimeout(function () { 
+                            window.location.reload();
+                        }, 3000);  
+                    }
+                });
+            } 
+            
+        })
+    }
+
+
 
 </script>
 @endsection

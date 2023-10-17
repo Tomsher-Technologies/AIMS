@@ -1029,4 +1029,10 @@ class StudentController extends Controller
         Bookings::where('student_id',$request->id)->where('booking_success',0)->update(['booking_success' => 1]);
         
     }
+
+    public function accountRecoverStudent(Request $request){
+        $user = User::find($request->id);
+        $user->is_app_deleted = 0;
+        $user->save();
+    }
 }
