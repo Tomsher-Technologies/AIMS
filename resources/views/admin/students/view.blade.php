@@ -26,8 +26,10 @@
                         @else
                            <span class="badge badge-pill badge-danger mb-1">Inactive</span>
                         @endif
-                     @else
+                     @elseif($user->is_approved == 2)
                         <span class="badge badge-pill badge-outline-danger mb-1 ml-3">Rejected</span>
+                     @else
+                        <span class="badge badge-pill badge-outline-danger mb-1 ml-3">Approval Pending</span>
                      @endif
 
                   </h5>
