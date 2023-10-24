@@ -126,7 +126,7 @@
                                                 <td class="text-center">
                                                     @if($stud->is_app_deleted == 1)
                                                         <span class="error">Account Deleted</span>
-                                                        <a class="btn btn-danger" onclick="recoverAccount({{$stud->id}})" title="Recover Student Account" href="#">Recover Account</a>
+                                                        <a class="btn btn-danger" onclick="recoverAccount({{$stud->id}})" title="Recover Student Account" href="#">Recover</a>
                                                     @elseif($stud->is_active == 1)
                                                         <span class="green">Active</span>
                                                     @else
