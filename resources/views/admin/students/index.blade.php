@@ -97,20 +97,15 @@
                                         @foreach($students as $key => $stud)
                                             <tr>
                                                 <td>{{ $key + 1 + ($students->currentPage() - 1) * $students->perPage() }}</td>
-                                                <td>{{ $stud->name }}</td>
-                                                <td class="text-center">{{ $stud->unique_id }}</td>
-                                                <td class="text-center">{{ $stud->email }}</td>
-                                                <!-- <td class="text-center">{{ $stud->user_details->phone_code }}{{ $stud->user_details->phone_number }}</td> -->
-                                                <!-- <td class="text-center">
-                                                    @if($stud->user_details->profile_image != NULL)
-                                                    <img class="profileImage" src="{{ asset($stud->user_details->profile_image) }}"/>
-                                                    @endif
-                                                </td> -->
+                                                <td>{{ $stud->name ?? '' }}</td>
+                                                <td class="text-center">{{ $stud->unique_id ?? ''}}</td>
+                                                <td class="text-center">{{ $stud->email ?? ''}}</td>
+                                               
                                                 @if(!empty($stud->student_packages) && $stud->student_packages != '[]')
                                                     @foreach($stud->student_packages as $stPack)
-                                                    <td class="text-center"> {{ $stPack->package->package_title }}</td>
-                                                    <td class="text-center"> {{ $stPack->start_date }}</td>
-                                                    <td class="text-center"> {{ $stPack->end_date }}</td>
+                                                    <td class="text-center"> {{ $stPack->package->package_title ?? ''}}</td>
+                                                    <td class="text-center"> {{ $stPack->start_date ?? ''}}</td>
+                                                    <td class="text-center"> {{ $stPack->end_date ?? ''}}</td>
                                                     @endforeach
                                                 @else
                                                 <td class="text-center">- </td>
