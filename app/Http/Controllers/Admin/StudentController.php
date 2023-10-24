@@ -271,6 +271,7 @@ class StudentController extends Controller
         $validator = Validator::make($request->all(), [
             'first_name' => 'required',
             'last_name' => 'required',
+            'student_code' =>'required_if:is_approved,1|nullable|unique:users,unique_id,'.$id,
             'email' => 'required|string|email|max:100|unique:users,email,'.$id,
             'phone_number' => 'required|numeric',
             'course' => 'required',
@@ -281,6 +282,7 @@ class StudentController extends Controller
             'password' => 'nullable|min:6',
         ],[
             "phone_number.*"    => "The phone number is invalid",
+            'student_code.required_if' => "The student code field is required",
         ]);
         
         if ($validator->fails()) {
@@ -296,6 +298,7 @@ class StudentController extends Controller
         $oldEndDate = (isset($user->student_packages[0])) ? $user->student_packages[0]->end_date : '';
         
         $user->name = $request->first_name.' '.$request->last_name;
+        $user->unique_id = $request->student_code;
         $user->email = $request->email;
         if($request->password != ''){
             $user->password = Hash::make($request->password);
@@ -434,7 +437,12 @@ class StudentController extends Controller
         }else{
             $response = 'Rejected';
         }
-        $user->update(['unique_id' => $studentCode,'is_approved' => $status]);
+        if($user->unique_id != NULL){
+            $update = ['is_approved' => $status];
+        }else{
+            $update = ['unique_id' => $studentCode,'is_approved' => $status];
+        }
+        $user->update($update);
         return $response;
     }
    
@@ -874,18 +882,19 @@ class StudentController extends Controller
             $email = trim($sheet->getCell( 'C' . $row )->getValue());
             if($email != ''){
                 if(!in_array($email, $students)){
-                    $dob = $sheet->getCell( 'F' . $row )->getValue();
-                    $dob = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dob)->format('Y-m-d');
-         
+                    $dob = $sheet->getCell( 'F' . $row )->getValue(); 
+                    $dob = ($dob != '' && $dob != NULL) ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dob)->format('Y-m-d') : NULL;
+                    
                     $first_name = $sheet->getCell( 'A' . $row )->getValue();
                     $last_name = $sheet->getCell( 'B' . $row )->getValue();
+                    $studentCode = trim($sheet->getCell( 'H' . $row )->getValue());
 
                     $user = new User();
                     $user->name = $first_name.' '.$last_name;
                     $user->email = $email;
                     $user->password = null;
                     $user->user_type = 'student';
-                    $user->unique_id = 'ST'.($approvedCount+1);
+                    $user->unique_id = ($studentCode != NULL) ? $studentCode : 'ST'.($approvedCount+1);
                     $user->is_approved = 1;
                     $user->save();
 

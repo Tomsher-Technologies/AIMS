@@ -187,7 +187,8 @@ class ApiAuthController extends Controller
         if(isset($user[0])){
             $user[0]['passport'] = ($user[0]['passport'] != '') ? asset($user[0]['passport']) : '';
             $user[0]['profile_image'] = ($user[0]['profile_image'] != '') ? asset($user[0]['profile_image']) : '';
-            $user[0]['enrollment_form'] = ($user[0]['enrollment_form'] != '') ? asset($user[0]['enrollment_form']) : '';
+            $user[0]['enrollment_form'] = ($user[0]['enroll
+            ment_form'] != '') ? asset($user[0]['enrollment_form']) : '';
 
             $country = $user[0]->user_details->country_name;
             $state = $user[0]->user_details->state_name;
@@ -592,7 +593,7 @@ class ApiAuthController extends Controller
                                 ->leftJoin('course_packages as cp', 'cp.id', '=', 'student_packages.package_id')
                                 ->where('student_packages.user_id',$user_id)
                                 ->where('student_packages.is_active',1)->where('student_packages.is_deleted',0)
-                                ->select('cp.package_title as package_name','co.id as course_id','co.name as course_name','co.description as course_description','co.banner_image')
+                                ->select('cp.package_title as package_name','co.id as course_id','co.name as course_name','co.description as course_description','co.banner_image','student_packages.start_date','student_packages.end_date')
                                 ->get();
     
         if(!empty($course)){

@@ -39,6 +39,19 @@
                             </div>
 
                             <div class="form-group col-md-7">
+                                <input type="hidden" name="is_approved" id="is_approved" value="{{ $student->is_approved }}">
+                                <label for="#">Student Code
+                                    @if($student->is_approved == 1)
+                                    <span class="error">*</span>
+                                    @endif
+                                </label>
+                                <input type="text" class="form-control" value="{{ old('student_code', $student->unique_id) }}" id="student_code" name="student_code" placeholder="Enter Student Code">
+                                @error('student_code')
+                                    <div class="alert alert-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-group col-md-7">
                                 <label for="#">Email<span class="error">*</span></label>
                                 <input type="email" class="form-control" value="{{ old('email', $student->email) }}" id="email" name="email" placeholder="Enter email">
                                 @error('email')
