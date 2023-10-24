@@ -63,13 +63,13 @@
                                                 <td>{{ $cls->course_division->title }}</td>
                                                 <td>
                                                     <ul class="action_list">
-                                                        <li class="mt-1" style="margin-bottom: 0px;">
+                                                        <li  class="mt-1 ml-3" style="margin-bottom: 0px;">
                                                             <a class="" data-id="{{$cls->id}}" title="View Attendance" href="{{ route('view-attendance',['id'=>$cls->id]) }}">
                                                                 <!-- <img src="{{ asset('assets/images/eye.png') }}" width="20" class="img-fluid" alt=""> -->
                                                             <i class="simple-icon-eye view-icon"> </i>
                                                         </a>
                                                         </li>
-                                                        <li  class="mt-1" style="margin-bottom: 0px;">
+                                                        <li  class="mt-1 ml-3" style="margin-bottom: 0px;">
                                                             <a class="" data-id="{{$cls->id}}" title="Edit Attendance" href="{{ route('edit-attendance',['id'=>$cls->id]) }}">
                                                                 <!-- <img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a> -->
                                                                 <i class="simple-icon-pencil edit-icon"> </i>

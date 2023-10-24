@@ -146,10 +146,14 @@
                                                             <i class="simple-icon-eye view-icon"> </i>
                                                             </a>
                                                         </li>
-                                                        <li>
-                                                            <a class="" data-id="{{$stud->id}}" title="Edit Student" href="{{ route('student.edit',['id'=>$stud->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                        <li class="mt-1 ml-3" style="margin-bottom: 0px;">
+                                                            <a class="" data-id="{{$stud->id}}" title="Edit Student" href="{{ route('student.edit',['id'=>$stud->id]) }}">
+                                                                <!-- <img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a> -->
+                                                                <i class="simple-icon-pencil view-icon"> </i>
                                                         </li>
-                                                        <li> <span> <a class="deleteStudent" data-id="{{$stud->id}}" title="Delete Student" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        <li class="mt-1 ml-3" style="margin-bottom: 0px;"> <span> <a class="deleteStudent" data-id="{{$stud->id}}" title="Delete Student" href="#">
+                                                            <!-- <img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li> -->
+                                                            <i class="simple-icon-trash view-icon"> </i>
                                                     </ul>
                                                 </td>
                                                
@@ -175,6 +179,11 @@
 </div>
 @endsection
 @section('header')
+<style>
+.action_list {
+    gap: 1px !important;
+}
+</style>
 @endsection
 @section('footer')
 <script type="text/javascript">

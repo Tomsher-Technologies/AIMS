@@ -130,24 +130,30 @@
                                                         <ul class="action_list">
                                                             @if($assign->assigned_date >= date('Y-m-d') )
                                                                 @if($assign->is_active == 1)
-                                                                    <li>
-                                                                        <a class="" data-id="{{$assign->id}}" title="Edit Teacher Assign" href="{{ route('assign-teacher.edit',['id'=>$assign->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                                    <li class="mt-2 ml-3">
+                                                                        <a class="" data-id="{{$assign->id}}" title="Edit Teacher Assign" href="{{ route('assign-teacher.edit',['id'=>$assign->id]) }}">
+                                                                            <!-- <img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                                            <i class="simple-icon-pencil view-icon"> </i></a>
+                                                                        </a>
                                                                     </li>
                                                                 @endif
                                                             @endif
 
                                                             @if($deletable == 1)
-                                                            <li> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                            <li class="mt-2 ml-3"> <span> <a class="deleteTeacherAssign" data-id="{{$assign->id}}" title="Delete Teacher Assign" href="#">
+                                                                <!-- <img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                                <i class="simple-icon-trash view-icon"> </i>
+                                                            </a></span></li>
                                                             @endif
 
                                                             @if($assign->assigned_date >= date('Y-m-d') )
                                                                 @if($deletable == 0)
-                                                                <li> <button class="btn btn-danger pending mt-1 " onclick="cancelAllBooking({{$assign->id}})"><span class="label label-danger">Cancel All Bookings</span> </button></li>
+                                                                <li class=" ml-3"> <button class="btn btn-danger pending mt-1 " onclick="cancelAllBooking({{$assign->id}})"><span class="label label-danger">Cancel All Bookings</span> </button></li>
                                                                 @endif
                                                             @endif
 
                                                             @if($assign->assigned_date >= date('Y-m-d') )
-                                                                <li> <a class="btn btn-warning pending mt-1" href="{{ route('assign-teacher.edit-slot',['id'=>$assign->id]) }}"><span class="label label-danger">Delete Slots</span> </a>
+                                                                <li class=" ml-3"> <a class="btn btn-warning pending mt-1" href="{{ route('assign-teacher.edit-slot',['id'=>$assign->id]) }}"><span class="label label-danger">Delete Slots</span> </a>
                                                                 </li>
                                                             @endif
                                                         </ul>

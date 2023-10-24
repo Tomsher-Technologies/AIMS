@@ -71,10 +71,16 @@
                                                 </td>
                                                 <td>
                                                     <ul class="action_list">
-                                                        <li>
-                                                            <a class="" data-id="{{$teach->id}}" title="Edit Teacher" href="{{ route('teacher.edit',['id'=>$teach->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                        <li class="mt-2 ml-3">
+                                                            <a class="" data-id="{{$teach->id}}" title="Edit Teacher" href="{{ route('teacher.edit',['id'=>$teach->id]) }}">
+                                                                <!-- <img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                                <i class="simple-icon-pencil view-icon"> </i>
+                                                            </a>
                                                         </li>
-                                                        <li> <span> <a class="deleteTeacher" data-id="{{$teach->id}}" title="Delete Teacher" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        <li class="mt-1 ml-3"> <span> <a class="deleteTeacher" data-id="{{$teach->id}}" title="Delete Teacher" href="#">
+                                                            <!-- <img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                            <i class="simple-icon-trash view-icon"> </i>
+                                                        </a></span></li>
                                                     </ul>
                                                 </td>
                                                
