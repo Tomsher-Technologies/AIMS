@@ -52,7 +52,7 @@ html{
 .action_list{
     display: flex;
     align-items: center;
-    gap: 15px;
+    /* gap: 15px; */
     list-style: none;
     padding: 0;
     margin-bottom: 0;

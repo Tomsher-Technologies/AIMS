@@ -71,10 +71,15 @@
                                                 </td>
                                                 <td>
                                                     <ul class="action_list">
-                                                        <li>
-                                                            <a class="" data-id="{{$teach->id}}" title="Edit Admin" href="{{ route('admin.edit',['id'=>$teach->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                        <li class="mt-2 ml-1">
+                                                            <a class="" data-id="{{$teach->id}}" title="Edit Admin" href="{{ route('admin.edit',['id'=>$teach->id]) }}">
+                                                                <!-- <img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                                <i class="simple-icon-pencil view-icon"> </i></a>
                                                         </li>
-                                                        <li> <span> <a class="deleteAdmin" data-id="{{$teach->id}}" title="Delete Admin" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        <li class="mt-1 ml-3"> <span> <a class="deleteAdmin" data-id="{{$teach->id}}" title="Delete Admin" href="#">
+                                                            <!-- <img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                            <i class="simple-icon-trash view-icon"> </i>
+                                                        </a></span></li>
                                                     </ul>
                                                 </td>
                                                

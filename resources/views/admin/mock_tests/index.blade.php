@@ -95,10 +95,16 @@
                                                 <td class="text-center"><b>{{ $cls->reading_total ?? '-' }}</b></td>
                                                 <td>
                                                     <ul class="action_list">
-                                                        <li>
-                                                            <a class="" data-id="{{$cls->id}}" title="Edit Test Result" href="{{ route('mock.edit',['id'=>$cls->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                        <li class="mt-2 ml-3">
+                                                            <a class="" data-id="{{$cls->id}}" title="Edit Test Result" href="{{ route('mock.edit',['id'=>$cls->id]) }}">
+                                                                <!-- <img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                                <i class="simple-icon-pencil view-icon"> </i>
+                                                            </a>
                                                         </li>
-                                                        <li> <span> <a class="deleteTest" data-id="{{$cls->id}}" title="Delete Test Result" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        <li class="mt-1 ml-3"> <span> <a class="deleteTest" data-id="{{$cls->id}}" title="Delete Test Result" href="#">
+                                                            <!-- <img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                            <i class="simple-icon-trash view-icon"> </i>
+                                                        </a></span></li>
                                                     </ul>
                                                 </td>
                                             </tr>

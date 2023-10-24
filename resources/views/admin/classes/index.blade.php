@@ -121,10 +121,16 @@
                                                 </td>
                                                 <td>
                                                     <ul class="action_list">
-                                                        <li>
-                                                            <a class="" data-id="{{$cls->id}}" title="Edit Class" href="{{ route('class.edit',['id'=>$cls->id]) }}"><img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""></a>
+                                                        <li class="mt-2 ml-3">
+                                                            <a class="" data-id="{{$cls->id}}" title="Edit Class" href="{{ route('class.edit',['id'=>$cls->id]) }}">
+                                                                <!-- <img src="{{ asset('assets/images/pencil.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                                <i class="simple-icon-pencil view-icon"> </i>
+                                                            </a>
                                                         </li>
-                                                        <li> <span> <a class="deleteClass" data-id="{{$cls->id}}" title="Delete Class" href="#"><img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""></a></span></li>
+                                                        <li class="mt-1 ml-3"> <span> <a class="deleteClass" data-id="{{$cls->id}}" title="Delete Class" href="#">
+                                                            <!-- <img src="{{ asset('assets/images/delete.png') }}" width="20" class="img-fluid" alt=""> -->
+                                                            <i class="simple-icon-trash view-icon"> </i>
+                                                        </a></span></li>
                                                     </ul>
                                                 </td>
                                                
