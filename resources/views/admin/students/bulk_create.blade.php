@@ -32,7 +32,7 @@
                                 
                             </div>
                             <div class="form-group col-md-7">
-                                <a href="{{ asset('assets/files/Student_Demo_File.xlsx') }}" class="text-info"><b><i class="iconsminds-information" style="font-weight:700;"></i>Click here to download sample file format.</a></b>
+                                <a href="{{ asset('assets/files/Student_Demo_File_New.xlsx') }}" class="text-info"><b><i class="iconsminds-information" style="font-weight:700;"></i>Click here to download sample file format.</a></b>
                             </div>
 
                             <div class="form-group col-md-7 d-flex">
