@@ -989,11 +989,15 @@ class StudentController extends Controller
         $data_array [] = array("Booking Date","Booking Slot","Student Name","Student Code","Teacher Name","Division","Created By","Attended Status","Cancel Status");
         foreach($bookings as $data_item)
         {  
-            if ($data_item->cancelledBy->user_type == 'student'){
-                $name = 'Student';
-            }else {
-                $name = $data_item->cancelledBy->name ?? '';
+            $name = '';
+            if($data_item->cancelledBy){
+                if ($data_item->cancelledBy->user_type == 'student'){
+                    $name = 'Student';
+                }else {
+                    $name = $data_item->cancelledBy->name ?? '';
+                }
             }
+           
             $data_array[] = array(
                 'Booking Date' => $data_item->booking_date,
                 'Booking Slot' => $data_item->slot->slot,
