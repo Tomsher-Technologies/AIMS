@@ -1003,7 +1003,7 @@ class StudentController extends Controller
                 'Division' => $data_item->course_division->title,
                 'Created By' => $data_item->createdBy->name ?? '',
                 'Attended Status' => (($data_item->is_attended) == 1) ? 'Attended' : ((($data_item->is_attended) == 2) ? 'Not Attended' : '-') ,
-                'Cancel Status' => ($data_item->is_cancelled == 1) ? 'Cancelled By'.($name) : '-',
+                'Cancel Status' => ($data_item->is_cancelled == 1) ? 'Cancelled By '.($name) : '-',
             );
         }
         $this->ExportExcel($data_array);
