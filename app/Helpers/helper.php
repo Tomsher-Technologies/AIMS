@@ -102,4 +102,15 @@ if(!function_exists('getStudentActiveCourseDivisions')){
     }
 }
 
+function formatTimeSlot($slotTime){
+    $slotTimeArray = explode(' - ',$slotTime);
+    $slotFrom = $slotTimeArray[0] ?? '';
+    $slotTo = $slotTimeArray[1] ?? '';
+
+    $data['fromTime'] = ($slotFrom != '') ? date("H:i", strtotime($slotFrom)) : NULL;
+    $data['toTime'] = ($slotTo != '') ? date("H:i", strtotime($slotTo)) : NULL;
+
+    return $data;
+}
+
 

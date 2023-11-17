@@ -473,17 +473,26 @@ class ApiAuthController extends Controller
         $user = User::find($student_id);
         if($user->booking_approval == 1){
             if($student_id != '' && $teacher_id != '' && $module_id != '' && $slot_id != '' && $booking_date != '' ){
-                $book = new Bookings();
-                $book->student_id = $student_id;
-                $book->teacher_id = $teacher_id;
-                $book->module_id = $module_id;
-                $book->slot_id = $slot_id;
+
+                $teacherSlots = TeacherSlots::find($slot_id);
+                $slotTime = $teacherSlots->slot ?? '';
+                $timeSlots = formatTimeSlot($slotTime);
+
+                $book               = new Bookings();
+                $book->student_id   = $student_id;
+                $book->teacher_id   = $teacher_id;
+                $book->module_id    = $module_id;
+                $book->slot_id      = $slot_id;
+                $book->from_time    = $timeSlots['fromTime'];
+                $book->to_time      = $timeSlots['toTime'];
                 $book->booking_date = $booking_date;
-                $book->created_by = $student_id;
+                $book->created_by   = $student_id;
                 $book->save();
                 $data = [];
                 if($book->id){
-                    TeacherSlots::where('id',$slot_id)->update(['is_booked' => 1]);
+                    $teacherSlots->is_booked = 1;
+                    $teacherSlots->save();
+                    
                     $bookData = Bookings::with(['course_division','slot','teacher'])->find($book->id);
                     $data['module'] = $bookData->course_division->title;
                     $data['teacher'] = $bookData->teacher->name;

@@ -55,6 +55,13 @@
                     </div>
 
                     <div class="data_card">
+                        <div class="row" style="float: right;margin-right: 10px;">
+                            <ul class="status-indicator" style="display:flex;">
+                                <li class="status ind-attended">Attended By Student</li>
+                                <li class="status ind-not-attended">Not Attended By Student</li>
+                                <li class="status ind-cancelled"> Cancelled Bookings</li>
+                            </ul>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-bordered mb-0">
                                 <thead>
@@ -74,7 +81,17 @@
                                 <tbody>
                                     @if(isset($bookings[0]))
                                         @foreach($bookings as $key => $stud)
-                                            <tr>
+                                            @php
+                                                $trclass = '';
+                                                if($stud->is_attended == 1){
+                                                    $trclass= 'attended';
+                                                }elseif($stud->is_attended == 2){
+                                                    $trclass = 'not-attended';
+                                                }elseif($stud->is_cancelled == 1){
+                                                    $trclass = 'cancelled';
+                                                }
+                                            @endphp
+                                            <tr class="{{ $trclass }}">
                                                 <td>{{ $key + 1 + ($bookings->currentPage() - 1) * $bookings->perPage() }}</td>
                                                 <td>{{ $stud->booking_date }}</td>
                                                 <td>{{ $stud->slot->slot }}</td>
@@ -102,10 +119,17 @@
                                                 </td>
 
                                                 <td class="text-center ">
-                                                    @if($stud->is_cancelled == 0 && ($stud->booking_date >= date('Y-m-d')))
+                                                    @if(($stud->is_cancelled == 0 && $stud->is_attended == 0 ) && ($stud->booking_date >= date('Y-m-d')))
                                                         <button class="btn btn-danger pending mt-1 " onclick="cancelBooking({{$stud->id}})"><span class="label label-danger">Cancel Booking</span> </button>
                                                     @elseif($stud->is_cancelled == 1)
-                                                        <span class="error">Cancelled By {{ $stud->cancelledBy->name ?? ''}}</span>
+                                                        @php
+                                                            if ($stud->cancelledBy->user_type == 'student'){
+                                                                $name = 'Student';
+                                                            }else {
+                                                                $name = $stud->cancelledBy->name ?? '';
+                                                            }
+                                                        @endphp
+                                                        <span class="error">Cancelled By {{ $name }}</span>
                                                     @else
                                                     <span class="success">Not Cancelled</span>
                                                     @endif
@@ -133,6 +157,54 @@
 </div>
 @endsection
 @section('header')
+    <style>
+        .status-indicator {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .status {
+            &.ind-attended:before {
+                background-color: #c7ffc1;
+                border-color: #2bd019;
+                box-shadow: 0px 0px 4px 1px #2bd019;
+            }
+
+            &.ind-not-attended:before {
+                background-color: #ffdab5;
+                border-color: #ed9135;
+                box-shadow: 0px 0px 4px 1px #ed9135;
+            }
+            
+            &.ind-cancelled:before {
+                background-color: #fcc9ca;
+                border-color: #d22d30;
+                box-shadow: 0px 0px 4px 1px #d22d30;
+            }
+
+            &:before {
+                content: ' ';
+                display: inline-block;
+                width: 15px;
+                height: 15px;
+                margin-right: 5px;
+                margin-left: 10px;
+                border: 1px solid #000;
+                border-radius: 7px;
+                margin-bottom: -2px;
+            }
+        }
+        .attended{
+            background-color: #21ff0640 !important;
+        }
+        .cancelled{
+            background-color: #f0000436 !important;
+        }
+        .not-attended{
+            background-color: #ff7e004a !important;
+        }
+    </style>
 @endsection
 @section('footer')
 <script type="text/javascript">
