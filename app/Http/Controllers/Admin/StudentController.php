@@ -464,10 +464,10 @@ class StudentController extends Controller
         if ($request->has('date_search')) {
             $date_search = $request->date_search;
         }
-
+       
         $query = Bookings::with(['student','student_details','teacher','course_division','slot','cancelledBy','createdBy'])
                 ->where('is_deleted',0)
-                ->orderBy('id','DESC');
+                ->orderBy('booking_date','DESC')->orderBy('from_time','ASC');
         if(Auth::user()->user_type == 'staff'){
             $query->where('teacher_id', Auth::user()->id);
         }
@@ -636,22 +636,29 @@ class StudentController extends Controller
             "teacher.*"     =>'Available teacher field is required.',
             "slot.*"        =>'Time slot field is required.'
         ]);
-        
+
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $book = new Bookings();
-        $book->student_id = $request->student;
-        $book->teacher_id = $request->teacher;
-        $book->module_id = $request->course_division;
-        $book->slot_id = $request->slot;
+        $teacherSlots = TeacherSlots::find($request->slot);
+        $slotTime = $teacherSlots->slot ?? '';
+        $timeSlots = formatTimeSlot($slotTime);
+
+        $book               = new Bookings();
+        $book->student_id   = $request->student;
+        $book->teacher_id   = $request->teacher;
+        $book->module_id    = $request->course_division;
+        $book->slot_id      = $request->slot;
+        $book->from_time    = $timeSlots['fromTime'];
+        $book->to_time      = $timeSlots['toTime'];
         $book->booking_date = $request->book_date;
-        $book->created_by = Auth::user()->id;
+        $book->created_by   = Auth::user()->id;
         $book->save();
 
         if($book->id){
-            TeacherSlots::where('id',$request->slot)->update(['is_booked' => 1]);
+            $teacherSlots->is_booked = 1;
+            $teacherSlots->save();
         }
 
         flash('Booking has been created successfully')->success();
