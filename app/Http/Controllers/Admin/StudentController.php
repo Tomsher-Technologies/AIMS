@@ -960,7 +960,7 @@ class StudentController extends Controller
 
         $query = Bookings::with(['student','student_details','teacher','course_division','slot','cancelledBy','createdBy'])
                 ->where('is_deleted',0)
-                ->orderBy('id','DESC');
+                ->orderBy('booking_date','DESC')->orderBy('from_time','ASC');
         if(Auth::user()->user_type == 'staff'){
             $query->where('teacher_id', Auth::user()->id);
         }
