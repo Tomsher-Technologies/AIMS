@@ -474,34 +474,39 @@ class ApiAuthController extends Controller
         if($user->booking_approval == 1){
             if($student_id != '' && $teacher_id != '' && $module_id != '' && $slot_id != '' && $booking_date != '' ){
 
-                $teacherSlots = TeacherSlots::find($slot_id);
-                $slotTime = $teacherSlots->slot ?? '';
-                $timeSlots = formatTimeSlot($slotTime);
+                $teacherSlots = TeacherSlots::where('is_booked',0)->where('is_deleted',0)->find($slot_id);
 
-                $book               = new Bookings();
-                $book->student_id   = $student_id;
-                $book->teacher_id   = $teacher_id;
-                $book->module_id    = $module_id;
-                $book->slot_id      = $slot_id;
-                $book->from_time    = $timeSlots['fromTime'];
-                $book->to_time      = $timeSlots['toTime'];
-                $book->booking_date = $booking_date;
-                $book->created_by   = $student_id;
-                $book->save();
-                $data = [];
-                if($book->id){
-                    $teacherSlots->is_booked = 1;
-                    $teacherSlots->save();
-                    
-                    $bookData = Bookings::with(['course_division','slot','teacher'])->find($book->id);
-                    $data['module'] = $bookData->course_division->title;
-                    $data['teacher'] = $bookData->teacher->name;
-                    $data['slot'] = $bookData->slot->slot;
-                    $data['date'] = $bookData->booking_date;
+                if($teacherSlots){
+                    $slotTime = $teacherSlots->slot ?? '';
+                    $timeSlots = formatTimeSlot($slotTime);
 
-                    return response()->json([ 'status' => true, 'message' => 'Successfully Booked', 'data' => $data]);
+                    $book               = new Bookings();
+                    $book->student_id   = $student_id;
+                    $book->teacher_id   = $teacher_id;
+                    $book->module_id    = $module_id;
+                    $book->slot_id      = $slot_id;
+                    $book->from_time    = $timeSlots['fromTime'];
+                    $book->to_time      = $timeSlots['toTime'];
+                    $book->booking_date = $booking_date;
+                    $book->created_by   = $student_id;
+                    $book->save();
+                    $data = [];
+                    if($book->id){
+                        $teacherSlots->is_booked = 1;
+                        $teacherSlots->save();
+                        
+                        $bookData = Bookings::with(['course_division','slot','teacher'])->find($book->id);
+                        $data['module'] = $bookData->course_division->title;
+                        $data['teacher'] = $bookData->teacher->name;
+                        $data['slot'] = $bookData->slot->slot;
+                        $data['date'] = $bookData->booking_date;
+
+                        return response()->json([ 'status' => true, 'message' => 'Successfully Booked', 'data' => $data]);
+                    }else{
+                        return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
+                    }
                 }else{
-                    return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
+                    return response()->json([ 'status' => false, 'message' => 'Selected slot not available', 'data' => []]);
                 }
             }else{
                 return response()->json([ 'status' => false, 'message' => 'Booking failed', 'data' => []]);
